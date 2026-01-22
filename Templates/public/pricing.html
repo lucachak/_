@@ -1,0 +1,331 @@
+{% extends 'base.html' %} {% block title %}Serviços e Preços - EletricBike{%endblock %} {% block extra_css %}
+<style>
+  .pricing-header {
+    background: linear-gradient(135deg, #0a1929 0%, #1a2942 100%);
+    padding: 6rem 0 8rem; /* Extra padding bottom for overlap */
+    color: white;
+    text-align: center;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+
+  .pricing-cards-container {
+    margin-top: -6rem;
+    padding-bottom: 4rem;
+  }
+
+  .pricing-card {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    position: relative;
+    transition: all 0.3s;
+    height: 100%;
+    border: 2px solid transparent;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 25px 50px rgba(0, 212, 255, 0.2);
+  }
+
+  .pricing-card.recommended {
+    border-color: var(--accent-color);
+    transform: scale(1.05);
+    z-index: 2;
+  }
+
+  .pricing-card.recommended:hover {
+    transform: scale(1.05) translateY(-10px);
+  }
+
+  .badge-recommended {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      var(--accent-color) 100%
+    );
+    color: #0a1929;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+  }
+
+  .price-tag {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--secondary-color);
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .price-tag small {
+    font-size: 1rem;
+    color: #999;
+    font-weight: 400;
+  }
+
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2.5rem;
+    text-align: left;
+  }
+
+  .feature-list li {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    color: #555;
+  }
+
+  .feature-list i {
+    color: var(--accent-color);
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .feature-list li.disabled {
+    color: #ccc;
+    text-decoration: line-through;
+  }
+
+  .feature-list li.disabled i {
+    color: #ccc;
+  }
+
+  .services-table-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+  }
+
+  .custom-table {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .custom-table th {
+    background: var(--secondary-color);
+    color: white;
+    padding: 1.2rem;
+    font-weight: 600;
+    border: none;
+  }
+
+  .custom-table td {
+    padding: 1.2rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="pricing-header">
+  <div class="container">
+    <h1 class="fw-bold mb-3" style="font-size: 3.5rem">Planos de Manutenção</h1>
+    <p class="lead opacity-75">
+      Mantenha sua elétrica rodando como nova. Transparência total, sem
+      surpresas.
+    </p>
+  </div>
+</div>
+
+<section class="pricing-cards-container">
+  <div class="container">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-4">
+        <div class="pricing-card">
+          <h3 class="fw-bold text-secondary">Revisão Básica</h3>
+          <p class="text-muted">Ideal para manutenção preventiva mensal.</p>
+          <div class="price-tag">R$ 120 <small>/ serviço</small></div>
+          <ul class="feature-list">
+            <li><i class="fas fa-check"></i> Regulagem de freios</li>
+            <li><i class="fas fa-check"></i> Regulagem de câmbio</li>
+            <li><i class="fas fa-check"></i> Lubrificação da corrente</li>
+            <li><i class="fas fa-check"></i> Reaperto geral de parafusos</li>
+            <li><i class="fas fa-check"></i> Calibragem de pneus</li>
+            <li class="disabled">
+              <i class="fas fa-times"></i> Diagnóstico de Bateria
+            </li>
+            <li class="disabled">
+              <i class="fas fa-times"></i> Limpeza Detalhada
+            </li>
+          </ul>
+          <a
+            href="/agendar?plano=basico"
+            class="btn btn-outline-custom w-100 rounded-pill py-3 fw-bold"
+            >Agendar Agora</a
+          >
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="pricing-card recommended">
+          <div class="badge-recommended">MAIS POPULAR</div>
+          <h3 class="fw-bold text-secondary">Revisão Gold</h3>
+          <p class="text-muted">O cuidado completo que sua bike merece.</p>
+          <div class="price-tag">R$ 250 <small>/ serviço</small></div>
+          <ul class="feature-list">
+            <li>
+              <i class="fas fa-check"></i> <strong>Tudo do plano Básico</strong>
+            </li>
+            <li><i class="fas fa-check"></i> Limpeza técnica detalhada</li>
+            <li><i class="fas fa-check"></i> Alinhamento de rodas</li>
+            <li>
+              <i class="fas fa-check"></i> Limpeza do sistema de transmissão
+            </li>
+            <li><i class="fas fa-check"></i> Diagnóstico elétrico simples</li>
+            <li>
+              <i class="fas fa-check"></i> Atualização de Firmware (se disp.)
+            </li>
+            <li class="disabled">
+              <i class="fas fa-times"></i> Desmontagem motor
+            </li>
+          </ul>
+          <a
+            href="/agendar?plano=gold"
+            class="btn btn-primary-custom w-100 rounded-pill py-3 fw-bold"
+            >Agendar Agora</a
+          >
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="pricing-card">
+          <h3 class="fw-bold text-secondary">Platinum Tech</h3>
+          <p class="text-muted">Restauração e performance máxima.</p>
+          <div class="price-tag">R$ 450 <small>/ serviço</small></div>
+          <ul class="feature-list">
+            <li>
+              <i class="fas fa-check"></i> <strong>Tudo do plano Gold</strong>
+            </li>
+            <li>
+              <i class="fas fa-check"></i> Desmontagem completa (Overhaul)
+            </li>
+            <li><i class="fas fa-check"></i> Teste de capacidade da bateria</li>
+            <li>
+              <i class="fas fa-check"></i> Lubrificação de cubos e mov. central
+            </li>
+            <li><i class="fas fa-check"></i> Higienização profunda</li>
+            <li><i class="fas fa-check"></i> Relatório técnico digital</li>
+            <li>
+              <i class="fas fa-check"></i> Troca de cabos inclusa (mão de obra)
+            </li>
+          </ul>
+          <a
+            href="/agendar?plano=platinum"
+            class="btn btn-outline-custom w-100 rounded-pill py-3 fw-bold"
+            >Agendar Agora</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="services-table-section">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5" style="color: var(--secondary-color)">
+      Serviços Avulsos
+    </h2>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="custom-table">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th width="60%">Serviço</th>
+                <th width="20%">Tempo Estimado</th>
+                <th width="20%">Valor*</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Troca de Câmara de Ar</strong><br /><small
+                    class="text-muted"
+                    >Dianteira ou Traseira (não inclui a peça)</small
+                  >
+                </td>
+                <td>30 min</td>
+                <td class="fw-bold text-primary">R$ 35,00</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Sangria de Freio Hidráulico</strong><br /><small
+                    class="text-muted"
+                    >Por roda, inclui fluido mineral/DOT</small
+                  >
+                </td>
+                <td>45 min</td>
+                <td class="fw-bold text-primary">R$ 80,00</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Diagnóstico de Bateria (Load Test)</strong
+                  ><br /><small class="text-muted"
+                    >Teste de descarga real e balanceamento</small
+                  >
+                </td>
+                <td>24 horas</td>
+                <td class="fw-bold text-primary">R$ 150,00</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Troca de Módulo Controlador</strong><br /><small
+                    class="text-muted"
+                    >Instalação e configuração de fiação</small
+                  >
+                </td>
+                <td>2 horas</td>
+                <td class="fw-bold text-primary">R$ 180,00</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Montagem de Bike Nova</strong><br /><small
+                    class="text-muted"
+                    >Tirada da caixa (Box)</small
+                  >
+                </td>
+                <td>1h 30min</td>
+                <td class="fw-bold text-primary">R$ 140,00</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="p-3 bg-light text-muted small text-end">
+            * Valores sujeitos a alteração conforme modelo da bicicleta. Peças
+            não inclusas.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 text-center">
+  <div class="container">
+    <h3 class="fw-bold mb-3">Dúvidas sobre o orçamento?</h3>
+    <p class="text-muted mb-4">
+      Envie uma foto ou vídeo do problema no nosso WhatsApp e receba uma prévia.
+    </p>
+    <a
+      href="https://wa.me/seunumero"
+      class="btn btn-success btn-lg rounded-pill px-5"
+    >
+      <i class="fab fa-whatsapp"></i> Falar com Técnico
+    </a>
+  </div>
+</section>
+
+{% endblock %}

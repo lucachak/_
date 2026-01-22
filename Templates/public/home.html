@@ -1,0 +1,456 @@
+{% extends 'base.html' %}
+{% block title %}EletricBike - A Revolução da Sua Bicicleta{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #00d4ff;
+        --secondary: #00ff88;
+        --dark-bg: #0f172a;
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-glow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif; /* Fonte mais moderna se disponível, ou fallback */
+        background-color: #f8fafc;
+    }
+
+    /* --- HERO SECTION PREMIUM --- */
+    .hero-wrapper {
+        position: relative;
+        background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+        padding: 8rem 0 6rem;
+        overflow: hidden;
+        color: white;
+    }
+
+    /* Efeitos de Fundo Abstratos */
+    .hero-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.4;
+        animation: floatOrb 10s infinite alternate;
+    }
+    .orb-1 { width: 300px; height: 300px; background: var(--primary); top: -10%; right: -5%; }
+    .orb-2 { width: 400px; height: 400px; background: var(--secondary); bottom: -10%; left: -10%; animation-delay: -5s; }
+
+    @keyframes floatOrb { from { transform: translate(0, 0); } to { transform: translate(30px, 50px); } }
+
+    .hero-content { position: relative; z-index: 10; }
+
+    .hero-badge {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+    }
+
+    .hero-title {
+        font-size: 4.5rem;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(to right, #fff, #cbd5e1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-highlight {
+        color: transparent;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+    }
+    
+    /* Sublinhado animado */
+    .hero-highlight::after {
+        content: '';
+        position: absolute;
+        left: 0; bottom: 5px;
+        width: 100%; height: 8px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        opacity: 0.3;
+        z-index: -1;
+        border-radius: 4px;
+    }
+
+    .cta-button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border: none;
+        color: #0f172a;
+        font-weight: 800;
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-button:hover {
+        transform: scale(1.05) translateY(-3px);
+        box-shadow: 0 20px 40px rgba(0, 255, 136, 0.4);
+    }
+
+    /* --- GLASS CARDS (Serviços) --- */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 24px;
+        padding: 2.5rem;
+        height: 100%;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-10px);
+        background: white;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+        border-color: var(--primary);
+    }
+
+    .popular-tag {
+        position: absolute;
+        top: 20px; right: 20px;
+        background: linear-gradient(135deg, #00d4ff, #0066ff);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0, 100, 255, 0.3);
+    }
+
+    /* --- COMPARISON TABLE (A Lógica) --- */
+    .comparison-section {
+        background: #0f172a;
+        color: white;
+        position: relative;
+    }
+    
+    .comparison-table {
+        background: rgba(255,255,255,0.03);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .comp-header { padding: 1.5rem; font-weight: bold; text-align: center; font-size: 1.2rem; }
+    .comp-row { display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .comp-cell { flex: 1; padding: 1.5rem; text-align: center; display: flex; align-items: center; justify-content: center; }
+    .comp-cell:first-child { justify-content: flex-start; text-align: left; font-weight: 600; color: #94a3b8; flex: 0.8; }
+    
+    .bg-win { background: rgba(0, 255, 136, 0.1); color: #00ff88; font-weight: bold; position: relative; }
+    .bg-lose { opacity: 0.6; }
+
+    /* --- FLOATING WHATSAPP --- */
+    .floating-wpp {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #25D366;
+        color: white;
+        width: 60px; height: 60px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 30px;
+        box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4);
+        z-index: 1000;
+        transition: all 0.3s;
+        animation: pulse 2s infinite;
+    }
+    .floating-wpp:hover { transform: scale(1.1); color: white; }
+
+    /* --- RESPONSIVIDADE --- */
+    @media (max-width: 991px) {
+        .hero-title { font-size: 3rem; }
+        .hero-wrapper { text-align: center; padding-top: 6rem; }
+        .hero-img-container { margin-top: 3rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="hero-wrapper">
+    <div class="hero-orb orb-1"></div>
+    <div class="hero-orb orb-2"></div>
+
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-badge">
+                    <i class="fas fa-bolt me-2"></i> Economia Inteligente
+                </div>
+                <h1 class="hero-title">
+                    Sua Bike. <br>
+                    Só que <span class="hero-highlight">Poderosa.</span>
+                </h1>
+                <p class="hero-subtitle mb-4">
+                    Transformamos sua bicicleta comum em elétrica em 48 horas. 
+                    Economize até <strong>R$ 3.000,00</strong> comparado a comprar uma nova.
+                </p>
+                
+                <div class="d-flex gap-3 flex-column flex-sm-row justify-content-center justify-content-lg-start">
+                    <a href="#servicos" class="cta-button shadow-lg text-decoration-none text-center">
+                        Ver Kits de Conversão <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                    <a href="#comparativo" class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold d-flex align-items-center justify-content-center">
+                        <i class="fas fa-calculator me-2"></i> Ver Comparativo
+                    </a>
+                </div>
+
+                <div class="mt-5 pt-4 border-top border-white border-opacity-10 d-flex gap-5 justify-content-center justify-content-lg-start">
+                    <div>
+                        <h3 class="fw-bold mb-0 text-white">500+</h3>
+                        <small class="text-white-50">Bikes Convertidas</small>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0 text-white">1 Ano</h3>
+                        <small class="text-white-50">Garantia Total</small>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0 text-white">4.9/5</h3>
+                        <small class="text-white-50">Avaliação Google</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 hero-img-container">
+                <div class="position-relative">
+                    <div class="position-absolute top-50 start-50 translate-middle bg-white bg-opacity-10 rounded-circle" 
+                         style="width: 500px; height: 500px; filter: blur(60px); z-index: -1;"></div>
+                    
+                    <img src="https://images.unsplash.com/photo-1571068316344-75bc76f778f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Bike Elétrica Conversão" 
+                         class="img-fluid rounded-4 shadow-lg" 
+                         style="transform: rotate(-2deg); border: 2px solid rgba(255,255,255,0.1);">
+                    
+                    <div class="position-absolute bottom-0 start-0 bg-white text-dark p-3 rounded-4 shadow-lg mb-4 ms-n4 d-none d-md-block" style="transform: rotate(2deg);">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success text-white rounded-circle p-2">
+                                <i class="fas fa-wallet fa-lg"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Economia Média</small>
+                                <span class="fw-black fs-5">R$ 250/mês</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section id="servicos" class="py-5" style="background: #f8fafc;">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-black display-6 mb-3 text-secondary">Escolha sua Potência</h2>
+            <p class="text-muted lead mx-auto" style="max-width: 600px;">
+                Temos o kit ideal para o seu trajeto. Instalação profissional com acabamento de fábrica.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="glass-card">
+                    <div class="mb-4">
+                        <i class="fas fa-city fa-3x text-info mb-3"></i>
+                        <h3 class="fw-bold">Kit Urbano 350W</h3>
+                        <p class="text-muted small">Perfeito para fugir do trânsito e chegar no trabalho sem suar.</p>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2 d-flex align-items-center text-secondary"><i class="fas fa-check-circle text-success me-2"></i> Autonomia: 35-40km</li>
+                        <li class="mb-2 d-flex align-items-center text-secondary"><i class="fas fa-check-circle text-success me-2"></i> Vel. Máx: 25km/h</li>
+                        <li class="mb-2 d-flex align-items-center text-secondary"><i class="fas fa-check-circle text-success me-2"></i> Bateria Removível</li>
+                    </ul>
+                    <div class="d-flex align-items-end mb-4">
+                        <h2 class="fw-bold mb-0 text-dark">R$ 1.890</h2>
+                        <span class="text-muted ms-2 mb-1">instalado</span>
+                    </div>
+                    <a href="#contato" class="btn btn-outline-dark rounded-pill w-100 fw-bold">Quero este Kit</a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="glass-card border-primary shadow-lg" style="background: white;">
+                    <div class="popular-tag">MAIS VENDIDO</div>
+                    <div class="mb-4">
+                        <i class="fas fa-tachometer-alt fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold">Kit Sport 750W</h3>
+                        <p class="text-muted small">Potência de sobra para subidas íngremes e trajetos longos.</p>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2 d-flex align-items-center fw-bold text-dark"><i class="fas fa-check-circle text-primary me-2"></i> Autonomia: 60km+</li>
+                        <li class="mb-2 d-flex align-items-center fw-bold text-dark"><i class="fas fa-check-circle text-primary me-2"></i> Vel. Máx: 45km/h</li>
+                        <li class="mb-2 d-flex align-items-center fw-bold text-dark"><i class="fas fa-check-circle text-primary me-2"></i> Display LCD Avançado</li>
+                    </ul>
+                    <div class="d-flex align-items-end mb-4">
+                        <h2 class="fw-bold mb-0 text-primary">R$ 2.990</h2>
+                        <span class="text-muted ms-2 mb-1">instalado</span>
+                    </div>
+                    <a href="#contato" class="btn btn-primary rounded-pill w-100 fw-bold py-2 shadow">Quero Potência Máxima</a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="glass-card">
+                    <div class="mb-4">
+                        <i class="fas fa-tools fa-3x text-secondary mb-3"></i>
+                        <h3 class="fw-bold">Manutenção Especializada</h3>
+                        <p class="text-muted small">Doutores em baterias e motores elétricos.</p>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2 d-flex align-items-center text-secondary"><i class="fas fa-wrench text-muted me-2"></i> Reparo de Baterias Lítio</li>
+                        <li class="mb-2 d-flex align-items-center text-secondary"><i class="fas fa-wrench text-muted me-2"></i> Diagnóstico de Módulos</li>
+                        <li class="mb-2 d-flex align-items-center text-secondary"><i class="fas fa-wrench text-muted me-2"></i> Revisão Mecânica Geral</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="#contato" class="btn btn-outline-secondary rounded-pill w-100 fw-bold">Agendar Visita</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="comparativo" class="comparison-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <span class="text-info fw-bold text-uppercase small ls-2">Por que converter?</span>
+                    <h2 class="fw-bold text-white mt-2">Os números não mentem</h2>
+                </div>
+
+                <div class="comparison-table">
+                    <div class="comp-row bg-white bg-opacity-10">
+                        <div class="comp-cell text-white">Comparativo</div>
+                        <div class="comp-cell text-white">Bike Elétrica Nova</div>
+                        <div class="comp-cell bg-win text-white">Conversão EletricBike</div>
+                    </div>
+                    <div class="comp-row">
+                        <div class="comp-cell">Custo Médio</div>
+                        <div class="comp-cell bg-lose text-danger fw-bold">R$ 5.000 - R$ 12.000</div>
+                        <div class="comp-cell bg-win">A partir de R$ 1.890</div>
+                    </div>
+                    <div class="comp-row">
+                        <div class="comp-cell">Qualidade das Peças</div>
+                        <div class="comp-cell bg-lose">Muitas vezes genéricas</div>
+                        <div class="comp-cell bg-win">Você mantém sua bike Shimano/Trek/etc</div>
+                    </div>
+                    <div class="comp-row">
+                        <div class="comp-cell">Segurança (Roubo)</div>
+                        <div class="comp-cell bg-lose">Muito visada</div>
+                        <div class="comp-cell bg-win">Discreta (parece comum)</div>
+                    </div>
+                    <div class="comp-row border-0">
+                        <div class="comp-cell">Manutenção</div>
+                        <div class="comp-cell bg-lose">Peças proprietárias caras</div>
+                        <div class="comp-cell bg-win">Peças padrão de mercado</div>
+                    </div>
+                </div>
+                
+                <p class="text-center text-white-50 mt-4 small">
+                    * Dados baseados em média de mercado para e-bikes de entrada vs. nosso Kit Urbano.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="contato" class="py-5 bg-white">
+    <div class="container py-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <h2 class="display-6 fw-bold mb-4 text-dark">Vamos transformar sua bike?</h2>
+                <p class="lead text-muted mb-4">
+                    Preencha o formulário para uma <strong>avaliação técnica gratuita</strong>. Nossos especialistas dirão exatamente qual kit serve no seu quadro.
+                </p>
+                
+                <div class="d-flex align-items-center mb-4 p-3 bg-light rounded-4">
+                    <div class="bg-white p-3 rounded-circle shadow-sm me-3 text-success">
+                        <i class="fab fa-whatsapp fa-2x"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold">Resposta Rápida</small>
+                        <h5 class="mb-0 fw-bold text-dark">(13) 99999-9999</h5>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center p-3 bg-light rounded-4">
+                    <div class="bg-white p-3 rounded-circle shadow-sm me-3 text-primary">
+                        <i class="fas fa-map-marker-alt fa-2x"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold">Oficina / Showroom</small>
+                        <h5 class="mb-0 fw-bold text-dark">Av. Pres. Kennedy, Praia Grande</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="bg-white p-5 rounded-5 shadow-lg border border-light position-relative">
+                    <div class="position-absolute top-0 end-0 m-4 text-muted opacity-25">
+                        <i class="fas fa-bicycle fa-4x"></i>
+                    </div>
+                    
+                    <h4 class="fw-bold mb-4">Solicitar Orçamento</h4>
+                    <form>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-secondary">Nome Completo</label>
+                                <input type="text" class="form-control form-control-lg bg-light border-0" placeholder="Ex: Lucas Silva">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-secondary">WhatsApp</label>
+                                <input type="text" class="form-control form-control-lg bg-light border-0" placeholder="(13) 00000-0000">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold small text-secondary">Modelo da Bike (Se souber)</label>
+                                <input type="text" class="form-control form-control-lg bg-light border-0" placeholder="Ex: Caloi Aluminum, Sense, GT...">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold small text-secondary">Interesse Principal</label>
+                                <select class="form-select form-select-lg bg-light border-0">
+                                    <option>Kit Urbano (Trabalho/Dia a dia)</option>
+                                    <option>Kit Performance (Esporte)</option>
+                                    <option>Manutenção em Bike Elétrica</option>
+                                    <option>Ainda tenho dúvidas</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="cta-button w-100 shadow text-white">
+                                    Enviar Solicitação <i class="fas fa-paper-plane ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<a href="https://wa.me/5513999999999" target="_blank" class="floating-wpp" title="Fale conosco no WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+{% endblock %}

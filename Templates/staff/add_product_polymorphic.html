@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="h3 text-secondary fw-bold">
+                    {% if fixed_type == 'BIKE' %}<i class="fas fa-bicycle me-2"></i>
+                    {% elif fixed_type == 'SERVICE' %}<i class="fas fa-tools me-2"></i>
+                    {% elif fixed_type == 'COMPONENT' %}<i class="fas fa-microchip me-2"></i>
+                    {% else %}<i class="fas fa-box me-2"></i>{% endif %}
+                    {{ page_title }}
+                </h2>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">Voltar ao Painel</a>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <h5 class="text-primary mb-3 fw-bold border-bottom pb-2">Dados Gerais</h5>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Nome</label>
+                                {{ product_form.name }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">SKU (Código)</label>
+                                {{ product_form.sku }}
+                            </div>
+                            
+                            <div class="col-md-6" {% if fixed_type %}style="display:none;"{% endif %}>
+                                <label class="form-label">Tipo de Produto</label>
+                                {{ product_form.product_type }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Categoria</label>
+                                {{ product_form.category }}
+                            </div>
+
+                            <div class="col-12"></div> <div class="col-md-4">
+                                <label class="form-label">Preço de Custo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    {{ product_form.cost_price }}
+                                </div>
+                                {% if fixed_type == 'SERVICE' %}
+                                    <small class="text-muted">Custo hora/técnico (opcional)</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Preço de Venda</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    {{ product_form.selling_price }}
+                                </div>
+                            </div>
+
+                            {% if fixed_type != 'SERVICE' %}
+                            <div class="col-md-4">
+                                <label class="form-label">Estoque Inicial</label>
+                                {{ product_form.stock_quantity }}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="col-12">
+                                <label class="form-label">Descrição / Detalhes</label>
+                                {{ product_form.description }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Imagem Principal</label>
+                                {{ product_form.main_image }}
+                            </div>
+
+                            <div class="col-12 mt-3 d-flex gap-4">
+                                <div class="form-check form-switch">
+                                    {{ product_form.is_active }}
+                                    <label class="form-check-label">Ativo no Site</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ product_form.is_featured }}
+                                    <label class="form-check-label">Destaque na Home</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if fixed_type != 'SERVICE' %}
+                        <h5 class="text-primary mt-5 mb-3 fw-bold border-bottom pb-2">
+                            Especificações Técnicas
+                        </h5>
+                        
+                        <div class="bg-light p-4 rounded-3 border">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Voltagem (V)</label>
+                                    {{ spec_form.voltage }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Amperagem (Ah)</label>
+                                    {{ spec_form.amperage }}
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label class="form-label">Potência (W)</label>
+                                    {{ spec_form.wattage }}
+                                </div>
+
+                                {% if fixed_type == 'BIKE' %}
+                                <div class="col-md-6">
+                                    <label class="form-label">Autonomia (Estimada)</label>
+                                    {{ spec_form.range_estimate }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Velocidade Máx.</label>
+                                    {{ spec_form.max_speed }}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Peso (Kg)</label>
+                                    {{ spec_form.weight }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Material / Dimensões</label>
+                                    {{ spec_form.material }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold">
+                                <i class="fas fa-save me-2"></i> Salvar {{ fixed_type|default:"Produto" }}
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

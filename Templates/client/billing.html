@@ -1,0 +1,770 @@
+{% extends 'base.html' %}
+
+{% block title %}Meus Pagamentos - EletricBike{% endblock %}
+
+{% block extra_css %}
+<style>
+    .billing-container {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 3rem 0;
+    }
+
+    .billing-header {
+        background: linear-gradient(135deg, var(--secondary-color) 0%, #1a2942 100%);
+        color: white;
+        padding: 3rem 0;
+        border-radius: 25px;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .billing-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 50%, rgba(0,212,255,0.15) 0%, transparent 50%);
+    }
+
+    .billing-header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .billing-title {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+    }
+
+    .billing-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    /* Payment Methods */
+    .payment-methods {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+    }
+
+    .payment-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .payment-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        position: relative;
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .payment-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(102,126,234,0.4);
+    }
+
+    .payment-card.visa {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+
+    .payment-card.mastercard {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    }
+
+    .payment-card.elo {
+        background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .card-brand {
+        font-size: 1.5rem;
+        font-weight: 900;
+    }
+
+    .card-chip {
+        width: 50px;
+        height: 40px;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        border-radius: 8px;
+    }
+
+    .card-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-holder {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .card-expiry {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .card-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 900;
+    }
+
+    .add-card {
+        background: #f8f9fa;
+        border: 3px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .add-card:hover {
+        background: white;
+        border-color: var(--primary-color);
+        transform: translateY(-10px);
+    }
+
+    .add-card i {
+        font-size: 3rem;
+        color: var(--primary-color);
+    }
+
+    .add-card span {
+        font-weight: 700;
+        color: var(--secondary-color);
+    }
+
+    /* Invoice History */
+    .invoice-history {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .filter-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.8rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    .invoice-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .invoice-table thead th {
+        background: #f8f9fa;
+        padding: 1.2rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .invoice-table thead th:first-child {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .invoice-table thead th:last-child {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .invoice-table tbody td {
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: #555;
+    }
+
+    .invoice-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .invoice-id {
+        font-weight: 900;
+        color: var(--secondary-color);
+    }
+
+    .invoice-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-block;
+    }
+
+    .invoice-status.paid {
+        background: rgba(0,255,136,0.2);
+        color: #00a854;
+    }
+
+    .invoice-status.pending {
+        background: rgba(255,193,7,0.2);
+        color: #e68900;
+    }
+
+    .invoice-status.overdue {
+        background: rgba(255,107,107,0.2);
+        color: #cc0000;
+    }
+
+    .invoice-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.85rem;
+    }
+
+    .action-btn.download {
+        background: rgba(0,212,255,0.1);
+        color: var(--primary-color);
+    }
+
+    .action-btn.view {
+        background: rgba(102,126,234,0.1);
+        color: #667eea;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Payment Stats */
+    .payment-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 5px solid var(--primary-color);
+        transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,212,255,0.2);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .stat-change.positive {
+        color: #00ff88;
+    }
+
+    .stat-change.negative {
+        color: #ff6b6b;
+    }
+
+    /* Subscription Plans */
+    .subscription-section {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .current-plan {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .plan-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .plan-name {
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    .plan-badge {
+        background: rgba(255,255,255,0.3);
+        padding: 0.6rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 900;
+    }
+
+    .plan-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+    }
+
+    .plan-detail {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .plan-detail-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-detail-value {
+        font-size: 1.5rem;
+        font-weight: 900;
+    }
+
+    @media (max-width: 768px) {
+        .billing-title {
+            font-size: 2rem;
+        }
+
+        .payment-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .invoice-table {
+            font-size: 0.85rem;
+        }
+
+        .invoice-actions {
+            flex-direction: column;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="billing-container">
+    <div class="container">
+        <!-- Header -->
+        <div class="billing-header">
+            <div class="container billing-header-content">
+                <h1 class="billing-title">
+                    <i class="fas fa-wallet"></i> Meus Pagamentos
+                </h1>
+                <p class="billing-subtitle">
+                    Gerencie seus métodos de pagamento, faturas e assinaturas
+                </p>
+            </div>
+        </div>
+
+        <!-- Payment Stats -->
+        <div class="payment-stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Gasto</div>
+                <div class="stat-value">R$ 24.450</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +18% vs mês passado
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Faturas Pagas</div>
+                <div class="stat-value">32</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check-circle"></i> Todas em dia
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Próximo Vencimento</div>
+                <div class="stat-value">R$ 899</div>
+                <div class="stat-change">
+                    <i class="fas fa-calendar"></i> 25/01/2026
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Economia Total</div>
+                <div class="stat-value">R$ 3.240</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-percentage"></i> 12% de desconto
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Subscription -->
+        <div class="subscription-section">
+            <h2 class="section-title">
+                <i class="fas fa-crown"></i> Assinatura Atual
+            </h2>
+
+            <div class="current-plan">
+                <div class="plan-header">
+                    <h3 class="plan-name">Plano Premium</h3>
+                    <span class="plan-badge">Ativo</span>
+                </div>
+                <div class="plan-details">
+                    <div class="plan-detail">
+                        <span class="plan-detail-label">Valor Mensal</span>
+                        <span class="plan-detail-value">R$ 899/mês</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span class="plan-detail-label">Próxima Cobrança</span>
+                        <span class="plan-detail-value">25/01/2026</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span class="plan-detail-label">Manutenções Restantes</span>
+                        <span class="plan-detail-value">2 de 4</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span class="plan-detail-label">Desconto Ativo</span>
+                        <span class="plan-detail-value">20% em peças</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn-primary-custom">
+                    <i class="fas fa-arrow-up"></i> Fazer Upgrade
+                </button>
+                <button class="btn-primary-custom" style="background: linear-gradient(135deg, #666 0%, #999 100%);">
+                    <i class="fas fa-edit"></i> Alterar Plano
+                </button>
+                <button class="btn-primary-custom" style="background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);">
+                    <i class="fas fa-times-circle"></i> Cancelar Assinatura
+                </button>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <h2 class="section-title">
+                <i class="fas fa-credit-card"></i> Métodos de Pagamento
+            </h2>
+
+            <div class="payment-cards">
+                <div class="payment-card visa">
+                    <span class="card-badge">Principal</span>
+                    <div class="card-header">
+                        <div class="card-brand">VISA</div>
+                        <div class="card-chip"></div>
+                    </div>
+                    <div class="card-number">•••• •••• •••• 4532</div>
+                    <div class="card-footer">
+                        <div>
+                            <div style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 0.2rem;">TITULAR</div>
+                            <div class="card-holder">JOÃO DIAS</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 0.2rem;">VALIDADE</div>
+                            <div class="card-expiry">08/28</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-card mastercard">
+                    <div class="card-header">
+                        <div class="card-brand">MASTERCARD</div>
+                        <div class="card-chip"></div>
+                    </div>
+                    <div class="card-number">•••• •••• •••• 8765</div>
+                    <div class="card-footer">
+                        <div>
+                            <div style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 0.2rem;">TITULAR</div>
+                            <div class="card-holder">JOÃO DIAS</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 0.2rem;">VALIDADE</div>
+                            <div class="card-expiry">12/27</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-card add-card">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Adicionar Novo Cartão</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice History -->
+        <div class="invoice-history">
+            <h2 class="section-title">
+                <i class="fas fa-file-invoice-dollar"></i> Histórico de Faturas
+            </h2>
+
+            <div class="filter-bar">
+                <select class="filter-select">
+                    <option>Todos os Status</option>
+                    <option>Pago</option>
+                    <option>Pendente</option>
+                    <option>Atrasado</option>
+                </select>
+
+                <select class="filter-select">
+                    <option>Último Ano</option>
+                    <option>Últimos 6 Meses</option>
+                    <option>Últimos 3 Meses</option>
+                    <option>Último Mês</option>
+                </select>
+
+                <button class="btn-primary-custom">
+                    <i class="fas fa-download"></i> Exportar Tudo
+                </button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Fatura</th>
+                            <th>Descrição</th>
+                            <th>Data</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="invoice-id">#INV-2026-001</span></td>
+                            <td>Plano Premium - Janeiro</td>
+                            <td>15/01/2026</td>
+                            <td><strong>R$ 899,00</strong></td>
+                            <td><span class="invoice-status paid">Pago</span></td>
+                            <td>
+                                <div class="invoice-actions">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </button>
+                                    <button class="action-btn download">
+                                        <i class="fas fa-download"></i> PDF
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="invoice-id">#INV-2025-142</span></td>
+                            <td>Urban Pro Elite</td>
+                            <td>28/12/2025</td>
+                            <td><strong>R$ 4.999,00</strong></td>
+                            <td><span class="invoice-status paid">Pago</span></td>
+                            <td>
+                                <div class="invoice-actions">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </button>
+                                    <button class="action-btn download">
+                                        <i class="fas fa-download"></i> PDF
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="invoice-id">#INV-2025-141</span></td>
+                            <td>Manutenção Completa</td>
+                            <td>15/12/2025</td>
+                            <td><strong>R$ 299,00</strong></td>
+                            <td><span class="invoice-status paid">Pago</span></td>
+                            <td>
+                                <div class="invoice-actions">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </button>
+                                    <button class="action-btn download">
+                                        <i class="fas fa-download"></i> PDF
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="invoice-id">#INV-2025-140</span></td>
+                            <td>Plano Premium - Dezembro</td>
+                            <td>15/12/2025</td>
+                            <td><strong>R$ 899,00</strong></td>
+                            <td><span class="invoice-status paid">Pago</span></td>
+                            <td>
+                                <div class="invoice-actions">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </button>
+                                    <button class="action-btn download">
+                                        <i class="fas fa-download"></i> PDF
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="invoice-id">#INV-2025-122</span></td>
+                            <td>Troca de Bateria</td>
+                            <td>02/11/2025</td>
+                            <td><strong>R$ 1.299,00</strong></td>
+                            <td><span class="invoice-status paid">Pago</span></td>
+                            <td>
+                                <div class="invoice-actions">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </button>
+                                    <button class="action-btn download">
+                                        <i class="fas fa-download"></i> PDF
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div style="display: flex; justify-content: center; margin-top: 2rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid var(--primary-color); background: var(--primary-color); color: white; border-radius: 10px; cursor: pointer; font-weight: 600;">1</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">2</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">3</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Card Modal (simplified)
+    const addCardBtn = document.querySelector('.add-card');
+    addCardBtn.addEventListener('click', function() {
+        alert('Modal de adicionar cartão seria exibido aqui');
+    });
+
+    // Download Invoice
+    const downloadBtns = document.querySelectorAll('.action-btn.download');
+    downloadBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            alert('Download da fatura iniciado');
+        });
+    });
+
+    // View Invoice
+    const viewBtns = document.querySelectorAll('.action-btn.view');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            alert('Visualizar detalhes da fatura');
+        });
+    });
+</script>
+{% endblock %}

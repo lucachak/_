@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Meu Painel{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5" style="min-height: 80vh;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px; font-size: 2rem;">
+                                {{ user.first_name.0|default:user.username.0|upper }}
+                            </div>
+                        </div>
+                        <h5 class="fw-bold">{{ user.first_name }} {{ user.last_name }}</h5>
+                        <p class="text-muted small mb-4">Membro desde {{ user.date_joined|date:"Y" }}</p>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'client_orders' %}" class="btn btn-outline-primary rounded-pill">Meus Pedidos</a>
+                            <a href="{% url 'client_profile' %}" class="btn btn-outline-secondary rounded-pill">Meus Dados</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 bg-primary text-white overflow-hidden">
+                            <div class="card-body p-4 position-relative">
+                                <h6 class="text-uppercase opacity-75 fw-bold mb-2">Total Gasto</h6>
+                                <h2 class="display-6 fw-bold mb-0">R$ {{ total_spent|intcomma }}</h2>
+                                <i class="fas fa-wallet position-absolute" style="bottom: -20px; right: -20px; font-size: 8rem; opacity: 0.1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-body p-4 d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle me-3">
+                                    <i class="fas fa-shopping-bag fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h2 class="fw-bold mb-0">{{ total_orders }}</h2>
+                                    <p class="text-muted mb-0">Pedidos realizados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-secondary mb-3">Última Atividade</h5>
+                {% if last_order %}
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-light text-dark border">Pedido #{{ last_order.id }}</span>
+                            <small class="text-muted">{{ last_order.created_at|date:"d M Y" }}</small>
+                        </div>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                            {% with item=last_order.items.first %}
+                                <div class="me-3">
+                                    {% if item.product.main_image %}
+                                        <img src="{{ item.product.main_image.url }}" class="rounded-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;"><i class="fas fa-bicycle text-muted"></i></div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
+                                    {% if last_order.items.count > 1 %}
+                                        <small class="text-muted">+ {{ last_order.items.count|add:"-1" }} outros itens</small>
+                                    {% endif %}
+                                </div>
+                            {% endwith %}
+                        </div>
+
+                        <div class="position-relative m-4">
+                            <div class="progress" style="height: 2px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {% if last_order.status == 'DELIVERED' %}100%{% elif last_order.status == 'SENT' %}75%{% elif last_order.status == 'APPROVED' %}50%{% else %}15%{% endif %};"></div>
+                            </div>
+                            
+                            <div class="position-absolute top-0 start-0 translate-middle btn btn-sm btn-success rounded-pill" style="width: 2rem; height:2rem;"><i class="fas fa-check"></i></div>
+                            <div class="position-absolute top-0 start-50 translate-middle btn btn-sm {% if last_order.status == 'SENT' or last_order.status == 'DELIVERED' %}btn-success{% else %}btn-secondary{% endif %} rounded-pill" style="width: 2rem; height:2rem;"><i class="fas fa-truck"></i></div>
+                            <div class="position-absolute top-0 start-100 translate-middle btn btn-sm {% if last_order.status == 'DELIVERED' %}btn-success{% else %}btn-secondary{% endif %} rounded-pill" style="width: 2rem; height:2rem;"><i class="fas fa-home"></i></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small mt-2">
+                            <span>Aprovado</span>
+                            <span>Em Trânsito</span>
+                            <span>Entregue</span>
+                        </div>
+
+                    </div>
+                </div>
+                {% else %}
+                    <div class="alert alert-info border-0 shadow-sm rounded-3">
+                        <i class="fas fa-info-circle me-2"></i> Você ainda não tem pedidos recentes.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

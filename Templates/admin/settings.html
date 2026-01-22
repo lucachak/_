@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Configurações do Sistema{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-dark text-white p-4 rounded-top-4 d-flex align-items-center">
+                    <i class="fas fa-cogs fa-2x me-3"></i>
+                    <div>
+                        <h4 class="mb-0">Configurações do Site</h4>
+                        <small class="opacity-75">Ajustes gerais da plataforma</small>
+                    </div>
+                </div>
+                
+<div class="card-body p-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-4">
+            <h5 class="text-primary fw-bold mb-3">Geral</h5>
+            <div class="form-group mb-3">
+                <label class="form-label fw-bold">{{ form.site_title.label }}</label>
+                {{ form.site_title }}
+                {{ form.site_title.errors }}
+            </div>
+            
+            <div class="form-group mb-3">
+                <label class="form-label fw-bold">{{ form.contact_email.label }}</label>
+                {{ form.contact_email }}
+                {{ form.contact_email.errors }}
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="mb-4">
+            <h5 class="text-primary fw-bold mb-3">Loja e Exibição</h5>
+            <div class="form-group mb-3">
+                <label class="form-label">{{ form.items_per_page.label }}</label>
+                {{ form.items_per_page }}
+                <div class="form-text">Quantos produtos aparecem por página no catálogo.</div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="mb-4">
+            <h5 class="text-danger fw-bold mb-3">Zona de Perigo</h5>
+            <div class="form-check form-switch p-0">
+                <div class="d-flex align-items-center gap-2">
+                    {{ form.maintenance_mode }}
+                    <label class="form-check-label fw-bold" for="{{ form.maintenance_mode.id_for_label }}">
+                        Ativar Modo Manutenção
+                    </label>
+                </div>
+                <div class="form-text mt-2">
+                    <i class="fas fa-exclamation-circle text-warning"></i> Se ativado, apenas administradores poderão acessar o site.
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid mt-5">
+            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                <i class="fas fa-save me-2"></i> Salvar Configurações
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    #id_maintenance_mode {
+        width: 3em;
+        height: 1.5em;
+        margin-left: 0;
+        cursor: pointer;
+        appearance: none;
+        background-color: #dee2e6;
+        border-radius: 2em;
+        position: relative;
+        transition: 0.3s;
+    }
+    #id_maintenance_mode:checked {
+        background-color: #dc3545; /* Vermelho perigo */
+    }
+    #id_maintenance_mode::before {
+        content: "";
+        position: absolute;
+        width: 1.1em;
+        height: 1.1em;
+        border-radius: 50%;
+        top: 0.2em;
+        left: 0.2em;
+        background-color: white;
+        transition: 0.3s;
+    }
+    #id_maintenance_mode:checked::before {
+        transform: translateX(1.5em);
+    }
+</style>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

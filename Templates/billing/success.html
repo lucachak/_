@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 text-center" style="min-height: 70vh; display: flex; flex-direction: column; justify-content: center;">
+    
+    <div class="mb-4">
+        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+    </div>
+    
+    <h1 class="fw-bold text-success mb-3">Pagamento Aprovado!</h1>
+    <p class="lead text-muted mb-5">
+        Obrigado por comprar na EletricBike. <br>
+        Seu pedido está sendo preparado para envio.
+    </p>
+
+    <div>
+        <a href="{% url 'bike_catalog' %}" class="btn btn-primary rounded-pill px-5 py-3 fw-bold">
+            Voltar para a Loja
+        </a>
+    </div>
+
+</div>
+{% endblock %}

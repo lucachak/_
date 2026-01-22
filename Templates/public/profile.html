@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Meus Dados - EletricBike{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5" style="min-height: 80vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                {% if request.GET.next %}
+                <div class="alert alert-warning border-0 shadow-sm mb-4 d-flex align-items-center rounded-3">
+                    <i class="fas fa-exclamation-circle fs-4 me-3"></i>
+                    <div>
+                        <strong>Quase lá!</strong><br>
+                        Precisamos confirmar seu endereço e CPF para calcular o frete e emitir a nota fiscal.
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h4 class="mb-0 fw-bold text-secondary">
+                            <i class="fas fa-address-card me-2 text-primary"></i> Meus Dados de Entrega
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <input type="hidden" name="next" value="{{ request.GET.next }}">
+                            
+                            <h6 class="text-muted text-uppercase fw-bold mb-3 small">Dados Pessoais</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary">CPF <span class="text-danger">*</span></label>
+                                    {{ form.cpf }}
+                                    {% if form.cpf.errors %}
+                                        <div class="text-danger small mt-1">{{ form.cpf.errors.0 }}</div>
+                                    {% endif %}
+                                    <div class="form-text small">Necessário para Nota Fiscal.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary">Telefone / WhatsApp <span class="text-danger">*</span></label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <h6 class="text-muted text-uppercase fw-bold mb-3 small border-top pt-3">Endereço de Entrega</h6>
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-secondary">CEP <span class="text-danger">*</span></label>
+                                    {{ form.zip_code }}
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label fw-bold text-secondary">Cidade</label>
+                                    {{ form.city }}
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-9">
+                                    <label class="form-label fw-bold text-secondary">Rua / Avenida</label>
+                                    {{ form.address }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-secondary">Número</label>
+                                    {{ form.number }}
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold text-secondary">Bairro</label>
+                                    {{ form.district }}
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold text-secondary">Complemento (Opcional)</label>
+                                    {{ form.complement }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold text-secondary">UF</label>
+                                    {{ form.state }}
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{% url 'home' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
+                                    Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                                    <i class="fas fa-save me-2"></i> Salvar Dados
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3 text-muted small">
+                    <i class="fas fa-lock me-1"></i> Seus dados são armazenados com segurança.
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

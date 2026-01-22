@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Produto - Staff{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-dark text-white p-4 rounded-top-4">
+                    <h2 class="h4 mb-0"><i class="fas fa-box-open me-2"></i> Adicionar ao Estoque</h2>
+                </div>
+                
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <h5 class="text-primary mb-3 fw-bold">1. Informações do Produto</h5>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Nome do Produto</label>
+                                {{ product_form.name }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">SKU (Código)</label>
+                                {{ product_form.sku }}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Categoria</label>
+                                {{ product_form.category }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo</label>
+                                {{ product_form.product_type }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Preço de Custo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    {{ product_form.cost_price }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Preço de Venda</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    {{ product_form.selling_price }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Estoque Inicial</label>
+                                {{ product_form.stock_quantity }}
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Descrição</label>
+                                {{ product_form.description }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Imagem Principal</label>
+                                {{ product_form.main_image }}
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <div class="form-check form-switch">
+                                    {{ product_form.is_active }}
+                                    <label class="form-check-label">Produto Ativo (Visível no site)</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ product_form.is_featured }}
+                                    <label class="form-check-label">Destaque na Home</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-5">
+
+                        <h5 class="text-primary mb-3 fw-bold">
+                            2. Especificações Técnicas 
+                            <small class="text-muted fw-normal ms-2">(Opcional para Acessórios)</small>
+                        </h5>
+                        
+                        <div class="row g-3 bg-light p-4 rounded-3 border">
+                            <div class="col-md-4">
+                                <label class="form-label">Voltagem (V)</label>
+                                {{ spec_form.voltage }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Amperagem (Ah)</label>
+                                {{ spec_form.amperage }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Potência (W)</label>
+                                {{ spec_form.wattage }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Autonomia Estimada</label>
+                                {{ spec_form.range_estimate }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Velocidade Máx.</label>
+                                {{ spec_form.max_speed }}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Peso (Kg)</label>
+                                {{ spec_form.weight }}
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Material</label>
+                                {{ spec_form.material }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                            <a href="{% url 'bike_catalog' %}" class="btn btn-outline-secondary px-5">Cancelar</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold">
+                                <i class="fas fa-save me-2"></i> Salvar Produto
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

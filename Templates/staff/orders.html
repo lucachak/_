@@ -1,0 +1,1238 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Clientes - EletricBike{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #f5f7fa;
+    }
+
+    .customers-container {
+        padding: 3rem 0;
+    }
+
+    /* Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--secondary-color) 0%, #1a2942 100%);
+        color: white;
+        padding: 3rem;
+        border-radius: 25px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 50%, rgba(0,212,255,0.15) 0%, transparent 50%);
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 5px solid var(--primary-color);
+        transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,212,255,0.2);
+    }
+
+    .stat-card.warning {
+        border-left-color: #ffc107;
+    }
+
+    .stat-card.success {
+        border-left-color: var(--accent-color);
+    }
+
+    .stat-card.danger {
+        border-left-color: #ff6b6b;
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(0,212,255,0.1) 0%, rgba(0,255,136,0.1) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--primary-color);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        line-height: 1;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .stat-change.positive {
+        color: var(--accent-color);
+    }
+
+    /* Filters */
+    .filters-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-group label {
+        display: block;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .filter-input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    .search-bar {
+        position: relative;
+    }
+
+    .search-bar input {
+        padding-left: 3rem;
+    }
+
+    .search-bar i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-filter {
+        padding: 0.8rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border: none;
+        color: white;
+        font-weight: 900;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,212,255,0.4);
+    }
+
+    .btn-export {
+        padding: 0.8rem 2rem;
+        background: white;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 900;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-export:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    /* Customers Table */
+    .customers-table {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .table-title {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+    }
+
+    .btn-add-customer {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border: none;
+        color: white;
+        font-weight: 900;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-add-customer:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,212,255,0.4);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    thead th {
+        background: #f8f9fa;
+        padding: 1.2rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        color: var(--secondary-color);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    thead th:first-child {
+        border-radius: 10px 0 0 10px;
+    }
+
+    thead th:last-child {
+        border-radius: 0 10px 10px 0;
+    }
+
+    tbody td {
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: #555;
+    }
+
+    tbody tr {
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    tbody tr:hover {
+        background: #f8f9fa;
+        transform: scale(1.01);
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .customer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 900;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .customer-details {
+        flex: 1;
+    }
+
+    .customer-name {
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 0.2rem;
+        font-size: 1.1rem;
+    }
+
+    .customer-email {
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    .customer-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: inline-block;
+    }
+
+    .customer-badge.vip {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #664d00;
+    }
+
+    .customer-badge.premium {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        color: white;
+    }
+
+    .customer-badge.regular {
+        background: #e0e0e0;
+        color: #666;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .action-btn.view {
+        background: rgba(0,212,255,0.1);
+        color: var(--primary-color);
+    }
+
+    .action-btn.edit {
+        background: rgba(255,193,7,0.1);
+        color: #e68900;
+    }
+
+    .action-btn.delete {
+        background: rgba(255,107,107,0.1);
+        color: #ff6b6b;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    /* Customer Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 25px;
+        max-width: 900px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--secondary-color) 0%, #1a2942 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 25px 25px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    .modal-close {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        transition: all 0.3s;
+    }
+
+    .modal-close:hover {
+        background: rgba(255,255,255,0.3);
+        transform: scale(1.1);
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .customer-detail-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 15px;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: #999;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-value {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+    }
+
+    .purchase-history {
+        list-style: none;
+        padding: 0;
+    }
+
+    .purchase-item {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .purchase-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .purchase-product {
+        font-weight: 900;
+        color: var(--secondary-color);
+    }
+
+    .purchase-price {
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .purchase-date {
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .table-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        table {
+            font-size: 0.85rem;
+        }
+
+        .customer-info {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .action-buttons {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="customers-container">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div>
+                    <h1 class="page-title">
+                        <i class="fas fa-users"></i> Gerenciar Clientes
+                    </h1>
+                    <p class="page-subtitle">Visualize e gerencie todos os seus clientes</p>
+                </div>
+                <div>
+                    <button class="btn-add-customer">
+                        <i class="fas fa-user-plus"></i> Novo Cliente
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Total de Clientes</div>
+                        <div class="stat-value">2.847</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> +12% este mês
+                        </div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card success">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Clientes Ativos</div>
+                        <div class="stat-value">1.234</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-check-circle"></i> 43% do total
+                        </div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card warning">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Clientes VIP</div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-crown"></i> +8 este mês
+                        </div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Ticket Médio</div>
+                        <div class="stat-value">R$ 5.2k</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> +15% vs mês passado
+                        </div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Buscar Cliente</label>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="filter-input" placeholder="Nome, email ou telefone">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Categoria</label>
+                    <select class="filter-input">
+                        <option>Todos os clientes</option>
+                        <option>VIP</option>
+                        <option>Premium</option>
+                        <option>Regular</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select class="filter-input">
+                        <option>Todos os status</option>
+                        <option>Ativos</option>
+                        <option>Inativos</option>
+                        <option>Bloqueados</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Ordenar por</label>
+                    <select class="filter-input">
+                        <option>Nome A-Z</option>
+                        <option>Nome Z-A</option>
+                        <option>Mais recente</option>
+                        <option>Mais antigo</option>
+                        <option>Maior gasto</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn-filter">
+                    <i class="fas fa-filter"></i> Aplicar Filtros
+                </button>
+                <button class="btn-export">
+                    <i class="fas fa-download"></i> Exportar Lista
+                </button>
+                <button class="btn-export">
+                    <i class="fas fa-redo"></i> Limpar Filtros
+                </button>
+            </div>
+        </div>
+
+        <!-- Customers Table -->
+        <div class="customers-table">
+            <div class="table-header">
+                <h2 class="table-title">
+                    <i class="fas fa-list"></i> Lista de Clientes
+                </h2>
+                <div style="color: #666;">
+                    Mostrando <strong>15</strong> de <strong>2.847</strong> clientes
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Categoria</th>
+                            <th>Telefone</th>
+                            <th>Total Gasto</th>
+                            <th>Pedidos</th>
+                            <th>Última Compra</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="customer-row" data-customer-id="1">
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-avatar">JD</div>
+                                    <div class="customer-details">
+                                        <div class="customer-name">João Dias Silva</div>
+                                        <div class="customer-email">joao.dias@email.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="customer-badge vip">
+                                    <i class="fas fa-crown"></i> VIP
+                                </span>
+                            </td>
+                            <td>(11) 99999-9999</td>
+                            <td><strong>R$ 24.450,00</strong></td>
+                            <td>12</td>
+                            <td>15/01/2026</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view" title="Visualizar">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" title="Excluir">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="customer-row" data-customer-id="2">
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-avatar" style="background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);">MS</div>
+                                    <div class="customer-details">
+                                        <div class="customer-name">Maria Santos</div>
+                                        <div class="customer-email">maria.santos@email.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="customer-badge premium">
+                                    <i class="fas fa-star"></i> Premium
+                                </span>
+                            </td>
+                            <td>(11) 98888-8888</td>
+                            <td><strong>R$ 18.350,00</strong></td>
+                            <td>8</td>
+                            <td>14/01/2026</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="customer-row" data-customer-id="3">
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">CO</div>
+                                    <div class="customer-details">
+                                        <div class="customer-name">Carlos Oliveira</div>
+                                        <div class="customer-email">carlos.oliveira@email.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="customer-badge regular">Regular</span>
+                            </td>
+                            <td>(11) 97777-7777</td>
+                            <td><strong>R$ 8.250,00</strong></td>
+                            <td>5</td>
+                            <td>10/01/2026</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="customer-row" data-customer-id="4">
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">AC</div>
+                                    <div class="customer-details">
+                                        <div class="customer-name">Ana Costa</div>
+                                        <div class="customer-email">ana.costa@email.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="customer-badge premium">
+                                    <i class="fas fa-star"></i> Premium
+                                </span>
+                            </td>
+                            <td>(11) 96666-6666</td>
+                            <td><strong>R$ 15.900,00</strong></td>
+                            <td>7</td>
+                            <td>08/01/2026</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="customer-row" data-customer-id="5">
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">PA</div>
+                                    <div class="customer-details">
+                                        <div class="customer-name">Pedro Almeida</div>
+                                        <div class="customer-email">pedro.almeida@email.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="customer-badge vip">
+                                    <i class="fas fa-crown"></i> VIP
+                                </span>
+                            </td>
+                            <td>(11) 95555-5555</td>
+                            <td><strong>R$ 32.800,00</strong></td>
+                            <td>15</td>
+                            <td>16/01/2026</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid #f0f0f0;">
+                <div style="color: #666;">Mostrando 1-5 de 2.847 clientes</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid var(--primary-color); background: var(--primary-color); color: white; border-radius: 10px; cursor: pointer; font-weight: 600;">1</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">2</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">3</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">...</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">570</button>
+                    <button style="padding: 0.8rem 1.2rem; border: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Detail Modal -->
+<div class="modal" id="customerModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="fas fa-user-circle"></i> Detalhes do Cliente
+            </h2>
+            <button class="modal-close" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Customer Profile -->
+            <div class="customer-detail-section">
+                <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                    <div class="customer-avatar" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        JD
+                    </div>
+                    <div>
+                        <h3 style="font-size: 2rem; font-weight: 900; color: var(--secondary-color); margin-bottom: 0.5rem;">
+                            João Dias Silva
+                        </h3>
+                        <span class="customer-badge vip" style="font-size: 1rem; padding: 0.7rem 1.5rem;">
+                            <i class="fas fa-crown"></i> Cliente VIP
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="customer-detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-id-card"></i> Informações Pessoais
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">joao.dias@email.com</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Telefone</div>
+                        <div class="detail-value">(11) 99999-9999</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">CPF</div>
+                        <div class="detail-value">123.456.789-00</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data de Nascimento</div>
+                        <div class="detail-value">15/05/1990</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Cliente Desde</div>
+                        <div class="detail-value">Janeiro 2024</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value" style="color: var(--accent-color);">
+                            <i class="fas fa-check-circle"></i> Ativo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="customer-detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-map-marker-alt"></i> Endereço Principal
+                </h3>
+                <div class="detail-item">
+                    <div class="detail-label">Endereço Completo</div>
+                    <div class="detail-value">
+                        Rua das Flores, 123 - Apto 45<br>
+                        Jardins - São Paulo, SP<br>
+                        CEP: 01234-567
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="customer-detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-bar"></i> Estatísticas
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Total Gasto</div>
+                        <div class="detail-value" style="color: var(--primary-color);">R$ 24.450,00</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Total de Pedidos</div>
+                        <div class="detail-value">12</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Ticket Médio</div>
+                        <div class="detail-value">R$ 2.037,50</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Última Compra</div>
+                        <div class="detail-value">15/01/2026</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Bikes Compradas</div>
+                        <div class="detail-value">3</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Manutenções Realizadas</div>
+                        <div class="detail-value">8</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purchase History -->
+            <div class="customer-detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-shopping-bag"></i> Histórico de Compras (Últimas 5)
+                </h3>
+                <ul class="purchase-history">
+                    <li class="purchase-item">
+                        <div class="purchase-header">
+                            <span class="purchase-product">
+                                <i class="fas fa-bicycle"></i> Urban Pro Elite
+                            </span>
+                            <span class="purchase-price">R$ 4.999,00</span>
+                        </div>
+                        <div class="purchase-date">
+                            <i class="fas fa-calendar"></i> 15/01/2026 | 
+                            <i class="fas fa-check-circle" style="color: var(--accent-color);"></i> Entregue
+                        </div>
+                    </li>
+
+                    <li class="purchase-item">
+                        <div class="purchase-header">
+                            <span class="purchase-product">
+                                <i class="fas fa-tools"></i> Manutenção Completa
+                            </span>
+                            <span class="purchase-price">R$ 299,00</span>
+                        </div>
+                        <div class="purchase-date">
+                            <i class="fas fa-calendar"></i> 28/12/2025 | 
+                            <i class="fas fa-check-circle" style="color: var(--accent-color);"></i> Concluído
+                        </div>
+                    </li>
+
+                    <li class="purchase-item">
+                        <div class="purchase-header">
+                            <span class="purchase-product">
+                                <i class="fas fa-battery-full"></i> Bateria Premium 48V
+                            </span>
+                            <span class="purchase-price">R$ 1.299,00</span>
+                        </div>
+                        <div class="purchase-date">
+                            <i class="fas fa-calendar"></i> 02/11/2025 | 
+                            <i class="fas fa-check-circle" style="color: var(--accent-color);"></i> Entregue
+                        </div>
+                    </li>
+
+                    <li class="purchase-item">
+                        <div class="purchase-header">
+                            <span class="purchase-product">
+                                <i class="fas fa-biking"></i> Mountain Elite X
+                            </span>
+                            <span class="purchase-price">R$ 7.999,00</span>
+                        </div>
+                        <div class="purchase-date">
+                            <i class="fas fa-calendar"></i> 15/08/2025 | 
+                            <i class="fas fa-check-circle" style="color: var(--accent-color);"></i> Entregue
+                        </div>
+                    </li>
+
+                    <li class="purchase-item">
+                        <div class="purchase-header">
+                            <span class="purchase-product">
+                                <i class="fas fa-shield-alt"></i> Capacete Smart LED
+                            </span>
+                            <span class="purchase-price">R$ 299,00</span>
+                        </div>
+                        <div class="purchase-date">
+                            <i class="fas fa-calendar"></i> 10/06/2025 | 
+                            <i class="fas fa-check-circle" style="color: var(--accent-color);"></i> Entregue
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Notes -->
+            <div class="customer-detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-sticky-note"></i> Notas e Observações
+                </h3>
+                <div class="detail-item">
+                    <textarea class="filter-input" rows="4" placeholder="Adicione notas sobre este cliente...">Cliente preferencial. Participa do programa de fidelidade VIP. Sempre solicita manutenção preventiva trimestral.</textarea>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn-filter" style="flex: 1;">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+                <button class="btn-export" style="flex: 1;">
+                    <i class="fas fa-envelope"></i> Enviar Email
+                </button>
+                <button class="btn-export" style="flex: 1;">
+                    <i class="fas fa-file-pdf"></i> Gerar Relatório
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Modal functionality
+    const modal = document.getElementById('customerModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const viewButtons = document.querySelectorAll('.action-btn.view');
+
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            modal.classList.add('show');
+        });
+    });
+
+    closeModalBtn.addEventListener('click', function() {
+        modal.classList.remove('show');
+    });
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+        }
+    });
+
+    // Row click to open modal
+    const customerRows = document.querySelectorAll('.customer-row');
+    customerRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Don't open modal if clicking action buttons
+            if (!e.target.closest('.action-buttons')) {
+                modal.classList.add('show');
+            }
+        });
+    });
+
+    // Delete confirmation
+    const deleteBtns = document.querySelectorAll('.action-btn.delete');
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (confirm('Tem certeza que deseja excluir este cliente?')) {
+                alert('Cliente excluído com sucesso!');
+                // Aqui você faria a requisição AJAX para excluir
+            }
+        });
+    });
+
+    // Edit button
+    const editBtns = document.querySelectorAll('.action-btn.edit');
+    editBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            modal.classList.add('show');
+            // Aqui você poderia habilitar o modo de edição
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.querySelector('.search-bar input');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        customerRows.forEach(row => {
+            const customerName = row.querySelector('.customer-name').textContent.toLowerCase();
+            const customerEmail = row.querySelector('.customer-email').textContent.toLowerCase();
+            
+            if (customerName.includes(searchTerm) || customerEmail.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Add customer button
+    const addCustomerBtn = document.querySelector('.btn-add-customer');
+    addCustomerBtn.addEventListener('click', function() {
+        alert('Formulário de novo cliente seria aberto aqui');
+        // Aqui você abriria um modal com formulário para criar novo cliente
+    });
+
+    // Export button
+    const exportBtn = document.querySelector('.btn-export');
+    exportBtn.addEventListener('click', function() {
+        alert('Exportando lista de clientes...');
+        // Aqui você faria a exportação para CSV/Excel
+    });
+</script>
+{% endblock %}: 2px solid #e0e0e0; background: white; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button style="padding: 0.8rem 1.2rem; border

@@ -1,0 +1,965 @@
+{% extends 'base.html' %}
+
+{% block title %}Nossos Serviços - EletricBike{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .services-hero {
+        background: linear-gradient(135deg, #0a1929 0%, #1a2942 100%);
+        color: white;
+        padding: 6rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .services-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 50%, rgba(0,212,255,0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(0,255,136,0.15) 0%, transparent 50%);
+    }
+
+    .services-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .services-hero-title {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .services-hero-subtitle {
+        font-size: 1.4rem;
+        opacity: 0.9;
+        line-height: 1.8;
+        max-width: 700px;
+    }
+
+    /* Services Overview */
+    .services-overview {
+        padding: 6rem 0;
+        background: white;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .service-card {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: all 0.4s;
+        border: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    }
+
+    .service-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 25px 60px rgba(0,212,255,0.25);
+        border-color: var(--primary-color);
+    }
+
+    .service-icon-wrapper {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, rgba(0,212,255,0.1) 0%, rgba(0,255,136,0.1) 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        transition: all 0.4s;
+    }
+
+    .service-card:hover .service-icon-wrapper {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .service-icon {
+        font-size: 3.5rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .service-title {
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+    }
+
+    .service-description {
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+        font-size: 1.05rem;
+    }
+
+    .service-features {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .service-features li {
+        padding: 0.8rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: #555;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .service-features li:last-child {
+        border-bottom: none;
+    }
+
+    .service-features i {
+        color: var(--accent-color);
+        font-size: 1.1rem;
+    }
+
+    .service-cta {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-service {
+        flex: 1;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border: none;
+        color: white;
+        font-weight: 900;
+        padding: 1rem;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-service:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,212,255,0.4);
+    }
+
+    /* Detailed Services Section */
+    .detailed-services {
+        padding: 6rem 0;
+        background: #f8f9fa;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-title {
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+        font-size: 1.2rem;
+        color: #666;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .service-detail {
+        background: white;
+        border-radius: 25px;
+        padding: 4rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .service-detail-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 3px solid #f0f0f0;
+    }
+
+    .detail-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: white;
+        box-shadow: 0 15px 40px rgba(0,212,255,0.4);
+    }
+
+    .detail-info h3 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-info p {
+        font-size: 1.2rem;
+        color: #666;
+    }
+
+    .service-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .service-type-card {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 2rem;
+        border-left: 5px solid var(--primary-color);
+        transition: all 0.3s;
+    }
+
+    .service-type-card:hover {
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,212,255,0.15);
+        transform: translateX(10px);
+    }
+
+    .type-title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .type-title i {
+        color: var(--primary-color);
+    }
+
+    .type-description {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.7;
+    }
+
+    .type-price {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 2px solid #e0e0e0;
+    }
+
+    .price-label {
+        color: #999;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .price-value {
+        font-size: 1.8rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Pricing Plans */
+    .pricing-plans {
+        padding: 6rem 0;
+        background: white;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .plan-card {
+        background: white;
+        border: 4px solid #e0e0e0;
+        border-radius: 30px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.4s;
+        position: relative;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 25px 60px rgba(0,212,255,0.25);
+        border-color: var(--primary-color);
+    }
+
+    .plan-card.featured {
+        background: linear-gradient(135deg, var(--secondary-color) 0%, #1a2942 100%);
+        color: white;
+        border: none;
+        transform: scale(1.05);
+    }
+
+    .plan-badge {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+        color: white;
+        padding: 0.7rem 2rem;
+        border-radius: 30px;
+        font-weight: 900;
+        box-shadow: 0 8px 25px rgba(255,107,107,0.5);
+    }
+
+    .plan-name {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+    }
+
+    .plan-price {
+        font-size: 4rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+    .plan-card.featured .plan-price {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .plan-period {
+        color: #999;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+
+    .plan-card.featured .plan-period {
+        color: rgba(255,255,255,0.7);
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .plan-features li {
+        padding: 1rem 0;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .plan-features li i {
+        color: var(--accent-color);
+        font-size: 1.2rem;
+    }
+
+    .plan-card.featured .plan-features li {
+        border-bottom-color: rgba(255,255,255,0.1);
+    }
+
+    /* Process Section */
+    .process-section {
+        padding: 6rem 0;
+        background: linear-gradient(135deg, var(--secondary-color) 0%, #1a2942 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .process-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%2300d4ff" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,112C1248,107,1344,117,1392,122.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat;
+    }
+
+    .process-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        margin-top: 3rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .process-step {
+        text-align: center;
+    }
+
+    .step-number {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 900;
+        color: white;
+        margin: 0 auto 2rem;
+        box-shadow: 0 15px 40px rgba(0,212,255,0.5);
+    }
+
+    .step-title {
+        font-size: 1.6rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .step-description {
+        color: rgba(255,255,255,0.9);
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        padding: 6rem 0;
+        background: linear-gradient(to bottom, white 0%, #f8f9fa 100%);
+    }
+
+    .cta-content {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border-radius: 30px;
+        padding: 5rem 3rem;
+        text-align: center;
+        color: white;
+        box-shadow: 0 20px 60px rgba(0,212,255,0.3);
+    }
+
+    .cta-title {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+    }
+
+    .cta-text {
+        font-size: 1.3rem;
+        margin-bottom: 3rem;
+        opacity: 0.95;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-cta {
+        background: white;
+        color: var(--primary-color);
+        font-weight: 900;
+        padding: 1.3rem 3rem;
+        border-radius: 50px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1.1rem;
+    }
+
+    .btn-cta:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(255,255,255,0.3);
+    }
+
+    .btn-cta.secondary {
+        background: transparent;
+        border: 3px solid white;
+        color: white;
+    }
+
+    .btn-cta.secondary:hover {
+        background: white;
+        color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+        .services-hero-title {
+            font-size: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .service-detail {
+            padding: 2rem;
+        }
+
+        .service-detail-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="services-hero">
+    <div class="container">
+        <div class="row align-items-center services-hero-content">
+            <div class="col-lg-7">
+                <h1 class="services-hero-title">Serviços Especializados</h1>
+                <p class="services-hero-subtitle">
+                    Da venda à manutenção, oferecemos serviços completos para garantir 
+                    que sua bike elétrica esteja sempre em perfeito estado. Equipe 
+                    certificada e atendimento premium.
+                </p>
+            </div>
+            <div class="col-lg-5 text-center">
+                <i class="fas fa-tools" style="font-size: 15rem; opacity: 0.15;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Overview -->
+<section class="services-overview">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i> Nossos Serviços Principais
+            </h2>
+            <p class="section-subtitle">
+                Soluções completas para todas as necessidades da sua bike elétrica
+            </p>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon-wrapper">
+                    <i class="fas fa-shopping-cart service-icon"></i>
+                </div>
+                <h3 class="service-title">Venda de Bikes</h3>
+                <p class="service-description">
+                    Catálogo completo com os melhores modelos do mercado. 
+                    Consultoria especializada para encontrar a bike perfeita.
+                </p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Test drive gratuito</li>
+                    <li><i class="fas fa-check-circle"></i> Financiamento 12x sem juros</li>
+                    <li><i class="fas fa-check-circle"></i> Garantia estendida</li>
+                    <li><i class="fas fa-check-circle"></i> Entrega grátis</li>
+                </ul>
+                <div class="service-cta">
+                    <button class="btn-service">
+                        <i class="fas fa-bicycle"></i> Ver Catálogo
+                    </button>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon-wrapper">
+                    <i class="fas fa-wrench service-icon"></i>
+                </div>
+                <h3 class="service-title">Manutenção</h3>
+                <p class="service-description">
+                    Revisões preventivas e corretivas com equipe certificada. 
+                    Mantenha sua bike sempre em perfeito funcionamento.
+                </p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Diagnóstico gratuito</li>
+                    <li><i class="fas fa-check-circle"></i> Peças originais</li>
+                    <li><i class="fas fa-check-circle"></i> Garantia de 90 dias</li>
+                    <li><i class="fas fa-check-circle"></i> Agendamento online</li>
+                </ul>
+                <div class="service-cta">
+                    <button class="btn-service">
+                        <i class="fas fa-calendar-check"></i> Agendar
+                    </button>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon-wrapper">
+                    <i class="fas fa-battery-full service-icon"></i>
+                </div>
+                <h3 class="service-title">Troca de Bateria</h3>
+                <p class="service-description">
+                    Substituição e upgrade de baterias. Aumente a autonomia 
+                    e performance da sua bike elétrica.
+                </p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Baterias de alta qualidade</li>
+                    <li><i class="fas fa-check-circle"></i> Teste de carga completo</li>
+                    <li><i class="fas fa-check-circle"></i> Instalação profissional</li>
+                    <li><i class="fas fa-check-circle"></i> Garantia de 1 ano</li>
+                </ul>
+                <div class="service-cta">
+                    <button class="btn-service">
+                        <i class="fas fa-bolt"></i> Solicitar Orçamento
+                    </button>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon-wrapper">
+                    <i class="fas fa-cogs service-icon"></i>
+                </div>
+                <h3 class="service-title">Customização</h3>
+                <p class="service-description">
+                    Personalize sua bike com acessórios e upgrades premium. 
+                    Transforme sua bike em algo único.
+                </p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Amplo catálogo de acessórios</li>
+                    <li><i class="fas fa-check-circle"></i> Upgrades de performance</li>
+                    <li><i class="fas fa-check-circle"></i> Pinturas personalizadas</li>
+                    <li><i class="fas fa-check-circle"></i> Consultoria de estilo</li>
+                </ul>
+                <div class="service-cta">
+                    <button class="btn-service">
+                        <i class="fas fa-paint-brush"></i> Personalizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon-wrapper">
+                    <i class="fas fa-laptop-code service-icon"></i>
+                </div>
+                <h3 class="service-title">Atualização de Software</h3>
+                <p class="service-description">
+                    Mantenha o sistema da sua bike sempre atualizado com as 
+                    últimas melhorias e correções.
+                </p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Atualizações gratuitas</li>
+                    <li><i class="fas fa-check-circle"></i> Novos recursos</li>
+                    <li><i class="fas fa-check-circle"></i> Correção de bugs</li>
+                    <li><i class="fas fa-check-circle"></i> Otimização de bateria</li>
+                </ul>
+                <div class="service-cta">
+                    <button class="btn-service">
+                        <i class="fas fa-download"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon-wrapper">
+                    <i class="fas fa-graduation-cap service-icon"></i>
+                </div>
+                <h3 class="service-title">Treinamento</h3>
+                <p class="service-description">
+                    Aprenda a usar todos os recursos da sua bike e dicas 
+                    de manutenção básica com nossos especialistas.
+                </p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Sessões práticas</li>
+                    <li><i class="fas fa-check-circle"></i> Material didático</li>
+                    <li><i class="fas fa-check-circle"></i> Dicas de segurança</li>
+                    <li><i class="fas fa-check-circle"></i> Certificado digital</li>
+                </ul>
+                <div class="service-cta">
+                    <button class="btn-service">
+                        <i class="fas fa-chalkboard-teacher"></i> Inscrever-se
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Detailed Services: Manutenção -->
+<section class="detailed-services">
+    <div class="container">
+        <div class="service-detail">
+            <div class="service-detail-header">
+                <div class="detail-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="detail-info">
+                    <h3>Serviços de Manutenção</h3>
+                    <p>Revisões completas e especializadas para sua bike elétrica</p>
+                </div>
+            </div>
+
+            <div class="service-types">
+                <div class="service-type-card">
+                    <h4 class="type-title">
+                        <i class="fas fa-check-circle"></i>
+                        Manutenção Básica
+                    </h4>
+                    <p class="type-description">
+                        Revisão geral, lubrificação, ajuste de freios e marchas, 
+                        calibragem de pneus e limpeza profissional.
+                    </p>
+                    <div class="type-price">
+                        <span class="price-label">A partir de</span>
+                        <span class="price-value">R$ 149</span>
+                    </div>
+                </div>
+
+                <div class="service-type-card">
+                    <h4 class="type-title">
+                        <i class="fas fa-star"></i>
+                        Manutenção Completa
+                    </h4>
+                    <p class="type-description">
+                        Tudo da básica + revisão elétrica, teste de bateria, 
+                        atualização de software e troca de pastilhas.
+                    </p>
+                    <div class="type-price">
+                        <span class="price-label">A partir de</span>
+                        <span class="price-value">R$ 299</span>
+                    </div>
+                </div>
+
+                <div class="service-type-card">
+                    <h4 class="type-title">
+                        <i class="fas fa-crown"></i>
+                        Manutenção Premium
+                    </h4>
+                    <p class="type-description">
+                        Serviço VIP completo com diagnóstico computadorizado, 
+                        bike reserva e garantia estendida.
+                    </p>
+                    <div class="type-price">
+                        <span class="price-label">A partir de</span>
+                        <span class="price-value">R$ 499</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Services: Bateria -->
+        <div class="service-detail">
+            <div class="service-detail-header">
+                <div class="detail-icon">
+                    <i class="fas fa-battery-full"></i>
+                </div>
+                <div class="detail-info">
+                    <h3>Serviços de Bateria</h3>
+                    <p>Troca, upgrade e manutenção especializada em baterias</p>
+                </div>
+            </div>
+
+            <div class="service-types">
+                <div class="service-type-card">
+                    <h4 class="type-title">
+                        <i class="fas fa-battery-half"></i>
+                        Diagnóstico de Bateria
+                    </h4>
+                    <p class="type-description">
+                        Teste completo de carga, ciclos e saúde da bateria 
+                        com relatório detalhado.
+                    </p>
+                    <div class="type-price">
+                        <span class="price-label">Valor</span>
+                        <span class="price-value">Grátis</span>
+                    </div>
+                </div>
+
+                <div class="service-type-card">
+                    <h4 class="type-title">
+                        <i class="fas fa-exchange-alt"></i>
+                        Troca de Bateria
+                    </h4>
+                    <p class="type-description">
+                        Substituição por bateria nova original com garantia 
+                        de 1 ano e instalação profissional.
+                    </p>
+                    <div class="type-price">
+                        <span class="price-label">A partir de</span>
+                        <span class="price-value">R$ 1.299</span>
+                    </div>
+                </div>
+
+                <div class="service-type-card">
+                    <h4 class="type-title">
+                        <i class="fas fa-arrow-up"></i>
+                        Upgrade de Bateria
+                    </h4>
+
+                        <p class="type-description">
+                            Upgrade para maior autonomia e potência. 
+                            Aumente o alcance da sua bike com baterias de maior capacidade.
+                        </p>
+                        <div class="type-price">
+                            <span class="price-label">A partir de</span>
+                            <span class="price-value">R$ 1.899</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pricing-plans">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Planos de Serviços</h2>
+            <p class="section-subtitle">
+                Escolha o plano ideal para manter sua bike sempre no máximo desempenho
+            </p>
+        </div>
+
+        <div class="plans-grid">
+            <div class="plan-card">
+                <h3 class="plan-name">Essencial</h3>
+                <div class="plan-price">R$ 79</div>
+                <div class="plan-period">por mês</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Manutenção básica anual</li>
+                    <li><i class="fas fa-check"></i> Diagnóstico de bateria</li>
+                    <li><i class="fas fa-check"></i> Suporte técnico</li>
+                </ul>
+                <button class="btn-service">Contratar</button>
+            </div>
+
+            <div class="plan-card featured">
+                <div class="plan-badge">Mais Popular</div>
+                <h3 class="plan-name">Premium</h3>
+                <div class="plan-price">R$ 149</div>
+                <div class="plan-period">por mês</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Manutenção completa</li>
+                    <li><i class="fas fa-check"></i> Atualizações de software</li>
+                    <li><i class="fas fa-check"></i> Prioridade no atendimento</li>
+                    <li><i class="fas fa-check"></i> Desconto em peças</li>
+                </ul>
+                <button class="btn-cta">Assinar Agora</button>
+            </div>
+
+            <div class="plan-card">
+                <h3 class="plan-name">VIP</h3>
+                <div class="plan-price">R$ 249</div>
+                <div class="plan-period">por mês</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Tudo do Premium</li>
+                    <li><i class="fas fa-check"></i> Bike reserva</li>
+                    <li><i class="fas fa-check"></i> Atendimento domiciliar</li>
+                </ul>
+                <button class="btn-service">Contratar</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Como Funciona</h2>
+            <p class="section-subtitle">
+                Um processo simples, rápido e transparente
+            </p>
+        </div>
+
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">1</div>
+                <h4 class="step-title">Agendamento</h4>
+                <p class="step-description">
+                    Escolha o serviço e agende online em poucos minutos.
+                </p>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">2</div>
+                <h4 class="step-title">Diagnóstico</h4>
+                <p class="step-description">
+                    Avaliação completa feita por técnicos certificados.
+                </p>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">3</div>
+                <h4 class="step-title">Execução</h4>
+                <p class="step-description">
+                    Serviço realizado com peças originais e garantia.
+                </p>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">4</div>
+                <h4 class="step-title">Entrega</h4>
+                <p class="step-description">
+                    Sua bike pronta, testada e otimizada.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Pronto para cuidar da sua bike?</h2>
+            <p class="cta-text">
+                Agende agora e experimente um atendimento premium de verdade.
+            </p>
+            <div class="cta-buttons">
+                <button class="btn-cta">
+                    <i class="fas fa-calendar-check"></i> Agendar Serviço
+                </button>
+                <button class="btn-cta secondary">
+                    <i class="fas fa-comments"></i> Falar com Especialista
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

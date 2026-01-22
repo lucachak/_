@@ -1,0 +1,716 @@
+{% extends 'base.html' %}
+
+{% block title %}Meu Perfil - EletricBike{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 3rem 0;
+    }
+
+    .profile-sidebar {
+        background: white;
+        border-radius: 25px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 100px;
+    }
+
+    .profile-avatar-section {
+        text-align: center;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+        font-weight: 900;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,212,255,0.3);
+        position: relative;
+    }
+
+    .avatar-upload {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+
+    .avatar-upload:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-email {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .profile-menu {
+        list-style: none;
+        padding: 0;
+    }
+
+    .profile-menu-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-menu-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        color: #666;
+        text-decoration: none;
+        border-radius: 15px;
+        transition: all 0.3s;
+        font-weight: 600;
+    }
+
+    .profile-menu-link:hover,
+    .profile-menu-link.active {
+        background: linear-gradient(135deg, rgba(0,212,255,0.1) 0%, rgba(0,255,136,0.1) 100%);
+        color: var(--primary-color);
+    }
+
+    .profile-menu-icon {
+        font-size: 1.3rem;
+    }
+
+    .profile-content {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 3px solid #f0f0f0;
+    }
+
+    .content-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+    }
+
+    .form-section {
+        margin-bottom: 3rem;
+    }
+
+    .form-section-title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .form-section-title i {
+        color: var(--primary-color);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 0.8rem;
+        font-size: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.3rem rgba(0,212,255,0.15);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border: none;
+        color: white;
+        font-weight: 900;
+        padding: 1.2rem 3rem;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1.1rem;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,212,255,0.4);
+    }
+
+    .btn-secondary {
+        background: white;
+        border: 2px solid #e0e0e0;
+        color: #666;
+        font-weight: 700;
+        padding: 1.2rem 3rem;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-left: 1rem;
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, rgba(0,212,255,0.1) 0%, rgba(0,255,136,0.1) 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-5px);
+    }
+
+    .stat-value {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: #666;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    /* Security Settings */
+    .security-option {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .security-info h4 {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+        margin-bottom: 0.3rem;
+    }
+
+    .security-info p {
+        color: #666;
+        margin: 0;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        background: #ccc;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .toggle-switch.active {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    }
+
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+
+    .toggle-switch.active::after {
+        left: 33px;
+    }
+
+    /* Order History */
+    .order-card {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        border-left: 5px solid var(--primary-color);
+        transition: all 0.3s;
+    }
+
+    .order-card:hover {
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,212,255,0.15);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .order-id {
+        font-size: 1.3rem;
+        font-weight: 900;
+        color: var(--secondary-color);
+    }
+
+    .order-status {
+        padding: 0.6rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .order-status.delivered {
+        background: rgba(0,255,136,0.2);
+        color: #00a854;
+    }
+
+    .order-status.processing {
+        background: rgba(255,193,7,0.2);
+        color: #e68900;
+    }
+
+    .order-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .order-detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: #999;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+    }
+
+    .detail-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+    }
+
+    @media (max-width: 768px) {
+        .profile-sidebar {
+            margin-bottom: 2rem;
+            position: static;
+        }
+
+        .profile-content {
+            padding: 1.5rem;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-secondary {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <div class="profile-sidebar">
+                    <div class="profile-avatar-section">
+                        <div class="profile-avatar">
+                            JD
+                            <div class="avatar-upload">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <h3 class="profile-name">João Dias</h3>
+                        <p class="profile-email">joao.dias@email.com</p>
+                    </div>
+
+                    <ul class="profile-menu">
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link active" data-section="overview">
+                                <i class="fas fa-home profile-menu-icon"></i>
+                                <span>Visão Geral</span>
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link" data-section="personal">
+                                <i class="fas fa-user profile-menu-icon"></i>
+                                <span>Dados Pessoais</span>
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link" data-section="orders">
+                                <i class="fas fa-shopping-bag profile-menu-icon"></i>
+                                <span>Meus Pedidos</span>
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link" data-section="bikes">
+                                <i class="fas fa-bicycle profile-menu-icon"></i>
+                                <span>Minhas Bikes</span>
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link" data-section="addresses">
+                                <i class="fas fa-map-marker-alt profile-menu-icon"></i>
+                                <span>Endereços</span>
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link" data-section="security">
+                                <i class="fas fa-shield-alt profile-menu-icon"></i>
+                                <span>Segurança</span>
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link" data-section="billing">
+                                <i class="fas fa-credit-card profile-menu-icon"></i>
+                                <span>Pagamentos</span>
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" class="profile-menu-link" style="color: #ff6b6b;">
+                                <i class="fas fa-sign-out-alt profile-menu-icon"></i>
+                                <span>Sair</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Overview Section -->
+                <div class="profile-content" id="overview-section">
+                    <div class="content-header">
+                        <h2 class="content-title">
+                            <i class="fas fa-chart-line"></i> Visão Geral
+                        </h2>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Bikes Compradas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Pedidos Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">Manutenções</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">R$ 24k</div>
+                            <div class="stat-label">Total Gasto</div>
+                        </div>
+                    </div>
+
+                    <h3 class="form-section-title">
+                        <i class="fas fa-clock"></i> Atividade Recente
+                    </h3>
+
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-id">#3847</div>
+                            <div class="order-status delivered">Entregue</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-detail-item">
+                                <span class="detail-label">Produto</span>
+                                <span class="detail-value">Urban Pro Elite</span>
+                            </div>
+                            <div class="order-detail-item">
+                                <span class="detail-label">Data</span>
+                                <span class="detail-value">15/01/2026</span>
+                            </div>
+                            <div class="order-detail-item">
+                                <span class="detail-label">Valor</span>
+                                <span class="detail-value">R$ 4.999,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-id">Manutenção Agendada</div>
+                            <div class="order-status processing">Confirmado</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-detail-item">
+                                <span class="detail-label">Serviço</span>
+                                <span class="detail-value">Manutenção Completa</span>
+                            </div>
+                            <div class="order-detail-item">
+                                <span class="detail-label">Data</span>
+                                <span class="detail-value">20/01/2026</span>
+                            </div>
+                            <div class="order-detail-item">
+                                <span class="detail-label">Horário</span>
+                                <span class="detail-value">14:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Data Section -->
+                <div class="profile-content" id="personal-section" style="display: none;">
+                    <div class="content-header">
+                        <h2 class="content-title">
+                            <i class="fas fa-user"></i> Dados Pessoais
+                        </h2>
+                    </div>
+
+                    <form>
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <i class="fas fa-id-card"></i> Informações Básicas
+                            </h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Nome Completo</label>
+                                    <input type="text" class="form-control" value="João Dias" placeholder="Seu nome completo">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">CPF</label>
+                                    <input type="text" class="form-control" value="123.456.789-00" placeholder="000.000.000-00">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Data de Nascimento</label>
+                                    <input type="date" class="form-control" value="1990-05-15">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Telefone</label>
+                                    <input type="tel" class="form-control" value="(11) 99999-9999" placeholder="(00) 00000-0000">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">E-mail</label>
+                                <input type="email" class="form-control" value="joao.dias@email.com" placeholder="seu@email.com">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-save"></i> Salvar Alterações
+                            </button>
+                            <button type="button" class="btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Security Section -->
+                <div class="profile-content" id="security-section" style="display: none;">
+                    <div class="content-header">
+                        <h2 class="content-title">
+                            <i class="fas fa-shield-alt"></i> Segurança
+                        </h2>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-key"></i> Alterar Senha
+                        </h3>
+
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Senha Atual</label>
+                                <input type="password" class="form-control" placeholder="Digite sua senha atual">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Nova Senha</label>
+                                    <input type="password" class="form-control" placeholder="Digite a nova senha">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Confirmar Nova Senha</label>
+                                    <input type="password" class="form-control" placeholder="Confirme a nova senha">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-lock"></i> Atualizar Senha
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-sliders-h"></i> Preferências de Segurança
+                        </h3>
+
+                        <div class="security-option">
+                            <div class="security-info">
+                                <h4>Autenticação em Dois Fatores</h4>
+                                <p>Adicione uma camada extra de segurança à sua conta</p>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+
+                        <div class="security-option">
+                            <div class="security-info">
+                                <h4>Notificações de Login</h4>
+                                <p>Receba alertas quando houver login de novos dispositivos</p>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+
+                        <div class="security-option">
+                            <div class="security-info">
+                                <h4>Salvar Histórico de Navegação</h4>
+                                <p>Armazene seu histórico de produtos visualizados</p>
+                            </div>
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Menu Navigation
+    const menuLinks = document.querySelectorAll('.profile-menu-link');
+    const sections = document.querySelectorAll('.profile-content');
+
+    menuLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (this.querySelector('.fa-sign-out-alt')) {
+                if (confirm('Tem certeza que deseja sair?')) {
+                    window.location.href = '/logout';
+                }
+                return;
+            }
+
+            const sectionName = this.dataset.section;
+            
+            menuLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+
+            sections.forEach(s => s.style.display = 'none');
+            const targetSection = document.getElementById(`${sectionName}-section`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+        });
+    });
+
+    // Toggle Switches
+    const toggleSwitches = document.querySelectorAll('.toggle-switch');
+    toggleSwitches.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
+</script>
+{% endblock %}

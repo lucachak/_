@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Em Manutenção</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            background: #f8f9fa; 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+        }
+        .icon-box {
+            width: 120px; height: 120px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="col-lg-6 mx-auto">
+            <div class="icon-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="#6c757d" class="bi bi-tools" viewBox="0 0 16 16">
+                    <path d="M1 0 0 1l2.2 3.081a1 1 0 0 0 .815.419h.076l.547-.547a3 3 0 0 0 .148-.154l.573-.573a3 3 0 0 0 .152-.148L5.5 2.5l.547.547a1 1 0 0 0 .617.295h.077l3.08-2.2z"/>
+                    <path d="M3 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm1.5 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm1.5 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm1.5 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-5.5 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm1.5 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm1.5 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm1.5 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+                </svg>
+            </div>
+            <h1 class="display-5 fw-bold text-dark mb-3">Estamos em Manutenção</h1>
+            <p class="lead text-muted mb-5">
+                Estamos fazendo melhorias no sistema para atendê-lo melhor. 
+                <br>Voltamos em alguns instantes!
+            </p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <button onclick="window.location.reload()" class="btn btn-primary rounded-pill px-4 gap-3">
+                    Tentar Novamente
+                </button>
+            </div>
+            <p class="mt-5 text-muted small">&copy; EletricBike Team</p>
+        </div>
+    </div>
+</body>
+</html>
