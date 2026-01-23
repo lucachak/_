@@ -1,307 +1,76 @@
 {% load static %}
-
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNav">
+<nav class="navbar navbar-expand-lg fixed-top bg-glass transition-all" id="mainNav">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">
-            <i class="fas fa-bolt"></i>
-            <span>EletricBike</span>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+            <div style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: black;">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <span class="fw-bold text-white tracking-tight">Eletric<span class="fw-light">Bike</span></span>
         </a>
-        
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+
+        <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="fas fa-bars fa-lg"></i>
         </button>
-        
+
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                        <i class="fas fa-home"></i> Início
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'bike_catalog' %}active{% endif %}" href="{% url 'bike_catalog' %}">
-                        <i class="fas fa-bicycle"></i> Bikes
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}" href="{% url 'services' %}">
-                        <i class="fas fa-wrench"></i> Serviços
-                    </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link {% if request.resolver_match.url_name == 'pricing' %}active{% endif %}" href="{% url 'pricing' %}">
-                        <i class="fas fa-tag"></i> Preços
-                    </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">
-                        <i class="fas fa-info-circle"></i> Sobre
-                    </a>
-                </li>
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link text-white opacity-75 hover-opacity-100 mx-2" href="{% url 'home' %}">Início</a></li>
+                <li class="nav-item"><a class="nav-link text-white opacity-75 hover-opacity-100 mx-2" href="{% url 'bike_catalog' %}">Kits & Bikes</a></li>
+                <li class="nav-item"><a class="nav-link text-white opacity-75 hover-opacity-100 mx-2" href="{% url 'services' %}">Oficina</a></li>
             </ul>
 
-            <div class="user-menu">
-                <div class="user-menu-icon" data-bs-toggle="modal" data-bs-target="#searchModal" title="Buscar">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'bike_catalog' %}" class="btn text-white p-2 opacity-75 hover-opacity-100" title="Buscar">
                     <i class="fas fa-search"></i>
-                </div>
+                </a>
+
+                {% if not user.is_staff %}
+                <a href="{% url 'cart_detail' %}" class="position-relative btn text-white p-2 opacity-75 hover-opacity-100">
+                    <i class="fas fa-shopping-bag"></i>
+                    {% if request.session.cart %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                        {{ request.session.cart|length }}
+                    </span>
+                    {% endif %}
+                </a>
+                {% endif %}
 
                 {% if user.is_authenticated %}
-                    {% if not user.is_staff %}
-                    <a href="#" class="user-menu-icon" title="Favoritos">
-                        <i class="fas fa-heart"></i>
-                    </a>
-                    {% endif %}
-
-                    {% if not user.is_staff %}
-                    <a href="{% url 'cart_detail' %}" class="user-menu-icon" title="Meu Carrinho">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-badge">{{ request.session.cart|length|default:"0" }}</span>
-                    </a>
-                    {% endif %}
-
-                    <div class="user-menu-icon dropdown">
-                        <a href="#" class="d-block text-white" data-bs-toggle="dropdown">
-                            <i class="fas fa-bell"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
-                            <li class="dropdown-header">Notificações</li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><span class="dropdown-item text-muted small">Nenhuma notificação nova</span></li>
-                        </ul>
-                    </div>
-
                     <div class="dropdown">
-                        <a class="btn btn-primary-custom dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            
-                            {% if user.is_superuser %}
-                                <li class="dropdown-header">
-                                    <i class="fas fa-crown text-warning"></i> Super Admin
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'admin_dashboard' %}">
-                                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'staff_order_list' %}">
-                                        <i class="fas fa-boxes me-2"></i> Gerenciar Pedidos
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'admin_reports' %}">
-                                        <i class="fas fa-chart-pie me-2"></i> Relatórios
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'admin_settings' %}">
-                                        <i class="fas fa-cog me-2"></i> Configurações
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'add_product' %}">
-                                        <i class="fas fa-plus me-2"></i> Novo Produto
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-
-                            {% elif user.is_staff %}
-                                <li class="dropdown-header">
-                                    <i class="fas fa-user-tie text-primary"></i> Staff
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'admin_dashboard' %}">
-                                        <i class="fas fa-gauge me-2"></i> Dashboard
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'staff_order_list' %}">
-                                        <i class="fas fa-clipboard-list me-2"></i> Pedidos
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'add_product' %}">
-                                        <i class="fas fa-box-open me-2"></i> Estoque
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-
+                        <button class="btn btn-outline-light rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-2 border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown">
+                            <div class="bg-secondary bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                {{ user.first_name|default:user.email|slice:":1"|upper }}
+                            </div>
+                            <span class="small">{{ user.first_name|default:"Minha Conta" }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end bg-dark border border-secondary border-opacity-25 shadow-lg mt-2">
+                            {% if user.is_staff %}
+                                <li><h6 class="dropdown-header text-uppercase text-muted small">Admin</h6></li>
+                                <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'staff_dashboard' %}"><i class="fas fa-gauge me-2"></i> Painel Staff</a></li>
                             {% else %}
-                                <li class="dropdown-header">
-                                    <i class="fas fa-user text-success"></i> Minha Conta
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'client_dashboard' %}">
-                                        <i class="fas fa-gauge me-2"></i> Meu Painel
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'client_orders' %}">
-                                        <i class="fas fa-shopping-bag me-2"></i> Meus Pedidos
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'client_profile' %}">
-                                        <i class="fas fa-id-card me-2"></i> Meus Dados
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header text-uppercase text-muted small">Minha Conta</h6></li>
+                                <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'client_dashboard' %}"><i class="fas fa-user me-2"></i> Painel</a></li>
+                                <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'client_orders' %}"><i class="fas fa-box me-2"></i> Pedidos</a></li>
                             {% endif %}
-
+                            <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
                             <li>
-                                <form action="{% url 'logout' %}" method="POST" id="logout-form">
+                                <form action="{% url 'logout' %}" method="POST">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="fas fa-sign-out-alt me-2"></i> Sair
-                                    </button>
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i> Sair</button>
                                 </form>
                             </li>
                         </ul>
                     </div>
-
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-custom">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </a>
-                    <a href="{% url 'register' %}" class="btn btn-primary-custom">
-                        <i class="fas fa-user-plus"></i> Criar Conta
-                    </a>
+                    <a href="{% url 'login' %}" class="text-white text-decoration-none small fw-bold me-2">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-sm btn-neon px-3">Criar Conta</a>
                 {% endif %}
             </div>
         </div>
     </div>
 </nav>
 
-<div class="modal fade" id="searchModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px;">
-            <div class="modal-body p-4">
-                <h5 class="mb-3">
-                    <i class="fas fa-search text-primary"></i> Buscar
-                </h5>
-                <form action="{% url 'bike_catalog' %}" method="get">
-                    <div class="input-group mb-3">
-                        <input type="text" name="search" class="form-control form-control-lg" placeholder="Buscar produtos, serviços..." style="border-radius: 15px 0 0 15px;">
-                        <button class="btn btn-primary" type="submit" style="border-radius: 0 15px 15px 0;">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
-                <div class="d-flex gap-2 flex-wrap">
-                    <a href="{% url 'bike_catalog' %}?category=Mountain+Bike" class="badge bg-light text-dark text-decoration-none">Mountain Bikes</a>
-                    <a href="{% url 'bike_catalog' %}?category=Urbana" class="badge bg-light text-dark text-decoration-none">Urbanas</a>
-                    <a href="{% url 'bike_catalog' %}?tag=promo" class="badge bg-light text-dark text-decoration-none">Ofertas</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-/* Estilos Originais Preservados e Ajustados */
-.navbar {
-    background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-
-.dropdown-menu {
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    border: none;
-    padding: 0.5rem 0;
-}
-
-.dropdown-item {
-    padding: 0.7rem 1.5rem;
-    transition: all 0.2s;
-    font-weight: 500;
-}
-
-.dropdown-item:hover {
-    background: #f1f5f9;
-    color: var(--primary-color);
-    padding-left: 1.8rem; /* Efeito de slide */
-}
-
-.dropdown-header {
-    padding: 0.8rem 1.5rem;
-    font-weight: 800;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-}
-
-.cart-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ef4444;
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 900;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 5px;
-    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
-}
-
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-}
-
-/* Mobile adjustments */
-@media (max-width: 991px) {
-    .navbar-collapse {
-        background: rgba(15, 23, 42, 0.98);
-        margin-top: 1rem;
-        padding: 1.5rem;
-        border-radius: 15px;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-    .user-menu {
-        margin-top: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    .btn-outline-custom, .btn-primary-custom { width: 100%; margin: 0.25rem 0; }
-}
+    .hover-opacity-100:hover { opacity: 1 !important; color: var(--primary) !important; }
+    .dropdown-item:hover { background-color: rgba(255,255,255,0.1); }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-            link.classList.add('active');
-        }
-    });
-
-    // Close mobile menu on link click
-    const navbarCollapse = document.getElementById('navbarNav');
-    if(navbarCollapse){
-        const navItems = navbarCollapse.querySelectorAll('a:not(.dropdown-toggle)');
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth < 992) {
-                    const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-                    if(bsCollapse) bsCollapse.hide();
-                }
-            });
-        });
-    }
-});
-</script>

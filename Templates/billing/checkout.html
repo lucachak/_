@@ -1,108 +1,131 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
-{% block title %}Checkout - Pagamento{% endblock %}
+{% block title %}Checkout Seguro | EletricBike{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilo para Opções de Pagamento */
+    .payment-option {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-option:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    /* Quando selecionado (Input Radio Checked) */
+    .payment-option:has(input:checked) {
+        background: rgba(0, 242, 255, 0.1);
+        border-color: var(--primary);
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
+    }
+
+    .payment-option:has(input:checked)::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: var(--primary);
+    }
+
+    .form-check-input {
+        background-color: rgba(0,0,0,0.5);
+        border-color: rgba(255,255,255,0.3);
+    }
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="bg-light py-5" style="min-height: 80vh;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-8">
-                
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                    <div class="card-header bg-primary text-white text-center py-4 border-0">
-                        <h4 class="fw-bold mb-0"><i class="fas fa-lock me-2"></i> Pagamento Seguro</h4>
-                        <small class="opacity-75">Pedido #{{ order.id }}</small>
-                    </div>
-
-                    <div class="card-body p-5">
-                        
-                        <div class="text-center mb-5">
-                            <p class="text-muted mb-1 text-uppercase fw-bold small">Total a Pagar</p>
-                            <h1 class="display-4 fw-bold text-dark">R$ {{ order.total_amount|intcomma }}</h1>
-                        </div>
-
-                        <form method="POST">
-                            {% csrf_token %}
-                            
-                            <h6 class="fw-bold mb-3 text-secondary">Escolha o método:</h6>
-
-                            <label class="payment-option d-flex align-items-center p-3 border rounded-4 mb-3 cursor-pointer">
-                                <div class="form-check">
-                                    <input type="radio" name="payment_method" value="pix" class="form-check-input" id="methodPix" checked>
-                                </div>
-                                <div class="ms-3 flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="fw-bold mb-0 text-dark"><i class="fas fa-qrcode me-2 text-success"></i> PIX</h6>
-                                        <span class="badge bg-success bg-opacity-10 text-success">Aprovação Imediata</span>
-                                    </div>
-                                    <small class="text-muted">Gere um QR Code e pague pelo app do seu banco.</small>
-                                </div>
-                            </label>
-
-                            <label class="payment-option d-flex align-items-center p-3 border rounded-4 mb-4 cursor-pointer">
-                                <div class="form-check">
-                                    <input type="radio" name="payment_method" value="stripe" class="form-check-input" id="methodCard">
-                                </div>
-                                <div class="ms-3 flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="fw-bold mb-0 text-dark"><i class="far fa-credit-card me-2 text-primary"></i> Cartão de Crédito</h6>
-                                        <div class="text-muted small">
-                                            <i class="fab fa-cc-visa"></i> <i class="fab fa-cc-mastercard"></i>
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Processado com segurança pelo Stripe.</small>
-                                </div>
-                            </label>
-
-                            <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow-sm transition-btn">
-                                    Pagar R$ {{ order.total_amount|intcomma }} <i class="fas fa-arrow-right ms-2"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <div class="card-footer bg-white text-center py-3 border-top">
-                        <small class="text-muted">
-                            <i class="fas fa-shield-alt text-success me-1"></i> Seus dados estão 100% protegidos.
-                        </small>
-                    </div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            
+            <div class="text-center mb-5">
+                <div class="d-inline-flex align-items-center justify-content-center bg-glass p-3 rounded-circle mb-3 shadow-lg border border-light border-opacity-10">
+                    <i class="fas fa-lock fa-2x text-primary"></i>
                 </div>
-
-                <div class="text-center mt-4">
-                    <a href="{% url 'cart_detail' %}" class="text-decoration-none text-muted fw-bold">
-                        <i class="fas fa-arrow-left me-1"></i> Voltar ao Carrinho
-                    </a>
-                </div>
-
+                <h2 class="fw-bold text-white">Pagamento Seguro</h2>
+                <p class="text-muted">Pedido #{{ order.id }}</p>
             </div>
+            
+            <div class="bg-glass rounded-4 border border-light border-opacity-10 shadow-lg overflow-hidden">
+                
+                <div class="p-5 text-center border-bottom border-light border-opacity-10 bg-dark bg-opacity-25">
+                    <p class="text-muted text-uppercase small fw-bold ls-1 mb-2">Total a Pagar</p>
+                    <h1 class="display-3 fw-bold text-white mb-0 text-gradient">
+                        R$ {{ order.total_amount|intcomma }}
+                    </h1>
+                </div>
+
+                <div class="p-4 p-md-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <h6 class="text-white fw-bold mb-4 ps-1">Escolha como pagar:</h6>
+
+                        <label class="payment-option d-flex align-items-center p-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" value="PIX" checked>
+                            </div>
+                            <div class="ms-3 flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-white fw-bold fs-5">PIX (Instantâneo)</span>
+                                    <i class="fab fa-pix text-success fa-2x"></i>
+                                </div>
+                                <small class="text-success fw-bold">
+                                    <i class="fas fa-arrow-down me-1"></i> 5% de Desconto aplicado
+                                </small>
+                            </div>
+                        </label>
+
+                        <label class="payment-option d-flex align-items-center p-4 mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" value="CARD">
+                            </div>
+                            <div class="ms-3 flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-white fw-bold fs-5">Cartão de Crédito</span>
+                                    <div class="text-muted opacity-50">
+                                        <i class="fab fa-cc-visa fa-lg me-1"></i>
+                                        <i class="fab fa-cc-mastercard fa-lg"></i>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Até 12x sem juros</small>
+                            </div>
+                        </label>
+
+                        <button type="submit" class="btn btn-neon w-100 py-3 fw-bold shadow-lg text-uppercase ls-1">
+                            Pagar Agora <i class="fas fa-chevron-right ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="bg-dark bg-opacity-50 p-3 text-center border-top border-light border-opacity-10">
+                    <small class="text-muted opacity-75">
+                        <i class="fas fa-shield-alt text-success me-1"></i> Ambiente criptografado de ponta a ponta.
+                    </small>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'cart_detail' %}" class="text-muted text-decoration-none hover-text-white small">
+                    <i class="fas fa-arrow-left me-2"></i> Cancelar e voltar ao carrinho
+                </a>
+            </div>
+
         </div>
     </div>
 </div>
-
-<style>
-    /* CSS Específico para esta página */
-    .cursor-pointer { cursor: pointer; transition: all 0.2s ease; }
-    
-    /* Efeito ao passar o mouse na opção */
-    .payment-option:hover {
-        background-color: #f8f9fa;
-        border-color: var(--primary-color) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-
-    /* Estilo quando o input radio está marcado */
-    .payment-option:has(input:checked) {
-        border-color: var(--primary-color) !important;
-        background-color: rgba(var(--bs-primary-rgb), 0.03);
-        border-width: 2px;
-    }
-
-    .form-check-input:checked {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-</style>
 {% endblock %}

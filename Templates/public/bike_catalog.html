@@ -1,588 +1,125 @@
 {% extends 'base.html' %}
 
-{% block title %}Catálogo de Bikes - EletricBike{% endblock %}
+{% block title %}Catálogo de Conversão - EletricBike{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* --- VARIÁVEIS GERAIS --- */
-    :root {
-        --primary-color: #6366f1; /* Roxo Indigo */
-        --primary-hover: #4f46e5;
-        --secondary-color: #0f172a; /* Slate 900 */
-        --accent-color: #06b6d4; /* Cyan */
-        --bg-light: #f8fafc;
-        --text-gray: #64748b;
-        --border-color: #e2e8f0;
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-
-    /* --- HERO SECTION --- */
-    .bikes-hero {
-        background: linear-gradient(135deg, var(--secondary-color) 0%, #1e293b 100%);
+    /* Customização dos Inputs para Dark Mode */
+    .form-control-dark, .form-select-dark {
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         color: white;
-        padding: 4rem 0 3rem;
-        margin-bottom: 2rem;
-        border-radius: 0 0 2rem 2rem;
-        position: relative;
-        overflow: hidden;
+        border-radius: 12px;
     }
-
-    .bikes-hero-title {
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-        text-align: center;
-        background: linear-gradient(to right, #fff, #94a3b8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .bikes-hero-subtitle {
-        text-align: center;
-        color: #94a3b8;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    /* --- ÁREA DE FILTROS (Container) --- */
-    .filter-section {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: var(--card-shadow);
-        margin-bottom: 2rem;
-        border: 1px solid var(--border-color);
-        position: sticky;
-        top: 20px;
-        z-index: 40;
-    }
-
-    .filter-container {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.5rem;
-    }
-
-    .filter-group {
-        flex: 1;
-        min-width: 160px;
-    }
-
-    .filter-label {
-        display: block;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: var(--text-gray);
-        margin-bottom: 0.5rem;
-        letter-spacing: 0.05em;
-    }
-
-    .filter-select {
-        width: 100%;
-        padding: 0.6rem;
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        background-color: #fff;
-        color: var(--secondary-color);
-        font-size: 0.9rem;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .filter-select:focus {
-        border-color: var(--primary-color);
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    /* --- FILTROS DE TAGS --- */
-    .filter-tags {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        border-top: 1px solid var(--border-color);
-        padding-top: 1rem;
-    }
-
-    .filter-tag {
-        background: white;
-        border: 1px solid var(--border-color);
-        color: var(--text-gray);
-        padding: 0.5rem 1.25rem;
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .filter-tag:hover {
-        background: var(--bg-light);
-        color: var(--secondary-color);
-        border-color: #cbd5e1;
-    }
-
-    .filter-tag.active {
-        background: var(--primary-color);
+    .form-control-dark:focus, .form-select-dark:focus {
+        background-color: rgba(0, 0, 0, 0.5);
+        border-color: var(--primary);
         color: white;
-        border-color: var(--primary-color);
-        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+        box-shadow: 0 0 0 0.25rem rgba(0, 242, 255, 0.25);
+    }
+    .form-control-dark::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+    /* Filtros Sidebar */
+    .filter-sidebar {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* --- CATALOGO GRID --- */
-    .catalog-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .catalog-info {
-        font-size: 0.9rem;
-        color: var(--text-gray);
-    }
-
-    .view-toggle {
-        display: flex;
-        background: white;
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        padding: 0.25rem;
-        gap: 0.25rem;
-    }
-
-    .view-toggle .view-btn {
-        width: 2rem;
-        height: 2rem;
-        border: none;
-        background: transparent;
-        border-radius: 0.25rem;
-        color: var(--text-gray);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .view-toggle .view-btn.active {
-        background: var(--bg-light);
-        color: var(--primary-color);
-        font-weight: bold;
-    }
-
-    /* --- O GRID PRINCIPAL --- */
-    .bikes-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 2rem;
-        position: relative;
-        min-height: 300px;
-    }
-
-    /* --- ESTILO DOS CARDS --- */
-    .bike-card {
-        background: white;
-        border: 1px solid var(--border-color);
-        border-radius: 1rem;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-    }
-
-    .bike-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--card-hover-shadow);
-        border-color: #cbd5e1;
-    }
-
-    .bike-image-wrapper {
-        height: 220px;
-        background: #f1f5f9;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-    
-    .bike-image-wrapper img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-    
-    .bike-card:hover .bike-image-wrapper img {
-        transform: scale(1.05);
-    }
-
-    /* Badges e Ações */
-    .bike-badge {
-        position: absolute;
-        top: 0.75rem;
-        right: 0.75rem;
-        padding: 0.35rem 0.85rem;
-        border-radius: 2rem;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: white;
-        z-index: 10;
-        letter-spacing: 0.05em;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .bike-badge.new { background: #10b981; }
-    .bike-badge.sale { background: #f43f5e; }
-
-    .bike-actions {
-        position: absolute;
-        top: 0.75rem;
-        left: 0.75rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        opacity: 0;
-        transform: translateX(-10px);
-        transition: all 0.2s ease;
-    }
-
-    .bike-card:hover .bike-actions {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    .action-icon {
-        width: 2.25rem;
-        height: 2.25rem;
-        border-radius: 50%;
-        background: white;
-        border: 1px solid rgba(0,0,0,0.05);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--secondary-color);
-        transition: all 0.2s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .action-icon:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-
-    /* Conteúdo do Card */
-    .bike-info {
-        padding: 1.25rem;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
-
-    .bike-category {
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: var(--primary-color);
-        margin-bottom: 0.25rem;
-    }
-
-    .bike-name {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--secondary-color);
-        margin-bottom: 0.5rem;
-        line-height: 1.4;
-    }
-
-    .bike-description {
-        font-size: 0.85rem;
-        color: var(--text-gray);
-        margin-bottom: 1rem;
-        flex-grow: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .bike-specs {
-        display: flex;
-        gap: 1rem;
-        padding: 0.75rem;
-        background: var(--bg-light);
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        justify-content: space-around;
-    }
-
-    .spec-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--secondary-color);
-    }
-    
-    .spec-item i { font-size: 1rem; margin-bottom: 0.25rem; color: var(--accent-color); }
-
-    .bike-pricing {
-        margin-top: auto;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .price-value {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--secondary-color);
-    }
-
-    .btn-buy {
-        background: var(--secondary-color);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .btn-buy:hover {
-        background: var(--primary-color);
-    }
-
-    /* --- PAGINAÇÃO --- */
-    .pagination-container {
-        display: inline-flex;
-        background: white;
-        border: 1px solid var(--border-color);
-        border-radius: 0.75rem;
-        padding: 0.25rem;
-        gap: 0.25rem;
-        box-shadow: var(--card-shadow);
-    }
-
-    .pagination-container .view-btn {
-        width: 2.5rem;
-        height: 2.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.5rem;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-gray);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
-    }
-
-    .pagination-container .view-btn:hover {
-        background: var(--bg-light);
-        color: var(--primary-color);
-    }
-
-    .pagination-container .view-btn.active {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-
-    /* --- LOADING INDICATOR --- */
+    /* Controle do Loading do HTMX */
     .htmx-indicator {
-        display: none;
-        transition: opacity 200ms ease-in;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
     }
     .htmx-request .htmx-indicator, 
     .htmx-request.htmx-indicator {
-        display: inline-flex;
-        align-items: center;
-    }
-
-    @media (max-width: 768px) {
-        .bikes-grid { grid-template-columns: 1fr; }
-        .filter-container { flex-direction: column; gap: 0.5rem; }
+        opacity: 1;
+        pointer-events: all;
+        display: flex !important;
     }
 </style>
-<style>
-    .htmx-indicator { display: none; }
-    .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { display: inline-flex; }
-</style>
-
 {% endblock %}
 
 {% block content %}
-<section class="bikes-hero">
-    <div class="container bikes-hero-content">
-        <h1 class="bikes-hero-title">Nosso Catálogo Completo</h1>
-        <p class="bikes-hero-subtitle">
-            Encontre a bike elétrica perfeita para seu estilo de vida.
-        </p>
+<section class="position-relative py-5 overflow-hidden">
+    <div class="position-absolute top-0 start-50 translate-middle-x w-100 h-100" style="background: radial-gradient(circle at center, rgba(0, 242, 255, 0.15) 0%, transparent 70%); pointer-events: none;"></div>
+    <div class="container position-relative z-2 text-center">
+        <h1 class="display-4 fw-bold text-white mb-2 mt-4">Escolha seu <span class="text-gradient">Futuro</span></h1>
+        <p class="text-muted lead">Kits de conversão e e-bikes prontas para entrega imediata.</p>
     </div>
 </section>
 
-<form id="filterForm" hx-get="{% url 'bike_catalog' %}" hx-target="#bikesGrid" hx-indicator="#loadingIndicator" hx-trigger="change">
-    <section class="filter-section">
-        <div class="container">
-            <div class="filter-container">
-    <div class="filter-group" style="flex: 2;">
-        <label class="filter-label">Buscar</label>
-        <div class="position-relative">
-            <input type="text" name="search" class="filter-select ps-5" placeholder="Nome, modelo ou SKU..." value="{{ request.GET.search }}">
-            <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-        </div>
-    </div>
-
-    <div class="filter-group">
-        <label class="filter-label">Categoria</label>
-        <select name="category" class="filter-select">
-            <option value="">Todas</option>
-            <option value="Mountain Bike" {% if request.GET.category == 'Mountain Bike' %}selected{% endif %}>Mountain Bike</option>
-            <option value="Urbana" {% if request.GET.category == 'Urbana' %}selected{% endif %}>Urbana</option>
-            <option value="Estrada" {% if request.GET.category == 'Estrada' %}selected{% endif %}>Estrada</option>
-            <option value="Dobravel" {% if request.GET.category == 'Dobravel' %}selected{% endif %}>Dobrável</option>
-        </select>
-    </div>
-
-    <div class="filter-group">
-        <label class="filter-label">Condição</label>
-        <select name="condition" class="filter-select">
-            <option value="">Qualquer</option>
-            <option value="NEW" {% if request.GET.condition == 'NEW' %}selected{% endif %}>Novo</option>
-            <option value="USED" {% if request.GET.condition == 'USED' %}selected{% endif %}>Usado</option>
-        </select>
-    </div>
-
-    <div class="filter-group">
-        <label class="filter-label">Ordenar por</label>
-        <select name="ordering" class="filter-select">
-            <option value="newest">Mais Recentes</option>
-            <option value="price_asc">Menor Preço</option>
-            <option value="price_desc">Maior Preço</option>
-        </select>
-    </div>
-</div>
-        </div>
-    </section>
-</form>
-
-<section class="catalog-section">
-    <div class="container">
-        <div class="catalog-header">
-            <div class="catalog-info">
-                <span id="loadingIndicator" class="htmx-indicator" style="margin-right: 10px;">
-                    <i class="fas fa-circle-notch fa-spin fa-lg text-primary"></i> Carregando...
-                </span>
-                <span id="resultCount">Mostrando resultados</span>
-            </div>
-            <div class="view-toggle">
-                <button class="view-btn active" data-view="grid"><i class="fas fa-th"></i></button>
-                <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
-            </div>
-        </div>
-
-        <div class="bikes-grid" id="bikesGrid" style="position: relative; min-height: 400px;">
-            <div class="grid-loading-overlay htmx-indicator">
-                <i class="fas fa-spinner fa-3x fa-spin" style="color: var(--primary-color);"></i>
-            </div>
+<div class="container pb-5 mt-2">
+    <form id="filterForm" hx-get="{% url 'bike_catalog' %}" hx-target="#bikesGrid" hx-indicator="#loadingOverlay" hx-trigger="change delay:300ms, submit">
+        <div class="row g-4">
             
-            {% include 'partials/bikes_list.html' %}
-        </div>
+            <div class="col-lg-3">
+                <div class="filter-sidebar p-4 sticky-top" style="top: 100px; z-index: 90;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold text-white m-0"><i class="fas fa-sliders-h me-2 text-primary"></i> Filtros</h5>
+                        <a href="{% url 'bike_catalog' %}" class="btn btn-sm text-muted hover-text-white">Limpar</a>
+                    </div>
 
-    </div>
-</section>
+                    <div class="mb-4">
+                        <label class="small text-muted fw-bold mb-2">BUSCAR</label>
+                        <div class="position-relative">
+                            <input type="text" name="search" class="form-control form-control-dark ps-5" placeholder="Modelo, Watts..." value="{{ request.GET.search }}">
+                            <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        </div>
+                    </div>
 
-<div class="comparison-bar" id="comparisonBar">
-    </div>
-{% endblock %}
+                    <div class="mb-4">
+                        <label class="small text-muted fw-bold mb-2">CATEGORIA</label>
+                        <select name="category" class="form-select form-select-dark">
+                            <option value="">Todas as Categorias</option>
+                            <option value="Mountain Bike" {% if request.GET.category == 'Mountain Bike' %}selected{% endif %}>Mountain Bike</option>
+                            <option value="Urbana" {% if request.GET.category == 'Urbana' %}selected{% endif %}>Urbana</option>
+                            <option value="Estrada" {% if request.GET.category == 'Estrada' %}selected{% endif %}>Estrada</option>
+                            <option value="Kits" {% if request.GET.category == 'Kits' %}selected{% endif %}>Kits de Conversão</option>
+                        </select>
+                    </div>
 
-{% block extra_js %}
-<script>
-    function initializeCatalogEvents() {
-        document.querySelectorAll('.action-icon').forEach(btn => {
-            if (btn.querySelector('.fa-heart')) {
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-                newBtn.addEventListener('click', function() {
-                    const icon = this.querySelector('i');
-                    if (icon.classList.contains('fas')) {
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
-                        this.style.color = 'var(--secondary-color)';
-                    } else {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                        this.style.color = '#ff6b6b';
-                    }
-                });
-            }
-        });
+                    <div class="mb-4">
+                        <label class="small text-muted fw-bold mb-2">CONDIÇÃO</label>
+                        <div class="d-flex gap-2">
+                            <input type="radio" class="btn-check" name="condition" id="condAll" value="" {% if not request.GET.condition %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary btn-sm flex-fill" for="condAll">Todos</label>
 
-        document.querySelectorAll('.action-icon').forEach(btn => {
-             if (btn.querySelector('.fa-balance-scale')) {
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-                newBtn.addEventListener('click', function() {
-                    const card = this.closest('.bike-card');
-                    const bikeName = card.querySelector('.bike-name').innerText;
-                    alert('Adicionado à comparação: ' + bikeName);
-                });
-             }
-        });
-    }
+                            <input type="radio" class="btn-check" name="condition" id="condNew" value="NEW" {% if request.GET.condition == 'NEW' %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary btn-sm flex-fill" for="condNew">Novo</label>
 
-    document.addEventListener('DOMContentLoaded', initializeCatalogEvents);
+                            <input type="radio" class="btn-check" name="condition" id="condUsed" value="USED" {% if request.GET.condition == 'USED' %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary btn-sm flex-fill" for="condUsed">Usado</label>
+                        </div>
+                    </div>
 
-    document.body.addEventListener('htmx:afterSwap', function(evt) {
-        initializeCatalogEvents();
-        const activeView = document.querySelector('.view-btn.active').dataset.view;
-        const grid = document.getElementById('bikesGrid');
-        if (activeView === 'list') {
-            grid.classList.add('list-view');
-        } else {
-            grid.classList.remove('list-view');
-        }
-    });
+                    <div class="mb-0">
+                        <label class="small text-muted fw-bold mb-2">ORDENAR POR</label>
+                        <select name="ordering" class="form-select form-select-dark">
+                            <option value="newest" {% if request.GET.ordering == 'newest' %}selected{% endif %}>Lançamentos</option>
+                            <option value="price_asc" {% if request.GET.ordering == 'price_asc' %}selected{% endif %}>Menor Preço</option>
+                            <option value="price_desc" {% if request.GET.ordering == 'price_desc' %}selected{% endif %}>Maior Preço</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-    const viewButtons = document.querySelectorAll('.view-btn');
-    const bikesGrid = document.getElementById('bikesGrid');
-
-    viewButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            if(!this.hasAttribute('hx-get')) { 
-                viewButtons.forEach(b => {
-                    if(!b.hasAttribute('hx-get')) b.classList.remove('active');
-                });
-                this.classList.add('active');
+            <div class="col-lg-9 position-relative">
                 
-                const view = this.dataset.view;
-                if (view === 'list') {
-                    bikesGrid.classList.add('list-view');
-                } else {
-                    bikesGrid.classList.remove('list-view');
-                }
-            }
-        });
-    });
+                <div id="loadingOverlay" class="htmx-indicator position-absolute w-100 h-100 bg-dark bg-opacity-75 z-3 d-flex align-items-center justify-content-center rounded-4" style="top:0; left:0; min-height: 400px;">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                        <h5 class="text-white animate-pulse">Carregando catálogo...</h5>
+                    </div>
+                </div>
 
-    const filterTags = document.querySelectorAll('.filter-tag');
-    filterTags.forEach(tag => {
-        tag.addEventListener('click', function() {
-            filterTags.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-</script>
+                <div class="row" id="bikesGrid">
+                    {% include 'partials/bikes_list.html' %}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 {% endblock %}

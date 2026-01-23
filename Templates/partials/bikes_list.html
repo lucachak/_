@@ -1,88 +1,85 @@
-{% load static %}
 {% load humanize %}
 
 {% for bike in bikes %}
-<div class="col">
-    <div class="bike-card h-100 d-flex flex-column border-0 shadow-sm rounded-4 overflow-hidden position-relative group-hover-trigger">
+<div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+    <div class="card h-100 border-0 bg-glass text-white overflow-hidden product-card group-hover-trigger">
         
-        <a href="{% url 'bike_detail' bike.id %}" class="text-decoration-none text-dark">
-            <div class="bike-image-wrapper position-relative bg-light" style="height: 240px; overflow: hidden;">
-                
-                {% if bike.condition == 'NEW' %}
-                    <span class="badge bg-success position-absolute top-0 end-0 m-3 shadow-sm">Novo</span>
-                {% elif bike.condition == 'USED' %}
-                    <span class="badge bg-secondary position-absolute top-0 end-0 m-3 shadow-sm">Usado</span>
-                {% endif %}
+        <div class="position-absolute top-0 start-0 m-3 z-2">
+            {% if bike.condition == 'NEW' %}
+                <span class="badge bg-success bg-opacity-75 backdrop-blur shadow-sm">Novo</span>
+            {% elif bike.condition == 'USED' %}
+                <span class="badge bg-warning text-dark bg-opacity-75 backdrop-blur shadow-sm">Seminovo</span>
+            {% endif %}
+        </div>
 
-                {% if bike.main_image %}
-                    <img src="{{ bike.main_image.url }}" alt="{{ bike.name }}" 
-                         class="w-100 h-100 object-fit-cover transition-transform duration-300"
-                         style="object-fit: cover; transition: transform 0.5s ease;">
-                {% else %}
-                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
-                        <i class="fas fa-bicycle fa-3x opacity-25"></i>
-                    </div>
-                {% endif %}
+        <a href="{% url 'bike_detail' bike.id %}" class="d-block position-relative overflow-hidden" style="height: 260px;">
+            {% if bike.main_image %}
+                <img src="{{ bike.main_image.url }}" alt="{{ bike.name }}" 
+                     class="w-100 h-100 object-fit-cover transition-transform duration-500 card-img">
+            {% else %}
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50">
+                    <i class="fas fa-bicycle fa-3x text-muted opacity-25"></i>
+                </div>
+            {% endif %}
+            
+            <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-to-t from-black d-flex justify-content-between align-items-end opacity-0 card-actions transition-all">
+                <span class="small text-white opacity-75"><i class="fas fa-plus-circle"></i> Ver detalhes</span>
             </div>
         </a>
 
-        <div class="card-body p-3 d-flex flex-column">
-            
-            <small class="text-uppercase text-primary fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">
-                {{ bike.category.name|default:"Geral" }}
+        <div class="card-body d-flex flex-column p-4">
+            <small class="text-uppercase fw-bold mb-2 text-gradient" style="font-size: 0.7rem; letter-spacing: 1px;">
+                {{ bike.category.name|default:"E-Bike" }}
             </small>
-
-            <a href="{% url 'bike_detail' bike.id %}" class="text-decoration-none text-secondary">
-                <h5 class="card-title fw-bold mb-2" style="font-size: 1.1rem;">{{ bike.name }}</h5>
+            
+            <a href="{% url 'bike_detail' bike.id %}" class="text-decoration-none text-white">
+                <h5 class="fw-bold mb-2 text-truncate">{{ bike.name }}</h5>
             </a>
             
-            <p class="card-text text-muted small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                {{ bike.description|striptags }}
-            </p>
-
-            <div class="d-flex justify-content-between align-items-end mt-3 pt-3 border-top">
-                
-                <div>
-                    {% if bike.selling_price %}
-                        <small class="text-muted d-block" style="font-size: 0.75rem; line-height: 1;">A partir de</small>
-                        <span class="fw-bold text-dark fs-5">R$ {{ bike.selling_price|intcomma }}</span>
-                    {% else %}
-                        <span class="fw-bold text-muted">Sob Consulta</span>
-                    {% endif %}
-                </div>
-
-                <div>
-                    {% if bike.stock_quantity > 0 or bike.product_type == 'SERVICE' %}
-                        <a href="{% url 'bike_detail' bike.id %}" class="btn btn-primary rounded-circle shadow-sm" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    {% else %}
-                        <button class="btn btn-light text-muted rounded-circle border" disabled style="width: 45px; height: 45px;">
-                            <i class="fas fa-ban"></i>
-                        </button>
-                    {% endif %}
-                </div>
+            <div class="d-flex gap-3 mb-3 text-muted small">
+                {% if bike.specs.wattage %}
+                    <span title="Potência"><i class="fas fa-bolt text-info me-1"></i>{{ bike.specs.wattage }}W</span>
+                {% endif %}
+                {% if bike.specs.range_estimate %}
+                    <span title="Autonomia"><i class="fas fa-road text-success me-1"></i>{{ bike.specs.range_estimate }}</span>
+                {% endif %}
             </div>
 
+            <div class="mt-auto d-flex align-items-center justify-content-between border-top border-light border-opacity-10 pt-3">
+                <div class="d-flex flex-column">
+                    <small class="text-muted" style="font-size: 0.7rem;">A partir de</small>
+                    <span class="fw-bold fs-5">R$ {{ bike.selling_price|intcomma }}</span>
+                </div>
+                
+                <a href="{% url 'bike_detail' bike.id %}" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
         </div>
     </div>
 </div>
 {% empty %}
 <div class="col-12 text-center py-5">
-    <i class="fas fa-search fa-3x text-muted mb-3 opacity-25"></i>
-    <p class="text-muted">Nenhuma bike encontrada com esses filtros.</p>
+    <div class="bg-glass d-inline-block p-5 rounded-circle mb-4">
+        <i class="fas fa-search fa-3x text-muted opacity-50"></i>
+    </div>
+    <h3 class="fw-bold text-white">Nenhum resultado encontrado</h3>
+    <p class="text-muted">Tente ajustar seus filtros ou buscar por outro termo.</p>
 </div>
 {% endfor %}
 
 <style>
-    .bike-card:hover .bike-image-wrapper img {
-        transform: scale(1.08); /* Zoom suave na imagem */
+    /* Efeitos do Card */
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
-    
-    /* Hover no botão circular */
-    .bike-card .btn-primary:hover {
-        transform: scale(1.1);
-        background-color: var(--secondary-color); /* Muda cor ao passar mouse */
-        border-color: var(--secondary-color);
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 242, 255, 0.15); /* Glow Ciano */
+        border-color: var(--primary) !important;
     }
+    .card-img { transition: transform 0.5s ease; }
+    .product-card:hover .card-img { transform: scale(1.1); }
+    .product-card:hover .card-actions { opacity: 1 !important; }
 </style>

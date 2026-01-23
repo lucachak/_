@@ -1,115 +1,87 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - EletricBike</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/auth_style.css' %}">    
-    <style>
+{% block title %}Acesso ao Sistema | EletricBike{% endblock %}
 
-        /* ... COPIE O CSS DO SEU ARQUIVO ORIGINAL AQUI ... */
-        /* Adicionei apenas este para mensagens de erro do Django */
-        .errorlist { color: #ff6b6b; list-style: none; padding: 0; font-size: 0.9rem; margin-top: 5px; }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="login-left">
-            <div class="logo-section">
-                <div class="logo"><i class="fas fa-bolt"></i></div>
-                <h1 class="brand-name">EletricBike</h1>
-                <p class="brand-tagline">Sua jornada para a mobilidade sustentável começa aqui</p>
-                <ul class="features-list">
-                    <li><i class="fas fa-check-circle"></i> <span>Bikes elétricas premium</span></li>
-                    <li><i class="fas fa-check-circle"></i> <span>Manutenção especializada</span></li>
-                    <li><i class="fas fa-check-circle"></i> <span>Suporte 24/7</span></li>
-                </ul>
-            </div>
-        </div>
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center position-relative overflow-hidden py-5">
+    
+    <div class="position-absolute top-0 start-0 w-100 h-100 z-0">
+        <div class="position-absolute top-50 start-50 translate-middle" style="width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,242,255,0.1) 0%, transparent 70%); filter: blur(60px);"></div>
+    </div>
 
-        <div class="login-right">
-            <div class="login-header">
-                <h2 class="login-title">Bem-vindo de volta!</h2>
-                <p class="login-subtitle">Entre com sua conta para continuar</p>
-            </div>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %} show">
-                        <i class="fas fa-exclamation-circle"></i> {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            <form method="POST" action="{% url 'login' %}">
-                {% csrf_token %}
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5 col-xl-4">
                 
-                {% if form.non_field_errors %}
-                    <div class="alert alert-error show">
-                        {{ form.non_field_errors }}
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-glass p-3 rounded-circle mb-3 shadow-lg border border-light border-opacity-10">
+                        <i class="fas fa-bolt fa-2x text-primary"></i>
                     </div>
-                {% endif %}
-
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-envelope input-icon"></i>
-                        {{ form.username }} 
-                    </div>
-                    {{ form.username.errors }}
+                    <h2 class="fw-bold text-white">Bem-vindo de volta</h2>
+                    <p class="text-muted">Acede à tua conta para gerir pedidos.</p>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Senha</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        {{ form.password }}
-                        <button type="button" class="password-toggle" id="togglePassword">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    {{ form.password.errors }}
+                <div class="bg-glass p-4 p-md-5 rounded-4 border border-light border-opacity-10 shadow-lg">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                            <div class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-4 rounded-3">
+                                <i class="fas fa-exclamation-circle me-2"></i> Utilizador ou palavra-passe incorretos.
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <label class="form-label text-white small fw-bold text-uppercase opacity-75">Utilizador / Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="fas fa-user"></i></span>
+                                <input type="text" name="username" class="form-control bg-dark border-secondary border-opacity-25 text-white" placeholder="O teu utilizador" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label text-white small fw-bold text-uppercase opacity-75">Palavra-passe</label>
+                                </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password" class="form-control bg-dark border-secondary border-opacity-25 text-white" placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-neon py-2 fw-bold shadow">
+                                Entrar <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <span class="text-muted small text-white ">Não tens conta?</span>
+                            <a href="{% url 'register' %}" class="text-white fw-bold small ms-1 text-decoration-none hover-text-primary">Registrar-se</a>
+                        </div>
+                    </form>
                 </div>
 
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" name="remember"> <span>Lembrar de mim</span>
-                    </label>
-                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                <div class="text-center mt-4">
+                    <a href="{% url 'home' %}" class="text-muted small text-decoration-none hover-text-white">
+                        <i class="fas fa-arrow-left me-1"></i> Voltar à Loja
+                    </a>
                 </div>
 
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Entrar
-                </button>
-            </form>
-
-            <div class="divider">ou continue com</div>
-            <div class="social-login">
-                <button class="social-btn google"><i class="fab fa-google"></i> Google</button>
-                <button class="social-btn facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
-            </div>
-
-            <div class="register-link">
-                Não tem uma conta? <a href="{% url 'register' %}">Cadastre-se agora</a>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password'); // O ID vem do forms.py
-
-        if(togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                this.querySelector('i').classList.toggle('fa-eye-slash');
-            });
-        }
-    </script>
-</body>
-</html>
+<style>
+    .form-control:focus {
+        background-color: rgba(0,0,0,0.4);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(0, 242, 255, 0.15);
+        color: white;
+    }
+    .input-group-text { border-right: none; }
+    .form-control { border-left: none; }
+    .hover-text-primary:hover { color: var(--primary) !important; }
+</style>
+{% endblock %}

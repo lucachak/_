@@ -1,110 +1,63 @@
-<!-- Footer -->
-<footer class="footer">
-  <div class="container">
-    <div class="row g-4">
-      <div class="col-lg-4 col-md-6">
-        <h5><i class="fas fa-bolt"></i> EletricBike</h5>
-        <p style="opacity: 0.8; line-height: 1.8">
-          Sua loja especializada em bikes elétricas. Mobilidade sustentável,
-          tecnologia de ponta e atendimento excepcional desde 2019.
-        </p>
-        <div class="footer-social">
-          <a href="#" aria-label="Facebook">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="#" aria-label="Instagram">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="#" aria-label="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-          </a>
-          <a href="#" aria-label="YouTube">
-            <i class="fab fa-youtube"></i>
-          </a>
-          <a href="#" aria-label="LinkedIn">
-            <i class="fab fa-linkedin-in"></i>
-          </a>
+<footer class="pt-5 pb-3 mt-auto" style="background-color: #050911; border-top: 1px solid rgba(255,255,255,0.05);">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-4">
+                <h5 class="text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="fas fa-bolt text-info"></i> EletricBike
+                </h5>
+                <p class="text-muted small mb-4">
+                    Especialistas em transformar bicicletas comuns em veículos elétricos de alta performance. Economia, sustentabilidade e potência.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-white opacity-50 hover-opacity-100"><i class="fab fa-instagram fa-lg"></i></a>
+                    <a href="#" class="text-white opacity-50 hover-opacity-100"><i class="fab fa-whatsapp fa-lg"></i></a>
+                    <a href="#" class="text-white opacity-50 hover-opacity-100"><i class="fab fa-youtube fa-lg"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-6">
+                <h6 class="text-white fw-bold mb-3">Loja</h6>
+                <ul class="list-unstyled d-flex flex-column gap-2 small">
+                    <li><a href="{% url 'bike_catalog' %}" class="text-muted text-decoration-none hover-text-white">Kits de Conversão</a></li>
+                    <li><a href="{% url 'bike_catalog' %}" class="text-muted text-decoration-none hover-text-white">Bicicletas Prontas</a></li>
+                    <li><a href="{% url 'services' %}" class="text-muted text-decoration-none hover-text-white">Baterias & Peças</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-6">
+                <h6 class="text-white fw-bold mb-3">Suporte</h6>
+                <ul class="list-unstyled d-flex flex-column gap-2 small">
+                    <li><a href="#" class="text-muted text-decoration-none hover-text-white">Agendar Instalação</a></li>
+                    <li><a href="#" class="text-muted text-decoration-none hover-text-white">Política de Garantia</a></li>
+                    <li><a href="#" class="text-muted text-decoration-none hover-text-white">Fale Conosco</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.03);">
+                    <h6 class="text-white fw-bold mb-2">Precisa de ajuda?</h6>
+                    <p class="text-muted small mb-3">Nosso time técnico responde no WhatsApp em até 10 minutos.</p>
+                    <a href="https://wa.me/5513999999999" target="_blank" class="btn btn-outline-light btn-sm w-100 rounded-pill">
+                        <i class="fab fa-whatsapp me-2"></i> Chamar no Zap
+                    </a>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div class="col-lg-2 col-md-6">
-        <h5>Links Rápidos</h5>
-        <ul class="footer-links">
-          <li>
-            <a href="#bikes"
-              ><i class="fas fa-chevron-right"></i> Nossas Bikes</a
-            >
-          </li>
-          <li>
-            <a href="#servicos"
-              ><i class="fas fa-chevron-right"></i> Serviços</a
-            >
-          </li>
-          <li>
-            <a href="#sobre"><i class="fas fa-chevron-right"></i> Sobre Nós</a>
-          </li>
-          <li>
-            <a href="#contato"><i class="fas fa-chevron-right"></i> Contato</a>
-          </li>
-          <li>
-            <a href="#"><i class="fas fa-chevron-right"></i> Blog</a>
-          </li>
-        </ul>
-      </div>
+        <hr class="my-4 border-secondary opacity-25">
 
-      <div class="col-lg-3 col-md-6">
-        <h5>Informações</h5>
-        <ul class="footer-links">
-          <li>
-            <i class="fas fa-map-marker-alt"></i>
-            Rua das Bikes, 123<br />Centro - São Paulo, SP
-          </li>
-          <li>
-            <i class="fas fa-phone"></i>
-            (11) 99999-9999
-          </li>
-          <li>
-            <i class="fas fa-envelope"></i>
-            contato@eletricbike.com.br
-          </li>
-          <li>
-            <i class="fas fa-clock"></i>
-            Seg-Sex: 9h-18h | Sáb: 9h-13h
-          </li>
-        </ul>
-      </div>
-
-      <div class="col-lg-3 col-md-6">
-        <div class="footer-newsletter">
-          <h5>Newsletter</h5>
-          <p style="opacity: 0.8">Receba novidades e promoções exclusivas!</p>
-          <form class="newsletter-form">
-            <input type="email" placeholder="Seu e-mail" required />
-            <button type="submit">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </form>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <small class="text-muted">&copy; 2026 EletricBike. Praia Grande, SP.</small>
+            <div class="d-flex gap-3 opacity-50 grayscale">
+                <i class="fab fa-cc-visa fa-2x text-white"></i>
+                <i class="fab fa-cc-mastercard fa-2x text-white"></i>
+                <i class="fas fa-barcode fa-2x text-white"></i>
+                <i class="fab fa-pix fa-2x text-white"></i>
+            </div>
         </div>
-      </div>
     </div>
-
-    <div class="footer-bottom">
-      <div class="payment-methods">
-        <i class="fab fa-cc-visa payment-icon"></i>
-        <i class="fab fa-cc-mastercard payment-icon"></i>
-        <i class="fab fa-cc-amex payment-icon"></i>
-        <i class="fab fa-pix payment-icon"></i>
-        <i class="fas fa-barcode payment-icon"></i>
-      </div>
-      <p style="margin-top: 1rem">
-        &copy; 2026 EletricBike. Todos os direitos reservados.
-        <br />
-        <a href="#" style="color: var(--primary-color)"
-          >Política de Privacidade</a
-        >
-        |
-        <a href="#" style="color: var(--primary-color)">Termos de Uso</a>
-      </p>
-    </div>
-  </div>
 </footer>
+
+<style>
+    .hover-text-white:hover { color: white !important; }
+</style>

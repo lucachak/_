@@ -1,479 +1,139 @@
 {% extends 'base.html' %}
-{% load static %}
 {% load humanize %}
 
-{% block title %}{{ bike.name }} - Detalhes{% endblock %}
+{% block title %}{{ bike.name }} | Detalhes{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* --- GALERIA DE IMAGENS --- */
-    .product-gallery-wrapper {
-        position: relative; 
+    .spec-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.3s;
     }
-
-    .main-image-container {
-        border-radius: 1.5rem;
-        overflow: hidden;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 1rem;
-        aspect-ratio: 4/3; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .spec-card:hover {
+        background: rgba(255, 255, 255, 0.07);
+        transform: translateY(-5px);
+        border-color: var(--primary);
     }
-
-    .main-image-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain; 
-        transition: transform 0.3s ease;
-    }
-
-    .thumbnails-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 0.5rem;
-    }
-
-    .thumbnail-btn {
+    .gallery-thumb {
+        cursor: pointer;
         border: 2px solid transparent;
-        border-radius: 0.75rem;
-        overflow: hidden;
-        cursor: pointer;
-        opacity: 0.6;
+        border-radius: 10px;
         transition: all 0.2s;
-        aspect-ratio: 1/1;
-        padding: 0;
-        background: #fff;
     }
-
-    .thumbnail-btn:hover, .thumbnail-btn.active {
-        border-color: var(--primary-color);
-        opacity: 1;
-    }
-
-    .thumbnail-btn img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    /* --- INFO DO PRODUTO --- */
-    .product-category {
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--primary-color);
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-    }
-
-    .product-title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--secondary-color);
-        line-height: 1.1;
-        margin-bottom: 0.5rem;
-    }
-
-    .sku-badge {
-        font-size: 0.8rem;
-        color: #94a3b8;
-        font-family: monospace;
-        background: #f1f5f9;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.3rem;
-    }
-
-    .product-price {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--secondary-color);
-        margin: 1.5rem 0;
-    }
-
-    .stock-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-    .stock-in { background: #dcfce7; color: #166534; }
-    .stock-low { background: #fef9c3; color: #854d0e; }
-    .stock-out { background: #fee2e2; color: #991b1b; }
-
-    /* --- TABELA DE SPECS --- */
-    .specs-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .specs-table th {
-        width: 40%;
-        text-align: left;
-        color: #64748b;
-        font-weight: 600;
-        padding: 0.75rem;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .specs-table td {
-        font-weight: 600;
-        color: var(--secondary-color);
-        padding: 0.75rem;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .specs-icon {
-        width: 24px;
-        text-align: center;
-        color: var(--accent-color);
-        margin-right: 0.5rem;
-    }
-
-    /* --- CARDS DE DESTAQUE --- */
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .feature-card {
-        background: #f8fafc;
-        padding: 1rem;
-        border-radius: 1rem;
-        text-align: center;
-        border: 1px solid #e2e8f0;
-    }
-    
-    .feature-card i {
-        font-size: 1.5rem;
-        color: var(--primary-color);
-        margin-bottom: 0.5rem;
-    }
-    
-    .feature-value {
-        font-weight: 800;
-        color: var(--secondary-color);
-        display: block;
-    }
-    
-    .feature-label {
-        font-size: 0.8rem;
-        color: #64748b;
-    }
-
-    /* --- AÇÕES --- */
-    .btn-cart {
-        background: var(--primary-color);
-        color: white;
-        font-weight: 700;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        border: none;
-        width: 100%;
-        transition: background 0.2s;
-        font-size: 1.1rem;
-        cursor: pointer;
-    }
-    .btn-cart:hover { background: var(--primary-hover); }
-
-    .btn-whatsapp {
-        background: #25D366;
-        color: white;
-        font-weight: 700;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        border: none;
-        width: 100%;
-        margin-top: 1rem;
-        cursor: pointer;
-    }
-    .btn-whatsapp:hover { background: #1ebc57; }
-
-    @media(max-width: 768px) {
-        .product-title { font-size: 2rem; }
-    }
+    .gallery-thumb.active { border-color: var(--primary); }
 </style>
 {% endblock %}
 
 {% block content %}
-
-<div class="bg-light py-3 border-bottom">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'bike_catalog' %}">Catálogo</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ bike.name }}</li>
-            </ol>
-        </nav>
-    </div>
-</div>
-
 <div class="container py-5">
+    
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-muted text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'bike_catalog' %}" class="text-muted text-decoration-none">Catálogo</a></li>
+            <li class="breadcrumb-item active text-white" aria-current="page">{{ bike.name }}</li>
+        </ol>
+    </nav>
+
     <div class="row g-5">
-        
         <div class="col-lg-7">
-            <div class="product-gallery-wrapper">
-                <div class="main-image-container">
-                    {% if bike.main_image %}
-                        <img id="mainImage" src="{{ bike.main_image.url }}" alt="{{ bike.name }}">
-                    {% else %}
-                        <div class="text-center p-5 text-muted">
-                            <i class="fas fa-image fa-4x mb-3"></i>
-                            <p>Sem imagem disponível</p>
-                        </div>
-                    {% endif %}
-                </div>
-
-                {% if bike.images.all %}
-                <div class="thumbnails-grid">
-                    {% if bike.main_image %}
-                    <button class="thumbnail-btn active" onclick="changeImage('{{ bike.main_image.url }}', this)">
-                        <img src="{{ bike.main_image.url }}" alt="Principal">
-                    </button>
-                    {% endif %}
-
-                    {% for img in bike.images.all %}
-                    <button class="thumbnail-btn" onclick="changeImage('{{ img.image.url }}', this)">
-                        <img src="{{ img.image.url }}" alt="Galeria {{ forloop.counter }}">
-                    </button>
-                    {% endfor %}
-                </div>
+            <div class="position-relative bg-glass rounded-4 overflow-hidden mb-3 border border-light border-opacity-10 d-flex align-items-center justify-content-center" style="aspect-ratio: 4/3;">
+                {% if bike.main_image %}
+                    <img id="mainImage" src="{{ bike.main_image.url }}" alt="{{ bike.name }}" class="img-fluid object-fit-contain w-100 h-100 p-4 transition-opacity duration-300">
+                {% else %}
+                    <i class="fas fa-image fa-4x text-muted opacity-25"></i>
                 {% endif %}
+            </div>
+
+            <div class="d-flex gap-2 overflow-auto pb-2">
+                {% if bike.main_image %}
+                    <img src="{{ bike.main_image.url }}" class="gallery-thumb active" width="80" height="80" style="object-fit: cover;" onclick="changeImage(this)">
+                {% endif %}
+                {% for img in bike.images.all %}
+                    <img src="{{ img.image.url }}" class="gallery-thumb" width="80" height="80" style="object-fit: cover;" onclick="changeImage(this)">
+                {% endfor %}
             </div>
         </div>
 
         <div class="col-lg-5">
-            <div class="mb-4">
-                <span class="product-category">{{ bike.category.name }}</span>
-                <div class="d-flex justify-content-between align-items-start">
-                    <h1 class="product-title">{{ bike.name }}</h1>
+            <div class="ps-lg-4">
+                <h6 class="text-primary fw-bold text-uppercase ls-1 mb-2">{{ bike.category.name }}</h6>
+                <h1 class="display-5 fw-bold text-white mb-2">{{ bike.name }}</h1>
+                
+                <div class="mb-4">
+                    {% if bike.stock_quantity > 0 or bike.product_type == 'SERVICE' %}
+                        <span class="badge bg-success bg-opacity-25 text-success-emphasis border border-success border-opacity-25 px-3 py-2 rounded-pill">
+                            <i class="fas fa-check-circle me-1"></i> Disponível
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger bg-opacity-25 text-danger-emphasis border border-danger border-opacity-25 px-3 py-2 rounded-pill">
+                            <i class="fas fa-times-circle me-1"></i> Indisponível
+                        </span>
+                    {% endif %}
                     {% if bike.condition == 'NEW' %}
-                        <span class="badge bg-success">NOVO</span>
-                    {% elif bike.condition == 'USED' %}
-                        <span class="badge bg-secondary">USADO</span>
-                    {% endif %}
-                </div>
-                
-                {% if bike.sku %}
-                    <span class="sku-badge">SKU: {{ bike.sku }}</span>
-                {% endif %}
-            </div>
-
-            <div class="mb-4 pb-4 border-bottom">
-                <div class="product-price">
-                    {% if bike.selling_price %}
-                        R$ {{ bike.selling_price|intcomma }}
-                    {% else %}
-                        Sob Consulta
+                        <span class="badge bg-info bg-opacity-25 text-info-emphasis px-3 py-2 rounded-pill ms-2">Novo</span>
                     {% endif %}
                 </div>
 
-                {% if bike.product_type == 'SERVICE' %}
-                     <span class="stock-badge bg-info text-white">
-                        <i class="fas fa-tools"></i> Serviço / Mão de Obra
-                    </span>
-                {% else %}
-                    {% if bike.stock_quantity > 5 %}
-                        <span class="stock-badge stock-in">
-                            <i class="fas fa-check-circle"></i> Em Estoque (Pronta Entrega)
-                        </span>
-                    {% elif bike.stock_quantity > 0 %}
-                        <span class="stock-badge stock-low">
-                            <i class="fas fa-exclamation-circle"></i> Restam apenas {{ bike.stock_quantity }} unid.
-                        </span>
-                    {% else %}
-                        <span class="stock-badge stock-out">
-                            <i class="fas fa-times-circle"></i> Indisponível
-                        </span>
-                    {% endif %}
-                {% endif %}
-            </div>
-
-            {% if bike.specs %}
-            <div class="feature-grid">
-                {% if bike.specs.wattage %}
-                <div class="feature-card">
-                    <i class="fas fa-bolt"></i>
-                    <span class="feature-value">{{ bike.specs.wattage }}W</span>
-                    <span class="feature-label">Potência</span>
+                <div class="mb-4 pb-4 border-bottom border-light border-opacity-10">
+                    <h2 class="display-6 fw-bold text-white mb-0">R$ {{ bike.selling_price|intcomma }}</h2>
+                    <small class="text-muted">Em até 12x no cartão ou 5% off no PIX</small>
                 </div>
-                {% endif %}
 
-                {% if bike.specs.voltage %}
-                <div class="feature-card">
-                    <i class="fas fa-plug"></i>
-                    <span class="feature-value">{{ bike.specs.voltage }}V</span>
-                    <span class="feature-label">Voltagem</span>
-                </div>
-                {% endif %}
-
-                {% if bike.specs.range_estimate %}
-                <div class="feature-card">
-                    <i class="fas fa-battery-full"></i>
-                    <span class="feature-value">{{ bike.specs.range_estimate }}</span>
-                    <span class="feature-label">Autonomia</span>
-                </div>
-                {% endif %}
-
-                {% if bike.specs.weight %}
-                <div class="feature-card">
-                    <i class="fas fa-weight-hanging"></i>
-                    <span class="feature-value">{{ bike.specs.weight }}kg</span>
-                    <span class="feature-label">Peso</span>
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
-
-            <div class="mb-4">
-                <h5 class="fw-bold mb-3">Sobre o Produto</h5>
-                <div class="text-muted" style="line-height: 1.8;">
-                    {{ bike.description|linebreaks }}
-                </div>
-            </div>
-
-            {% if bike.specs %}
-            <div class="mb-5">
-                <h5 class="fw-bold mb-3">Ficha Técnica</h5>
-                <table class="specs-table">
-                    <tbody>
-                        {% if bike.specs.material %}
-                        <tr>
-                            <th><i class="fas fa-layer-group specs-icon"></i> Material</th>
-                            <td>{{ bike.specs.material }}</td>
-                        </tr>
-                        {% endif %}
-                        {% if bike.specs.amperage %}
-                        <tr>
-                            <th><i class="fas fa-car-battery specs-icon"></i> Amperagem</th>
-                            <td>{{ bike.specs.amperage }} Ah</td>
-                        </tr>
-                        {% endif %}
-                        {% if bike.specs.max_speed %}
-                        <tr>
-                            <th><i class="fas fa-tachometer-alt specs-icon"></i> Vel. Máxima</th>
-                            <td>{{ bike.specs.max_speed }} km/h</td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-
-            <div class="d-grid gap-2">
-                {% if bike.stock_quantity > 0 or bike.product_type == 'SERVICE' %}
-                    
-                    <form action="{% url 'cart_add' bike.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-cart text-center text-decoration-none">
-                            <i class="fas fa-shopping-cart me-2"></i> Adicionar ao Carrinho
-                        </button>
-                    </form>
-
-                    <button class="btn-whatsapp">
-                        <i class="fab fa-whatsapp me-2"></i> Comprar via WhatsApp
-                    </button>
-{% else %}
-    <button type="button" class="btn btn-secondary btn-lg w-100" data-bs-toggle="modal" data-bs-target="#waitingListModal">
-        <i class="far fa-bell me-2"></i> Avise-me quando chegar
-    </button>
-{% endif %}
-            </div>
-        </div>
-    </div>
-
-    {% if related_bikes %}
-    <div class="mt-5 pt-5 border-top">
-        <h3 class="fw-bold mb-4">Você também pode gostar</h3>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            {% for related in related_bikes %}
-                <div class="col">
-                    <div class="bike-card h-100">
-                        <div class="bike-image-wrapper" style="height: 200px;">
-                            {% if related.main_image %}
-                                <img src="{{ related.main_image.url }}" alt="{{ related.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                            {% else %}
-                                <div style="display:flex; justify-content:center; align-items:center; height:100%;">
-                                    <i class="fas fa-bicycle fa-2x text-muted"></i>
-                                </div>
-                            {% endif %}
-                            
-                            {% if related.condition == 'NEW' %}
-                                <span class="bike-badge new" style="top: 10px; right: 10px;">Novo</span>
-                            {% endif %}
-                        </div>
-                        <div class="bike-info p-3">
-                            <div class="bike-category">{{ related.category.name }}</div>
-                            <h5 class="bike-name" style="font-size: 1.1rem;">{{ related.name }}</h5>
-                            <div class="bike-pricing mt-2">
-                                <span class="price-value" style="font-size: 1.2rem;">
-                                    R$ {{ related.selling_price|intcomma }}
-                                </span>
-                            </div>
-                            <a href="{% url 'bike_detail' related.id %}" class="btn btn-outline-primary w-100 mt-3 btn-sm">Ver Detalhes</a>
+                {% if bike.specs %}
+                <div class="row g-2 mb-4">
+                    {% if bike.specs.wattage %}
+                    <div class="col-6">
+                        <div class="spec-card">
+                            <i class="fas fa-bolt text-warning fa-lg mb-2"></i>
+                            <h5 class="fw-bold text-white m-0">{{ bike.specs.wattage }}W</h5>
+                            <small class="text-muted">Potência</small>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-</div>
-<div class="modal fade" id="waitingListModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Entrar na Lista de Espera</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 text-center">
-                <div class="mb-3">
-                    <i class="fas fa-hourglass-half text-primary fa-3x bg-light p-3 rounded-circle"></i>
-                </div>
-                <p class="text-muted">
-                    O produto <strong>{{ bike.name }}</strong> está indisponível no momento. 
-                    Deixe seu e-mail e te avisaremos assim que voltar ao estoque!
-                </p>
-                
-                <form onsubmit="event.preventDefault(); alert('Você será notificado!'); $('#waitingListModal').modal('hide');">
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control rounded-3" id="waitEmail" placeholder="name@example.com" value="{{ user.email }}" required>
-                        <label for="waitEmail">Seu E-mail</label>
+                    {% endif %}
+                    {% if bike.specs.range_estimate %}
+                    <div class="col-6">
+                        <div class="spec-card">
+                            <i class="fas fa-battery-full text-success fa-lg mb-2"></i>
+                            <h5 class="fw-bold text-white m-0">{{ bike.specs.range_estimate }}</h5>
+                            <small class="text-muted">Autonomia</small>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold">
-                        Confirmar Interesse
-                    </button>
-                </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <p class="text-muted mb-5">{{ bike.description|linebreaksbr }}</p>
+
+                <div class="d-grid gap-3">
+                    {% if bike.stock_quantity > 0 or bike.product_type == 'SERVICE' %}
+                        <form action="{% url 'cart_add' bike.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-neon w-100 py-3 shadow-lg">
+                                <i class="fas fa-shopping-bag me-2"></i> Adicionar ao Carrinho
+                            </button>
+                        </form>
+                        <a href="https://wa.me/5513999999999?text=Tenho interesse na {{ bike.name }}" target="_blank" class="btn btn-outline-light w-100 py-3 rounded-pill fw-bold border-opacity-25">
+                            <i class="fab fa-whatsapp me-2"></i> Falar com Especialista
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary w-100 py-3 rounded-pill opacity-50" disabled>Produto Indisponível</button>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    function changeImage(url, btn) {
-        const mainImage = document.getElementById('mainImage');
-        mainImage.style.opacity = '0';
-        setTimeout(() => {
-            mainImage.src = url;
-            mainImage.style.opacity = '1';
-        }, 200);
-        document.querySelectorAll('.thumbnail-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    function changeImage(thumb) {
+        document.getElementById('mainImage').src = thumb.src;
+        document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
     }
 </script>
-
-
 {% endblock %}

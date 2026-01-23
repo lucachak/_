@@ -1,162 +1,113 @@
 {% extends 'base.html' %}
 {% load humanize %}
-{% load static %}
 
-{% block title %}Meu Carrinho - EletricBike{% endblock %}
+{% block title %}Carrinho | EletricBike{% endblock %}
 
 {% block content %}
-<div class="bg-light py-5" style="min-height: 80vh;">
-    <div class="container">
-        
-        <h2 class="fw-bold text-secondary mb-4">
-            <i class="fas fa-shopping-cart me-2"></i> Meu Carrinho
-        </h2>
+<div class="container py-5">
+    <h2 class="fw-bold text-white mb-4"><i class="fas fa-shopping-cart text-primary me-2"></i> Seu Carrinho</h2>
 
-        {% if cart|length > 0 %}
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0">
-                                <thead class="bg-white border-bottom">
-                                    <tr class="text-uppercase text-muted small">
-                                        <th class="ps-4 py-3" style="width: 50%;">Produto</th>
-                                        <th class="text-center" style="width: 15%;">Qtd</th>
-                                        <th class="text-end" style="width: 20%;">Preço</th>
-                                        <th class="text-center" style="width: 15%;">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in cart %}
-                                        {% with product=item.product %}
-                                        <tr>
-                                            <td class="ps-4 py-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bg-light rounded-3 d-flex align-items-center justify-content-center me-3 position-relative" style="width: 80px; height: 80px; overflow:hidden;">
-                                                        {% if product.main_image %}
-                                                            <img src="{{ product.main_image.url }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                        {% else %}
-                                                            <i class="fas fa-bicycle text-muted fa-2x"></i>
-                                                        {% endif %}
-                                                    </div>
-                                                    
-                                                    <div>
-                                                        <a href="{% url 'bike_detail' product.id %}" class="text-decoration-none text-dark fw-bold d-block mb-1">
-                                                            {{ product.name }}
-                                                        </a>
-                                                        <small class="text-muted d-block">SKU: {{ product.sku }}</small>
-                                                        {% if product.condition == 'NEW' %}
-                                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill" style="font-size: 0.7rem;">Novo</span>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            
-                                            <td class="text-center">
-                                                <span class="fw-bold bg-light px-3 py-1 rounded-pill border">{{ item.quantity }}</span>
-                                            </td>
-                                            
-                                            <td class="text-end fw-bold text-secondary">
-                                                R$ {{ item.price|intcomma }}
-                                            </td>
-                                            
-                                            <td class="text-center">
-                                                <a href="{% url 'cart_remove' product.id %}" class="btn btn-outline-danger btn-sm rounded-circle" title="Remover do carrinho">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endwith %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="card-footer bg-white py-3">
-                        <a href="{% url 'bike_catalog' %}" class="text-decoration-none text-muted fw-bold small">
-                            <i class="fas fa-arrow-left me-1"></i> Continuar Comprando
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white py-3 border-bottom">
-                        <h5 class="mb-0 fw-bold text-secondary">Resumo do Pedido</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        
-                        <label class="form-label small text-muted text-uppercase fw-bold">Cupom de Desconto</label>
-                        <form action="{% url 'coupon_apply' %}" method="post" class="mb-4">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <input type="text" name="code" class="form-control" placeholder="Ex: PRIMEIRACOMPRA" aria-label="Cupom" style="text-transform: uppercase;">
-                                <button class="btn btn-dark" type="submit">Aplicar</button>
-                            </div>
-                            {% if messages %}
-                                {% for message in messages %}
-                                    {% if 'Cupom' in message.message %}
-                                        <div class="small mt-1 {% if message.tags == 'success' %}text-success{% else %}text-danger{% endif %}">
-                                            <i class="fas fa-info-circle me-1"></i> {{ message }}
+    {% if cart|length > 0 %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="bg-glass rounded-4 overflow-hidden border border-light border-opacity-10">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+                        <thead>
+                            <tr class="text-uppercase text-muted small border-bottom border-light border-opacity-10">
+                                <th class="ps-4 py-3 border-0">Produto</th>
+                                <th class="text-center border-0">Qtd</th>
+                                <th class="text-end border-0">Preço</th>
+                                <th class="text-center border-0"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart %}
+                            <tr>
+                                <td class="ps-4 py-3 border-light border-opacity-10">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-white rounded-3 overflow-hidden" style="width: 60px; height: 60px;">
+                                            {% if item.product.main_image %}
+                                                <img src="{{ item.product.main_image.url }}" class="w-100 h-100 object-fit-cover">
+                                            {% else %}
+                                                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary"><i class="fas fa-bicycle text-white"></i></div>
+                                            {% endif %}
                                         </div>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        </form>
+                                        <div>
+                                            <a href="{% url 'bike_detail' item.product.id %}" class="fw-bold text-white text-decoration-none">{{ item.product.name }}</a>
+                                            <small class="d-block text-muted">{{ item.product.sku }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center border-light border-opacity-10">
+                                    <span class="badge bg-dark border border-light border-opacity-25 px-3 py-2">{{ item.quantity }}</span>
+                                </td>
+                                <td class="text-end fw-bold text-primary border-light border-opacity-10">
+                                    R$ {{ item.price|intcomma }}
+                                </td>
+                                <td class="text-center border-light border-opacity-10">
+                                    <a href="{% url 'cart_remove' item.product.id %}" class="text-danger hover-opacity-75"><i class="fas fa-trash"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{% url 'bike_catalog' %}" class="text-muted text-decoration-none small fw-bold hover-text-white">
+                    <i class="fas fa-arrow-left me-2"></i> Continuar Comprando
+                </a>
+            </div>
+        </div>
 
-                        <hr class="border-secondary opacity-10">
-
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Subtotal</span>
-                            <span class="fw-bold">R$ {{ cart.get_total_price|intcomma }}</span>
-                        </div>
-                        
-                        {% if cart.coupon %}
-                        <div class="d-flex justify-content-between mb-2 text-success">
-                            <span>
-                                <i class="fas fa-tag me-1"></i> Desconto <small>({{ cart.coupon.code }})</small>
-                            </span>
-                            <span class="fw-bold">- R$ {{ cart.get_discount|intcomma }}</span>
-                        </div>
-                        {% endif %}
-
-                        <div class="d-flex justify-content-between mb-4 mt-3">
-                            <span class="fs-5 fw-bold text-secondary">Total</span>
-                            <span class="fs-4 fw-bold text-primary">
-                                R$ {{ cart.get_total_price_after_discount|default:cart.get_total_price|intcomma }}
-                            </span>
-                        </div>
-
-                        <a href="{% url 'checkout_create_order' %}" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm mb-3">
-                            Finalizar Compra <i class="fas fa-arrow-right ms-2"></i>
-                        </a>
-                        
-                        <div class="text-center text-muted small">
-                            <i class="fas fa-lock me-1"></i> Pagamento 100% Seguro
-                        </div>
+        <div class="col-lg-4">
+            <div class="bg-glass rounded-4 p-4 border border-light border-opacity-10 sticky-top" style="top: 100px;">
+                <h5 class="fw-bold text-white mb-4">Resumo do Pedido</h5>
+                
+                <form action="{% url 'coupon_apply' %}" method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" name="code" class="form-control form-control-dark" placeholder="CUPOM" style="text-transform: uppercase;">
+                        <button class="btn btn-outline-light" type="submit">Aplicar</button>
                     </div>
+                </form>
+
+                <div class="d-flex justify-content-between mb-2 text-muted">
+                    <span>Subtotal</span>
+                    <span>R$ {{ cart.get_total_price|intcomma }}</span>
                 </div>
+
+                {% if cart.coupon %}
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <span>Desconto ({{ cart.coupon.code }})</span>
+                    <span>- R$ {{ cart.get_discount|intcomma }}</span>
+                </div>
+                {% endif %}
+
+                <hr class="border-light opacity-10 my-3">
+
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fs-5 fw-bold text-white">Total</span>
+                    <span class="fs-4 fw-bold text-primary">R$ {{ cart.get_total_price_after_discount|default:cart.get_total_price|intcomma }}</span>
+                </div>
+
+                <a href="{% url 'checkout_create_order' %}" class="btn btn-neon w-100 py-3 fw-bold">
+                    Finalizar Compra <i class="fas fa-check ms-2"></i>
+                </a>
             </div>
         </div>
-
-        {% else %}
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 120px; height: 120px;">
-                    <i class="fas fa-shopping-basket fa-4x text-muted opacity-50"></i>
-                </div>
-            </div>
-            <h3 class="fw-bold text-secondary">Seu carrinho está vazio</h3>
-            <p class="text-muted mb-4">Parece que você ainda não escolheu sua nova bike elétrica.</p>
-            <a href="{% url 'bike_catalog' %}" class="btn btn-primary rounded-pill px-5 py-3 fw-bold">
-                Ir para o Catálogo
-            </a>
-        </div>
-        {% endif %}
-
     </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-4 opacity-25">
+            <i class="fas fa-shopping-basket fa-4x text-white"></i>
+        </div>
+        <h3 class="text-white">Seu carrinho está vazio</h3>
+        <p class="text-muted mb-4">Confira nossos kits de conversão e transforme sua bike hoje.</p>
+        <a href="{% url 'bike_catalog' %}" class="btn btn-neon px-5">Ver Catálogo</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

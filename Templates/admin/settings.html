@@ -2,114 +2,143 @@
 
 {% block title %}Configurações do Sistema{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Estilo Dark para Inputs */
+    .form-control, .form-select {
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 0.8rem 1rem;
+    }
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(0, 0, 0, 0.5);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(0, 242, 255, 0.15);
+    }
+    .form-label { color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+    
+    /* Toggle Switch Customizado */
+    .maintenance-switch {
+        appearance: none;
+        width: 3.5em;
+        height: 1.8em;
+        background: #334155;
+        border-radius: 2em;
+        position: relative;
+        cursor: pointer;
+        transition: 0.3s;
+        outline: none;
+    }
+    .maintenance-switch::after {
+        content: "";
+        position: absolute;
+        top: 0.2em; left: 0.2em;
+        width: 1.4em; height: 1.4em;
+        background: white;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+    .maintenance-switch:checked { background: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+    .maintenance-switch:checked::after { transform: translateX(1.7em); }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-lg rounded-4">
-                <div class="card-header bg-dark text-white p-4 rounded-top-4 d-flex align-items-center">
-                    <i class="fas fa-cogs fa-2x me-3"></i>
+            
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="text-white fw-bold mb-0">Configurações do Site</h2>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light btn-sm border-opacity-25 text-muted hover-text-white">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar
+                </a>
+            </div>
+
+            <div class="bg-glass rounded-4 border border-light border-opacity-10 shadow-lg overflow-hidden">
+                <div class="p-4 border-bottom border-light border-opacity-10 bg-dark bg-opacity-25 d-flex align-items-center">
+                    <i class="fas fa-cogs fa-2x me-3 text-secondary"></i>
                     <div>
-                        <h4 class="mb-0">Configurações do Site</h4>
-                        <small class="opacity-75">Ajustes gerais da plataforma</small>
+                        <h5 class="mb-0 text-white fw-bold">Ajustes da Plataforma</h5>
+                        <small class="text-muted">Controlo global do sistema EletricBike</small>
                     </div>
                 </div>
                 
-<div class="card-body p-5">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ message }}</div>
-        {% endfor %}
-    {% endif %}
+                <div class="p-5">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-success bg-success bg-opacity-10 border-success border-opacity-25 text-success mb-4 rounded-3 d-flex align-items-center">
+                                <i class="fas fa-check-circle me-2"></i> {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        
-        <div class="mb-4">
-            <h5 class="text-primary fw-bold mb-3">Geral</h5>
-            <div class="form-group mb-3">
-                <label class="form-label fw-bold">{{ form.site_title.label }}</label>
-                {{ form.site_title }}
-                {{ form.site_title.errors }}
-            </div>
-            
-            <div class="form-group mb-3">
-                <label class="form-label fw-bold">{{ form.contact_email.label }}</label>
-                {{ form.contact_email }}
-                {{ form.contact_email.errors }}
-            </div>
-        </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-5">
+                            <h6 class="text-primary fw-bold mb-3 border-bottom border-light border-opacity-10 pb-2">
+                                <i class="fas fa-globe me-2"></i> Informações Gerais
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">{{ form.site_title.label }}</label>
+                                    {{ form.site_title }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">{{ form.contact_email.label }}</label>
+                                    {{ form.contact_email }}
+                                </div>
+                            </div>
+                        </div>
 
-        <hr class="my-4">
+                        <div class="mb-5">
+                            <h6 class="text-primary fw-bold mb-3 border-bottom border-light border-opacity-10 pb-2">
+                                <i class="fas fa-store me-2"></i> Loja e Exibição
+                            </h6>
+                            <div class="form-group">
+                                <label class="form-label">Itens por página (Catálogo)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="fas fa-list-ol"></i></span>
+                                    <input type="number" name="{{ form.items_per_page.name }}" class="form-control" value="{{ form.items_per_page.value|default:12 }}" style="max-width: 100px;">
+                                </div>
+                                <div class="form-text text-muted opacity-50 small mt-2">Define quantos produtos aparecem antes da paginação.</div>
+                            </div>
+                        </div>
 
-        <div class="mb-4">
-            <h5 class="text-primary fw-bold mb-3">Loja e Exibição</h5>
-            <div class="form-group mb-3">
-                <label class="form-label">{{ form.items_per_page.label }}</label>
-                {{ form.items_per_page }}
-                <div class="form-text">Quantos produtos aparecem por página no catálogo.</div>
-            </div>
-        </div>
+                        <div class="mb-5 bg-danger bg-opacity-10 p-4 rounded-3 border border-danger border-opacity-25">
+                            <h6 class="text-danger fw-bold mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i> Zona de Perigo
+                            </h6>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <label class="fw-bold text-white mb-1" for="maintenanceMode">Modo Manutenção</label>
+                                    <p class="text-muted small mb-0" style="max-width: 300px;">
+                                        Se ativado, a loja ficará inacessível para clientes. Apenas administradores poderão entrar.
+                                    </p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ form.maintenance_mode }} 
+                                </div>
+                            </div>
+                        </div>
 
-        <hr class="my-4">
-
-        <div class="mb-4">
-            <h5 class="text-danger fw-bold mb-3">Zona de Perigo</h5>
-            <div class="form-check form-switch p-0">
-                <div class="d-flex align-items-center gap-2">
-                    {{ form.maintenance_mode }}
-                    <label class="form-check-label fw-bold" for="{{ form.maintenance_mode.id_for_label }}">
-                        Ativar Modo Manutenção
-                    </label>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-neon py-3 fw-bold shadow-lg">
+                                <i class="fas fa-save me-2"></i> Guardar Alterações
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-text mt-2">
-                    <i class="fas fa-exclamation-circle text-warning"></i> Se ativado, apenas administradores poderão acessar o site.
-                </div>
-            </div>
-        </div>
-
-        <div class="d-grid mt-5">
-            <button type="submit" class="btn btn-primary btn-lg fw-bold">
-                <i class="fas fa-save me-2"></i> Salvar Configurações
-            </button>
-        </div>
-    </form>
-</div>
-
-<style>
-    #id_maintenance_mode {
-        width: 3em;
-        height: 1.5em;
-        margin-left: 0;
-        cursor: pointer;
-        appearance: none;
-        background-color: #dee2e6;
-        border-radius: 2em;
-        position: relative;
-        transition: 0.3s;
-    }
-    #id_maintenance_mode:checked {
-        background-color: #dc3545; /* Vermelho perigo */
-    }
-    #id_maintenance_mode::before {
-        content: "";
-        position: absolute;
-        width: 1.1em;
-        height: 1.1em;
-        border-radius: 50%;
-        top: 0.2em;
-        left: 0.2em;
-        background-color: white;
-        transition: 0.3s;
-    }
-    #id_maintenance_mode:checked::before {
-        transform: translateX(1.5em);
-    }
-</style>
-
-
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Aplica a classe do switch no checkbox do Django
+    document.getElementById('id_maintenance_mode').className = 'maintenance-switch';
+</script>
 {% endblock %}
