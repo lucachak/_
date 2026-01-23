@@ -1,5 +1,4 @@
 import webbrowser
-import webbrowser
 import subprocess
 import socket
 import signal
@@ -79,26 +78,34 @@ class DjangoServerRunner:
 
 def main()-> Never:
 
+    ip_check = None
+
     while True:
         pid = 0
-        ip_check = None
+
         try : 
             monitor = DjangoServerRunner()
             ip:str = monitor.assing_ip()
             pid:int|None = monitor.run()
 
+            print("begin... ")
+
             if ip_check == None: 
                 ip_check:str = ip
 
             if (ip_check is not None) and (ip_check != ip):
-                browser_path = {
-                    'linux': "usr/bin/zen-browser %s"
+
+                print("here 2")
+
+                browser_path:dict[str, str]= {
+                    'linux': "/usr/bin/zen-browser %s"
                 }
                 try:
                     print(f"opening here => http://{ip}:8000/")
-                    webbrowser.get(browser_path['linux']).open(f"http://{ip}:8000/")
+                    webbrowser.get(browser_path['linux']).open(f"http://{ip}:8000/", new=2)
+                    time.sleep(1)
                 except webbrowser.Error:
-                    webbrowser.open(f"http://{ip}:8000")
+                    webbrowser.open(f"http://{ip}:8000", new=2)
 
             time.sleep(60)
         except Exception as e:
