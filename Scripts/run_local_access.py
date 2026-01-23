@@ -103,9 +103,10 @@ def main()-> Never:
                     webbrowser.get(browser_path['linux']).open(f"http://{ip}:8000/", new=2)
                     
                 except webbrowser.Error:
+                    time.sleep(2)
                     webbrowser.open(f"http://{ip}:8000", new=2)
 
-            time.sleep(60)
+            time.sleep(300)
 
         except Exception as e:
             if pid is not None:
