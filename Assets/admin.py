@@ -26,7 +26,7 @@ class TechnicalSpecInline(StackedInline):
 class ProductImageInline(TabularInline):
     model = ProductImage
     extra = 1
-    fields = ['image', 'order', 'is_main', 'image_preview']
+    fields = ['image', 'order', 'image_preview']
     readonly_fields = ['image_preview']
 
     def image_preview(self, obj):
@@ -90,7 +90,6 @@ class ProductAdmin(ModelAdmin):
         }),
     )
 
-    # --- MÉTODOS DE EXIBIÇÃO (DEVEM ESTAR INDENTADOS DENTRO DA CLASSE) ---
 
     def sku_display(self, obj):
         return obj.sku or "-"

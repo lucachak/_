@@ -17,14 +17,15 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
-    "unfold",  # before django.contrib.admin
-    "unfold.contrib.filters",  # optional, if special filters are needed
-    "unfold.contrib.forms",  # optional, if special form elements are needed
-    "unfold.contrib.inlines",  # optional, if special inlines are needed
-    "unfold.contrib.import_export",  # optional, if django-import-export package is used
-    "unfold.contrib.guardian",  # optional, if django-guardian package is used
-    "unfold.contrib.simple_history",  # optional, if django-simple-history package is used
-    "unfold.contrib.location_field",  # optional, if django-location-field package is used
+
+    "unfold",
+    "unfold.contrib.filters",  
+    "unfold.contrib.forms",  
+    "unfold.contrib.inlines",  
+    "unfold.contrib.import_export", 
+    "unfold.contrib.guardian",  
+    "unfold.contrib.simple_history",  
+    "unfold.contrib.location_field",
     "unfold.contrib.constance",  
 
 
@@ -35,16 +36,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    # Internal Apps
     
-
-    "Home", # handles the first impression and interaction
-    "Assets", # handles the bikes and all the services related
-    "Billing", # payment / Money ONLY
-    "Clients", # client != user, here it handles the CLIENT not staff,admin etc
-    "Orders", # order service meaning, ETA, status, what has been done etc 
+    
+    # Internal Apps
+    "core",
+    "Home", 
+    "Assets", 
+    "Billing", 
+    "Clients", 
+    "Orders",  
     "Staff",
-    "Accounts", # auth, admin, permissions
+    "Accounts", 
     "Common"
 ]
 
@@ -57,6 +59,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    
+    #internal middleware
     'core.middleware.MaintenanceModeMiddleware',
     'Staff.middleware.MaintenanceModeMiddleware',
 ]
@@ -139,6 +143,7 @@ UNFOLD = {
     "SITE_TITLE": "E-Bikes Manager",
     "SITE_HEADER": "Oficina Dashboard",
     "SITE_URL": "/",
+
     # Cores baseadas em um tema "Cyber/Electric" (Roxo Profundo)
     "COLORS": {
         "primary": {
@@ -154,6 +159,7 @@ UNFOLD = {
             "900": "88 28 135",
         },
     },
+    
     # Barra Lateral Organizada
     "SIDEBAR": {
         "show_search": True,  # Busca global no menu
@@ -226,8 +232,9 @@ UNFOLD = {
 }
 
 # Adicione ao final do settings.py
-LOGOUT_REDIRECT_URL = 'login'  # Ou 'home', dependendo do nome da sua url
-LOGIN_REDIRECT_URL = 'client_dashboard' # Para onde ele vai ao entrar
+
+LOGOUT_REDIRECT_URL = 'home' 
+LOGIN_REDIRECT_URL = 'client_dashboard' 
 CART_SESSION_ID = 'cart'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

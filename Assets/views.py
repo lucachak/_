@@ -6,83 +6,74 @@ from django.contrib import messages
 from django.db import transaction
 from .models import Product, Category
 from .forms import ProductForm, TechnicalSpecForm
-
-# --- CATALOGO (Mantendo sua CLASSE) ---
 class Bikes(View):
     def get(self, request, *args, **kwargs):
-        # 1. Base Query
+        # 1. Query Base Otimizada
         queryset = Product.objects.filter(
             product_type='BIKE', 
             ownership='SHOP', 
             is_active=True
-        ).select_related('category', 'specs').order_by('-is_featured', '-created_at')
+        ).select_related('category', 'specs')
 
-        # --- FILTROS (Seu código original mantido) ---
+        # --- FILTROS (Agora batem com o HTML) ---
+        
+        # 1. Busca por Texto (Input name="search")
+        search_query = request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query) |
+                Q(sku__icontains=search_query)
+            )
+
+        # 2. Categoria (Select name="category")
         category_val = request.GET.get('category')
         if category_val:
-            queryset = queryset.filter(category__name__icontains=category_val)
+            # Filtra pelo nome da categoria exato
+            queryset = queryset.filter(category__name=category_val)
 
-        price_val = request.GET.get('price')
-        if price_val:
-            if '+' in price_val:
-                min_price = price_val.replace('+', '').replace('.', '')
-                queryset = queryset.filter(selling_price__gte=min_price)
-            elif '-' in price_val:
-                parts = price_val.split('-')
-                if len(parts) == 2:
-                    queryset = queryset.filter(selling_price__gte=parts[0], selling_price__lte=parts[1])
+        # 3. Condição (Radio name="condition")
+        condition_val = request.GET.get('condition')
+        if condition_val in ['NEW', 'USED']:
+            queryset = queryset.filter(condition=condition_val)
 
-        range_val = request.GET.get('range')
-        if range_val:
-            if '80+' in range_val:
-                queryset = queryset.filter(
-                    Q(specs__range_estimate__icontains='80') | 
-                    Q(specs__range_estimate__icontains='100') |
-                    Q(specs__range_estimate__icontains='120')
-                )
-            else:
-                try:
-                    min_range = range_val.split('-')[0]
-                    queryset = queryset.filter(specs__range_estimate__icontains=min_range)
-                except:
-                    pass
-
-        tag_val = request.GET.get('tag')
-        if tag_val == 'lancamento':
-            queryset = queryset.filter(condition='NEW').order_by('-created_at')
-        elif tag_val == 'promo':
-            queryset = queryset.filter(selling_price__lt=4000)
-
-        # --- ORDENAÇÃO ---
-        sort_val = request.GET.get('sort')
-        if sort_val == 'price_asc':
+        # 4. Ordenação (Select name="ordering")
+        # O HTML envia 'ordering', não 'sort'
+        ordering_val = request.GET.get('ordering')
+        
+        if ordering_val == 'price_asc':
             queryset = queryset.order_by('selling_price')
-        elif sort_val == 'price_desc':
+        elif ordering_val == 'price_desc':
             queryset = queryset.order_by('-selling_price')
-        elif sort_val == 'newest':
+        elif ordering_val == 'newest':
             queryset = queryset.order_by('-created_at')
-        elif sort_val == 'popular':
-            queryset = queryset.filter(is_featured=True)
         else:
+            # Padrão: Destaques primeiro, depois mais recentes
             queryset = queryset.order_by('-is_featured', '-created_at')
 
         # --- PAGINAÇÃO ---
-        paginator = Paginator(queryset, 8) 
+        paginator = Paginator(queryset, 9) # Mostra 9 bikes por página
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+
+        # Helper para manter os filtros ao mudar de página
+        params = request.GET.copy()
+        if 'page' in params:
+            del params['page']
 
         context = {
             'bikes': page_obj,
             'total_count': queryset.count(),
             'categories': Category.objects.all(),
+            'current_params': params.urlencode() # Útil se quiser fazer links manuais
         }
 
-        # --- CORREÇÃO VITAL DO HTMX ---
-        # Se for HTMX (clique na paginação), retorna SÓ o grid parcial
+        # --- LÓGICA HTMX ---
+        # Se for uma requisição HTMX (AJAX), retorna APENAS o grid de produtos
         if request.headers.get('HX-Request'):
             return render(request, "partials/bikes_list.html", context)
 
-        # Se for acesso normal, retorna a página completa (Pai)
+        # Se for acesso normal, retorna a página completa com filtros
         return render(request, "public/bike_catalog.html", context)
 
 
