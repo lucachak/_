@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     
+
     #internal middleware
     'core.middleware.MaintenanceModeMiddleware',
     'Staff.middleware.MaintenanceModeMiddleware',
@@ -236,6 +238,9 @@ UNFOLD = {
 LOGOUT_REDIRECT_URL = 'home' 
 LOGIN_REDIRECT_URL = 'client_dashboard' 
 CART_SESSION_ID = 'cart'
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+CSRF_TRUSTED_ORIGINS = ['https://ik4kukb02n.onrender.com']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@eletricbike.com'
