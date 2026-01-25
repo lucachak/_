@@ -1,20 +1,23 @@
+from decouple import config
 from pathlib import Path
 from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-!w-3faytns!mepydyykh@gf%9+_mlky@wz_-t0j=6ln0#p3f^1"
+
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+if config('DEBUG', default=False, cast=bool):
+    ALLOWED_HOSTS = ["*"]
+
+ALLOWED_HOSTS = ["*.onrender.com/"]
 
 INSTALLED_APPS = [
 
@@ -28,15 +31,13 @@ INSTALLED_APPS = [
     "unfold.contrib.location_field",
     "unfold.contrib.constance",  
 
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.humanize",
-    
+    "django.contrib.humanize",    
     
     # Internal Apps
     "core",
@@ -242,8 +243,10 @@ LOGOUT_REDIRECT_URL = 'home'
 LOGIN_REDIRECT_URL = 'client_dashboard' 
 CART_SESSION_ID = 'cart'
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = config('STATICFILES_STORAGE')
 CSRF_TRUSTED_ORIGINS = ['https://ik4kukb02n.onrender.com']
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'no-reply@eletricbike.com'
+EMAIL_BACKEND = config('EMAIL_BACKEND') 
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
+
