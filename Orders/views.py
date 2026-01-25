@@ -14,7 +14,15 @@ from Clients.models import Client
 def cart_add(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
-    cart.add(product=product, quantity=1)
+    
+    # Tenta adicionar (captura se atingiu o limite)
+    limit_reached = cart.add(product=product, quantity=1)
+    
+    if limit_reached:
+        messages.warning(request, f"Estoque limitado! Adicionamos o máximo disponível de {product.name}.")
+    else:
+        messages.success(request, f"{product.name} adicionado ao carrinho!")
+        
     return redirect('cart_detail')
 
 def cart_remove(request, product_id):
@@ -31,59 +39,77 @@ def cart_detail(request):
 def checkout_create_order(request):
     cart = Cart(request)
     
-    # 1. Se carrinho estiver vazio, não deixa prosseguir
     if len(cart) == 0:
         messages.warning(request, "Seu carrinho está vazio.")
         return redirect('bike_catalog')
 
-    # 2. Busca ou Cria o Perfil de Cliente
-    try:
-        # Tenta pegar o cliente existente
-        client = request.user.client
-    except:
-        # Se não existir, cria um novo APENAS com o user.
-        # Removemos 'name' e 'email' daqui porque eles já ficam no request.user
-        client = Client.objects.create(
-            user=request.user
-        )
+    # Busca ou Cria o Cliente
+    client, created = Client.objects.get_or_create(user=request.user)
         
-    # --- TRAVA DE ENDEREÇO ---
     if not client.is_complete():
         messages.warning(request, "Por favor, complete seu Endereço e CPF para finalizar a compra.")
-        
-        # LÓGICA DO NEXT: Monta a URL de perfil + o parâmetro next apontando de volta pra cá
         checkout_url = reverse('checkout_create_order')
         profile_url = reverse('client_profile')
         return redirect(f"{profile_url}?next={checkout_url}")
-    # -------------------------
 
+    # --- INÍCIO DA TRANSAÇÃO ATÔMICA ---
+    try:
+        with transaction.atomic():
+            # 1. Cria o Pedido (Status inicial QUOTE ou PENDING)
+            order = Order.objects.create(
+                client=client,
+                status='QUOTE', 
+                total_amount=cart.get_total_price_after_discount()
+            )
 
+            # 2. Itera sobre o carrinho e cria os itens
+            for item in cart:
+                product = item['product']
+                qty = item['quantity']
+                
+                # 3. VALIDAÇÃO FINAL DE ESTOQUE (Anti-concorrência)
+                # Verifica no banco a quantidade atual exata
+                # select_for_update trava essa linha no banco até terminar a transação
+                product_in_db = Product.objects.select_for_update().get(id=product.id)
+                
+                if product_in_db.stock_quantity < qty:
+                    # Se faltar estoque na hora H, cancela tudo!
+                    raise ValueError(f"Desculpe, o produto {product.name} acabou de esgotar.")
 
-    # 3. Cria o Pedido (Order) no Banco
-    order = Order.objects.create(
-        client=client,
-        status='QUOTE', 
-        total_amount=cart.get_total_price_after_discount()
-    )
+                # Cria o item
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=qty,
+                    unit_price=item['price'],
+                    description=product.name
+                )
+                
+                # OBS: Não baixamos o estoque aqui porque a sua lógica no Staff/views.py
+                # diz que baixa apenas quando aprova (APPROVED). 
+                # Mas garantimos aqui que HÁ estoque suficiente para iniciar o pedido.
 
-    # 4. Transfere os itens do Carrinho para o Banco (OrderItem)
-    for item in cart:
-        OrderItem.objects.create(
-            order=order,
-            product=item['product'],
-            quantity=item['quantity'],
-            unit_price=item['price'],
-            description=item['product'].name
-        )
+            # Se chegou aqui, salva o cupom no pedido se houver (opcional, se tiver campo no model)
+            # if cart.coupon:
+            #     order.coupon = cart.coupon
+            #     order.save()
 
-    # 5. Limpa o carrinho da sessão
-    cart.clear()
-    
-    print(f"✅ Pedido #{order.id} criado com sucesso! Redirecionando...")
+            # 4. Sucesso! Limpa o carrinho
+            cart.clear()
+            
+            # 5. Redireciona
+            return redirect('process_payment', order_id=order.id)
 
-    # 6. Redireciona para o Pagamento
-    return redirect('process_payment', order_id=order.id)
-
+    except ValueError as e:
+        # Erro de validação (ex: estoque acabou)
+        messages.error(request, str(e))
+        return redirect('cart_detail')
+        
+    except Exception as e:
+        # Erro técnico inesperado
+        messages.error(request, "Ocorreu um erro ao processar seu pedido. Tente novamente.")
+        print(f"Erro Crítico Checkout: {e}") # Log para você ver no terminal
+        return redirect('cart_detail')
 
 @login_required
 def client_orders(request):

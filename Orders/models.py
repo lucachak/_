@@ -35,6 +35,57 @@ class Order(TimeStampedModel):
         self.total_amount = sum(item.subtotal for item in self.items.all())
         self.save()
 
+
+
+    def approve_payment(self):
+        """
+        Aprova o pedido e baixa o estoque atomicamente.
+        Pode ser chamado pelo Webhook de pagamento ou pelo Painel Admin.
+        """
+        if self.status == 'APPROVED':
+            return # Já está aprovado, não faz nada
+            
+        # Evita importação circular
+        from django.db import transaction 
+        
+        with transaction.atomic():
+            # Itera sobre os itens para baixar estoque
+            for item in self.items.all():
+                if item.product.product_type != 'SERVICE':
+                    # Trava o produto no banco para evitar erro de contagem
+                    product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
+                    
+                    if product.stock_quantity >= item.quantity:
+                        product.stock_quantity -= item.quantity
+                        product.save()
+                    else:
+                        # Se falhar aqui, desfaz tudo (rollback)
+                        raise ValueError(f"Estoque insuficiente para {product.name} ao confirmar pagamento.")
+            
+            self.status = 'APPROVED'
+            self.save()
+
+    def cancel_order(self):
+        """
+        Cancela o pedido. Se já estava aprovado/pago, devolve os itens ao estoque.
+        """
+        if self.status == 'CANCELED':
+            return
+
+        from django.db import transaction
+        
+        with transaction.atomic():
+            # Se estava pago, devolve o estoque
+            if self.status in ['APPROVED', 'READY', 'IN_PROGRESS']:
+                for item in self.items.all():
+                    if item.product.product_type != 'SERVICE':
+                        product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
+                        product.stock_quantity += item.quantity
+                        product.save()
+            
+            self.status = 'CANCELED'
+            self.save()
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     

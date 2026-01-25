@@ -108,37 +108,27 @@ def staff_change_order_status(request, pk):
     new_status = request.POST.get('status')
     
     try:
-        with transaction.atomic():
-            old_status = order.status
+        # Usa os novos métodos inteligentes do modelo
+        if new_status == 'APPROVED':
+            order.approve_payment()
+            messages.success(request, f"Pedido #{order.id} aprovado e estoque atualizado!")
             
-            # Baixa estoque ao aprovar
-            if new_status == 'APPROVED' and old_status != 'APPROVED':
-                for item in order.items.all():
-                    if item.product.product_type != 'SERVICE': 
-                        if item.product.stock_quantity >= item.quantity:
-                            item.product.stock_quantity -= item.quantity
-                            item.product.save()
-                        else:
-                            raise ValueError(f"Estoque insuficiente: {item.product.name}")
-
-            # Devolve estoque ao cancelar (se já estava aprovado)
-            elif new_status == 'CANCELED' and old_status == 'APPROVED':
-                for item in order.items.all():
-                    if item.product.product_type != 'SERVICE':
-                        item.product.stock_quantity += item.quantity
-                        item.product.save()
-
+        elif new_status == 'CANCELED':
+            order.cancel_order()
+            messages.success(request, f"Pedido #{order.id} cancelado e estoque estornado!")
+            
+        else:
+            # Para outros status (SENT, DELIVERED), apenas salva
             order.status = new_status
             order.save()
-            messages.success(request, f"Pedido #{order.id} atualizado para {order.get_status_display()}")
+            messages.success(request, f"Status atualizado para {order.get_status_display()}")
 
     except ValueError as e:
         messages.error(request, str(e))
     except Exception as e:
-        messages.error(request, f"Erro crítico: {e}")
+        messages.error(request, f"Erro ao atualizar: {e}")
 
-    return redirect('staff_order_detail', pk=pk)
-
+    return redirect('staff_order_detail', pk=pk) # Certifique-se que o nome da url está correto
 # --- 3. RELATÓRIOS E CONFIGURAÇÕES ---
 class AdminReportsView(StaffRequiredMixin, TemplateView):
     template_name = 'admin/reports.html'

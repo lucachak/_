@@ -1,4 +1,5 @@
 from decouple import config
+import dj_database_url # Importar dj-database-url
 from pathlib import Path
 from django.urls import reverse_lazy
 
@@ -10,14 +11,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY', default='chave-insegura-apenas-para-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
 if config('DEBUG', default=False, cast=bool):
     ALLOWED_HOSTS = ["*"]
 
-ALLOWED_HOSTS = ["*.onrender.com/"]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
 INSTALLED_APPS = [
 
@@ -92,10 +93,10 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
+    )
 }
 
 

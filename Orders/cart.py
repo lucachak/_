@@ -15,18 +15,34 @@ class Cart:
         self.coupon_id = self.session.get('coupon_id')
 
     def add(self, product, quantity=1, update_quantity=False):
-        """
-        Adiciona um produto ao carrinho ou atualiza sua quantidade.
-        """
-        product_id = str(product.id)
-        if product_id not in self.cart:
-            self.cart[product_id] = {'quantity': 0, 'price': str(product.selling_price)}
-        
-        if update_quantity:
-            self.cart[product_id]['quantity'] = quantity
-        else:
-            self.cart[product_id]['quantity'] += quantity
-        self.save()
+            """
+            Adiciona um produto ao carrinho com verificação de estoque.
+            """
+            product_id = str(product.id)
+            if product_id not in self.cart:
+                self.cart[product_id] = {'quantity': 0, 'price': str(product.selling_price)}
+            
+            # 1. Calcula a quantidade final desejada
+            current_qty_in_cart = self.cart[product_id]['quantity']
+            
+            if update_quantity:
+                desired_qty = quantity
+            else:
+                desired_qty = current_qty_in_cart + quantity
+
+            # 2. VALIDAÇÃO DE ESTOQUE (A melhoria robusta)
+            # Se a quantidade desejada for maior que o estoque real, lançamos erro ou limitamos.
+            if desired_qty > product.stock_quantity:
+                # Opção A: Lança erro (vamos tratar na view)
+                # Opção B: Trava no máximo disponível (vamos usar esta, é mais amigável)
+                self.cart[product_id]['quantity'] = product.stock_quantity
+                limit_reached = True # Flag para avisar o usuário
+            else:
+                self.cart[product_id]['quantity'] = desired_qty
+                limit_reached = False
+                
+            self.save()
+            return limit_reached # Retorna True se o estoque limitou a adição
 
     def remove(self, product):
         """
