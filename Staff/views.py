@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, ListView, DetailView, FormView, View , UpdateView
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.generic import TemplateView, ListView, DetailView, UpdateView
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Sum, Count, F, Avg, Q
@@ -12,32 +11,50 @@ import json
 import datetime
 from django.utils import timezone
 
-# Importe seus models
+# Importe os seus models
 from Orders.models import Order, OrderItem
-from Assets.models import Product
+from Assets.models import Product, Maintenance  # ADICIONADO Maintenance
 from Clients.models import Client
 from .mixins import StaffRequiredMixin
 from .models import SiteConfiguration
 from .forms import SiteSettingsForm
 
 
-# --- 1. DASHBOARD INTELIGENTE ---
 class AdminDashboardView(StaffRequiredMixin, TemplateView):
     template_name = 'admin/admin_dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # --- KPIS TOPO ---
-        revenue_data = Order.objects.filter(status__in=['APPROVED', 'SENT', 'DELIVERED']).aggregate(Sum('total_amount'))
-        context['total_revenue'] = revenue_data['total_amount__sum'] or 0
-        
-        context['total_orders'] = Order.objects.count()
-        context['avg_ticket'] = Order.objects.filter(status='APPROVED').aggregate(Avg('total_amount'))['total_amount__avg'] or 0
-        context['total_clients'] = Client.objects.count()
+        today = timezone.now().date()
+        start_of_month = today.replace(day=1)
 
-        # --- GRÁFICO 1: Faturamento Mensal (Últimos 6 meses) ---
+        # --- 1. CARTÕES (KPIs Rápidos) ---
+        
+        # Vendas Hoje
+        sales_today_data = Order.objects.filter(
+            created_at__date=today, 
+            status__in=['APPROVED', 'SENT', 'DELIVERED']
+        ).aggregate(Sum('total_amount'))
+        context['sales_today'] = sales_today_data['total_amount__sum'] or 0
+
+        # Produtos Vendidos (Mês)
+        products_sold_data = OrderItem.objects.filter(
+            order__created_at__date__gte=start_of_month,
+            order__status__in=['APPROVED', 'SENT', 'DELIVERED']
+        ).aggregate(Sum('quantity'))
+        context['products_sold_month'] = products_sold_data['quantity__sum'] or 0
+
+        # Manutenção Ativa
+        context['active_maintenance'] = Maintenance.objects.exclude(status='DELIVERED').count()
+
+        # Estoque Crítico
+        context['low_stock_count'] = Product.objects.filter(stock_quantity__lte=F('min_stock_alert')).count()
+
+        # --- 2. GRÁFICO DE VENDAS (Últimos 6 Meses) ---
         six_months_ago = timezone.now() - datetime.timedelta(days=180)
+        
+        # Agrupa vendas por mês
         monthly_sales = (
             Order.objects.filter(created_at__gte=six_months_ago, status__in=['APPROVED', 'SENT', 'DELIVERED'])
             .annotate(month=TruncMonth('created_at'))
@@ -46,32 +63,23 @@ class AdminDashboardView(StaffRequiredMixin, TemplateView):
             .order_by('month')
         )
 
+        # Prepara dados para o Chart.js (JSON)
         chart_labels = [x['month'].strftime('%b/%Y') for x in monthly_sales]
         chart_data = [float(x['total']) for x in monthly_sales]
         
         context['revenue_chart_labels'] = json.dumps(chart_labels)
         context['revenue_chart_data'] = json.dumps(chart_data)
 
-        # --- GRÁFICO 2: Status dos Pedidos (Pizza) ---
-        status_counts = Order.objects.values('status').annotate(count=Count('id'))
-        status_map = dict(Order.STATUS_CHOICES)
-        pie_labels = [status_map.get(x['status'], x['status']) for x in status_counts]
-        pie_data = [x['count'] for x in status_counts]
-
-        context['status_pie_labels'] = json.dumps(pie_labels)
-        context['status_pie_data'] = json.dumps(pie_data)
-
-        # --- LISTAS DETALHADAS ---
+        # --- 3. TABELAS E LISTAS ---
+        context['recent_orders'] = Order.objects.select_related('client__user').order_by('-created_at')[:5]
+        
         context['top_products'] = (
             OrderItem.objects
             .values('product__name')
             .annotate(total_qty=Sum('quantity'))
-            .order_by('-total_qty')[:5]
+            .order_by('-total_qty')[:4]
         )
 
-        # Estoque Crítico (<= 3 unidades)
-        context['low_stock'] = Product.objects.filter(stock_quantity__lte=3, product_type__in=['BIKE', 'COMPONENT'])[:5]
-        
         return context
 
 # --- 2. GESTÃO DE PEDIDOS ---

@@ -113,6 +113,22 @@ class Product(TimeStampedModel):
     def is_in_stock(self):
         return self.stock_quantity > 0
 
+    @property
+    def cover_image_url(self):
+        """
+        Retorna a URL da imagem de capa.
+        Se não tiver capa (main_image), tenta pegar a primeira da galeria.
+        Retorna None se não houver nenhuma imagem.
+        """
+        if self.main_image:
+            return self.main_image.url
+        
+        # Tenta pegar a primeira imagem da galeria (usa o related_name='images')
+        first_gallery_image = self.images.first()
+        if first_gallery_image:
+            return first_gallery_image.image.url
+            
+        return None
 
 # --- 3. DADOS TÉCNICOS (SATÉLITE) ---
 class TechnicalSpec(models.Model):

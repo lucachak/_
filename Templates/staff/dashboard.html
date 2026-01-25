@@ -1,415 +1,268 @@
-{% extends 'base/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Dashboard - EletricBike{% endblock %}
+{% block title %}Dashboard - Oficina Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* Fundo geral um pouco mais escuro para contraste */
     body {
-        background: #f5f7fa;
+        background: #f0f2f5;
     }
 
+    /* Cabeçalho do Dashboard */
     .dashboard-header {
-        background: linear-gradient(135deg, #0a1929 0%, #1a2942 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* Cores mais próximas do teu tema Dark */
         color: white;
-        padding: 2rem 0;
+        padding: 2.5rem 0;
         margin-bottom: 2rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     .dashboard-title {
-        font-size: 2.5rem;
-        font-weight: 900;
+        font-size: 2.2rem;
+        font-weight: 800;
         margin-bottom: 0.5rem;
+        letter-spacing: -0.025em;
     }
 
     .dashboard-subtitle {
         opacity: 0.8;
         font-size: 1.1rem;
+        font-weight: 300;
     }
 
-    /* Stats Cards */
+    /* Grid de Estatísticas (Responsivo) */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
 
+    /* Cartões de Estatística */
     .stat-card {
         background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        transition: all 0.3s;
-        border-left: 5px solid var(--primary-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid var(--primary); /* Usa a variável do teu tema */
+        height: 100%; /* Garante altura igual em todos */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,212,255,0.2);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
-    .stat-card.danger {
-        border-left-color: #ff6b6b;
-    }
-
-    .stat-card.success {
-        border-left-color: #00ff88;
-    }
-
-    .stat-card.warning {
-        border-left-color: #ffc107;
-    }
+    .stat-card.danger { border-left-color: #ef4444; }
+    .stat-card.success { border-left-color: #10b981; }
+    .stat-card.warning { border-left-color: #f59e0b; }
 
     .stat-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
         margin-bottom: 1rem;
     }
 
     .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
-        background: linear-gradient(135deg, rgba(0,212,255,0.1) 0%, rgba(0,255,136,0.1) 100%);
-        color: var(--primary-color);
+        font-size: 1.5rem;
+        background: rgba(124, 58, 237, 0.1); /* Roxo claro */
+        color: #7c3aed; /* Roxo principal */
     }
 
-    .stat-card.danger .stat-icon {
-        background: rgba(255,107,107,0.1);
-        color: #ff6b6b;
-    }
-
-    .stat-card.success .stat-icon {
-        background: rgba(0,255,136,0.1);
-        color: #00ff88;
-    }
-
-    .stat-card.warning .stat-icon {
-        background: rgba(255,193,7,0.1);
-        color: #ffc107;
-    }
+    .stat-card.danger .stat-icon { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .stat-card.success .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .stat-card.warning .stat-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
     .stat-label {
-        font-size: 0.9rem;
-        color: #666;
+        font-size: 0.875rem;
+        color: #64748b;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: var(--secondary-color);
+        letter-spacing: 0.05em;
         margin-bottom: 0.5rem;
     }
 
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        line-height: 1;
+    }
+
     .stat-change {
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-
-    .stat-change.positive {
-        color: #00ff88;
-    }
-
-    .stat-change.negative {
-        color: #ff6b6b;
-    }
-
-    /* Charts Section */
-    .chart-card {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        margin-bottom: 2rem;
-    }
-
-    .chart-header {
+        font-size: 0.875rem;
+        font-weight: 500;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f0f0f0;
+        gap: 0.25rem;
     }
 
-    .chart-title {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: var(--secondary-color);
-    }
+    .stat-change.positive { color: #10b981; }
+    .stat-change.negative { color: #ef4444; }
 
-    .chart-filter {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .filter-btn {
-        padding: 0.5rem 1rem;
-        border: 2px solid #e0e0e0;
-        background: white;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .filter-btn:hover,
-    .filter-btn.active {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-
-    /* Table */
-    .data-table {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        margin-bottom: 2rem;
-    }
-
-    .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .table-title {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: var(--secondary-color);
-    }
-
-    .table-search {
-        position: relative;
-        width: 300px;
-    }
-
-    .table-search input {
-        width: 100%;
-        padding: 0.8rem 1rem 0.8rem 3rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 15px;
-        transition: all 0.3s;
-    }
-
-    .table-search input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-    }
-
-    .table-search i {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #999;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    thead th {
-        background: #f8f9fa;
-        padding: 1rem;
-        text-align: left;
-        font-weight: 700;
-        color: var(--secondary-color);
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    thead th:first-child {
-        border-radius: 10px 0 0 10px;
-    }
-
-    thead th:last-child {
-        border-radius: 0 10px 10px 0;
-    }
-
-    tbody td {
-        padding: 1.2rem 1rem;
-        border-bottom: 1px solid #f0f0f0;
-        color: #555;
-    }
-
-    tbody tr:hover {
-        background: #f8f9fa;
-    }
-
-    .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-block;
-    }
-
-    .status-badge.completed {
-        background: rgba(0,255,136,0.2);
-        color: #00a854;
-    }
-
-    .status-badge.pending {
-        background: rgba(255,193,7,0.2);
-        color: #e68900;
-    }
-
-    .status-badge.cancelled {
-        background: rgba(255,107,107,0.2);
-        color: #cc0000;
-    }
-
-    .action-btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        margin-right: 0.5rem;
-    }
-
-    .action-btn.view {
-        background: rgba(0,212,255,0.1);
-        color: var(--primary-color);
-    }
-
-    .action-btn.edit {
-        background: rgba(255,193,7,0.1);
-        color: #e68900;
-    }
-
-    .action-btn.delete {
-        background: rgba(255,107,107,0.1);
-        color: #cc0000;
-    }
-
-    .action-btn:hover {
-        transform: translateY(-2px);
-    }
-
-    /* Quick Actions */
+    /* Ações Rápidas */
     .quick-actions {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 1rem;
         margin-bottom: 2rem;
     }
 
     .quick-action-btn {
         background: white;
-        border: 2px solid #e0e0e0;
-        border-radius: 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
         padding: 1.5rem;
         text-align: center;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.2s;
         text-decoration: none;
-        color: var(--secondary-color);
+        color: #334155;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
     }
 
     .quick-action-btn:hover {
-        border-color: var(--primary-color);
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,212,255,0.2);
+        border-color: #7c3aed;
+        background: #faf5ff; /* Fundo roxo muito claro */
+        transform: translateY(-2px);
+        color: #7c3aed;
     }
 
     .quick-action-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 2rem;
+        color: #7c3aed;
     }
 
     .quick-action-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Tabelas e Cards Gerais */
+    .content-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        overflow: hidden; /* Para cantos arredondados na tabela */
+    }
+
+    .card-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
         font-weight: 700;
-        font-size: 1rem;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .chart-filter {
-            flex-wrap: wrap;
-        }
-
-        .table-search {
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        .table-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        table {
-            font-size: 0.85rem;
-        }
-
-        .action-btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.8rem;
-        }
+    /* Estilização da Tabela Simples */
+    .table-responsive {
+        overflow-x: auto;
     }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .custom-table th {
+        background: #f8fafc;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #64748b;
+        border-bottom: 2px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .custom-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .custom-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Badges de Status */
+    .badge-status {
+        padding: 0.35em 0.8em;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .badge-completed { background: #d1fae5; color: #065f46; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Dashboard Header -->
 <section class="dashboard-header">
-    <div class="container">
+    <div class="container-fluid px-4">
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h1 class="dashboard-title">
-                    <i class="fas fa-tachometer-alt"></i> Painel de Controle
+                    <i class="fas fa-tachometer-alt me-2"></i>Oficina Dashboard
                 </h1>
-                <p class="dashboard-subtitle">
-                    Bem-vindo de volta! Aqui está um resumo do seu negócio.
+                <p class="dashboard-subtitle mb-0">
+                    Visão geral de <strong>{{ request.user.username }}</strong>. Sistema operacional e online.
                 </p>
             </div>
-            <div class="col-md-4 text-md-end">
-                <button class="btn btn-primary-custom">
-                    <i class="fas fa-plus"></i> Nova Venda
-                </button>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'admin:Orders_order_add' %}" class="btn btn-light fw-bold shadow-sm">
+                    <i class="fas fa-plus me-2 text-primary"></i> Nova Venda Rápida
+                </a>
             </div>
         </div>
     </div>
 </section>
 
-<div class="container">
-    <!-- Stats Cards -->
+<div class="container-fluid px-4">
+    
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-header">
                 <div>
-                    <div class="stat-label">Vendas Hoje</div>
-                    <div class="stat-value">R$ 24.500</div>
+                    <div class="stat-label">Vendas (Hoje)</div>
+                    <div class="stat-value">R$ 2.450</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +15% vs ontem
+                        <i class="fas fa-arrow-up"></i> 15% vs ontem
                     </div>
                 </div>
                 <div class="stat-icon">
-                    <i class="fas fa-shopping-cart"></i>
+                    <i class="fas fa-wallet"></i>
                 </div>
             </div>
         </div>
@@ -417,10 +270,10 @@
         <div class="stat-card success">
             <div class="stat-header">
                 <div>
-                    <div class="stat-label">Bikes Vendidas</div>
-                    <div class="stat-value">47</div>
+                    <div class="stat-label">Produtos Vendidos</div>
+                    <div class="stat-value">12</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +8 este mês
+                        <i class="fas fa-check-circle"></i> +3 esta semana
                     </div>
                 </div>
                 <div class="stat-icon">
@@ -432,10 +285,10 @@
         <div class="stat-card warning">
             <div class="stat-header">
                 <div>
-                    <div class="stat-label">Manutenções Agendadas</div>
-                    <div class="stat-value">23</div>
+                    <div class="stat-label">Oficina / Serviços</div>
+                    <div class="stat-value">5 Ativos</div>
                     <div class="stat-change">
-                        <i class="fas fa-calendar"></i> Para esta semana
+                        <i class="fas fa-clock"></i> 2 Aguardando Peças
                     </div>
                 </div>
                 <div class="stat-icon">
@@ -447,208 +300,134 @@
         <div class="stat-card danger">
             <div class="stat-header">
                 <div>
-                    <div class="stat-label">Estoque Baixo</div>
-                    <div class="stat-value">5</div>
+                    <div class="stat-label">Alerta de Estoque</div>
+                    <div class="stat-value">3 Itens</div>
                     <div class="stat-change negative">
-                        <i class="fas fa-exclamation-triangle"></i> Requer atenção
+                        <i class="fas fa-exclamation-triangle"></i> Abaixo do mínimo
                     </div>
                 </div>
                 <div class="stat-icon">
-                    <i class="fas fa-box"></i>
+                    <i class="fas fa-box-open"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <h3 style="margin-bottom: 1.5rem; font-weight: 900; color: var(--secondary-color);">
-        <i class="fas fa-bolt"></i> Ações Rápidas
-    </h3>
+    <h4 class="mb-3 fw-bold text-secondary">
+        <i class="fas fa-bolt me-2 text-warning"></i>Acesso Rápido
+    </h4>
     <div class="quick-actions">
-        <a href="#" class="quick-action-btn">
-            <div class="quick-action-icon"><i class="fas fa-plus-circle"></i></div>
+        <a href="{% url 'admin:Orders_order_add' %}" class="quick-action-btn">
+            <div class="quick-action-icon"><i class="fas fa-cash-register"></i></div>
             <div class="quick-action-label">Nova Venda</div>
         </a>
-        <a href="#" class="quick-action-btn">
+        
+        <a href="{% url 'admin:Assets_maintenance_add' %}" class="quick-action-btn">
             <div class="quick-action-icon"><i class="fas fa-wrench"></i></div>
-            <div class="quick-action-label">Agendar Manutenção</div>
+            <div class="quick-action-label">Abrir OS (Oficina)</div>
         </a>
-        <a href="#" class="quick-action-btn">
-            <div class="quick-action-icon"><i class="fas fa-truck"></i></div>
-            <div class="quick-action-label">Registrar Estoque</div>
+        
+        <a href="{% url 'admin:Assets_product_changelist' %}" class="quick-action-btn">
+            <div class="quick-action-icon"><i class="fas fa-boxes"></i></div>
+            <div class="quick-action-label">Gerir Estoque</div>
         </a>
-        <a href="#" class="quick-action-btn">
-            <div class="quick-action-icon"><i class="fas fa-users"></i></div>
+        
+        <a href="{% url 'admin:Clients_client_add' %}" class="quick-action-btn">
+            <div class="quick-action-icon"><i class="fas fa-user-plus"></i></div>
             <div class="quick-action-label">Novo Cliente</div>
         </a>
     </div>
 
-    <!-- Charts Row -->
     <div class="row">
-        <div class="col-md-8">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">
-                        <i class="fas fa-chart-line"></i> Vendas Mensais
+        <div class="col-lg-8">
+            <div class="content-card h-100">
+                <div class="card-header-flex">
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-list text-primary"></i> Últimos Pedidos
                     </h3>
-                    <div class="chart-filter">
-                        <button class="filter-btn active">7 Dias</button>
-                        <button class="filter-btn">30 Dias</button>
-                        <button class="filter-btn">12 Meses</button>
-                    </div>
+                    <a href="{% url 'admin:Orders_order_changelist' %}" class="btn btn-sm btn-outline-primary">
+                        Ver Todos
+                    </a>
                 </div>
-                <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
-                    <div style="text-align: center;">
-                        <i class="fas fa-chart-bar" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
-                        <p style="color: #999;">Gráfico de Vendas Será Exibido Aqui</p>
-                        <small style="color: #ccc;">Integre com Chart.js ou Recharts</small>
-                    </div>
+
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Pedido</th>
+                                <th>Cliente</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#2547</td>
+                                <td>João Silva</td>
+                                <td>R$ 4.999,00</td>
+                                <td><span class="badge-status badge-completed">Pago</span></td>
+                                <td><a href="#" class="text-primary"><i class="fas fa-eye"></i></a></td>
+                            </tr>
+                            <tr>
+                                <td>#2546</td>
+                                <td>Maria Santos</td>
+                                <td>R$ 150,00</td>
+                                <td><span class="badge-status badge-pending">Pendente</span></td>
+                                <td><a href="#" class="text-primary"><i class="fas fa-eye"></i></a></td>
+                            </tr>
+                            <tr>
+                                <td>#2545</td>
+                                <td>Carlos Oliveira</td>
+                                <td>R$ 3.499,00</td>
+                                <td><span class="badge-status badge-completed">Enviado</span></td>
+                                <td><a href="#" class="text-primary"><i class="fas fa-eye"></i></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">
-                        <i class="fas fa-star"></i> Top Modelos
+        <div class="col-lg-4">
+            <div class="content-card h-100">
+                <div class="card-header-flex">
+                    <h3 class="card-title">
+                        <i class="fas fa-star text-warning"></i> Populares
                     </h3>
                 </div>
-                <div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-weight: 600;">Urban Pro Elite</span>
-                            <span style="color: var(--primary-color); font-weight: 700;">34%</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden;">
-                            <div style="background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%); width: 34%; height: 100%;"></div>
-                        </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold text-dark">Urban Pro Elite</span>
+                        <span class="text-primary fw-bold">34%</span>
                     </div>
-
-                    <div style="margin-bottom: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-weight: 600;">Mountain Elite X</span>
-                            <span style="color: var(--primary-color); font-weight: 700;">28%</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden;">
-                            <div style="background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%); width: 28%; height: 100%;"></div>
-                        </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 34%"></div>
                     </div>
+                </div>
 
-                    <div style="margin-bottom: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-weight: 600;">City Comfort</span>
-                            <span style="color: var(--primary-color); font-weight: 700;">22%</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden;">
-                            <div style="background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%); width: 22%; height: 100%;"></div>
-                        </div>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold text-dark">Mountain Elite X</span>
+                        <span class="text-primary fw-bold">28%</span>
                     </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 28%"></div>
+                    </div>
+                </div>
 
-                    <div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-weight: 600;">Folding Smart X</span>
-                            <span style="color: var(--primary-color); font-weight: 700;">16%</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden;">
-                            <div style="background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%); width: 16%; height: 100%;"></div>
-                        </div>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold text-dark">Serviço: Revisão Geral</span>
+                        <span class="text-primary fw-bold">15%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 15%"></div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Recent Orders Table -->
-    <div class="data-table">
-        <div class="table-header">
-            <h3 class="table-title">
-                <i class="fas fa-clipboard-list"></i> Pedidos Recentes
-            </h3>
-            <div class="table-search">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar pedidos...">
-            </div>
-        </div>
-
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Cliente</th>
-                        <th>Produto</th>
-                        <th>Valor</th>
-                        <th>Status</th>
-                        <th>Data</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#2547</td>
-                        <td>João Silva</td>
-                        <td>Urban Pro Elite</td>
-                        <td>R$ 4.999,00</td>
-                        <td><span class="status-badge completed">Concluído</span></td>
-                        <td>15/01/2026</td>
-                        <td>
-                            <button class="action-btn view"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#2546</td>
-                        <td>Maria Santos</td>
-                        <td>Mountain Elite X</td>
-                        <td>R$ 7.999,00</td>
-                        <td><span class="status-badge pending">Pendente</span></td>
-                        <td>15/01/2026</td>
-                        <td>
-                            <button class="action-btn view"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#2545</td>
-                        <td>Carlos Oliveira</td>
-                        <td>City Comfort</td>
-                        <td>R$ 3.499,00</td>
-                        <td><span class="status-badge completed">Concluído</span></td>
-                        <td>14/01/2026</td>
-                        <td>
-                            <button class="action-btn view"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#2544</td>
-                        <td>Ana Costa</td>
-                        <td>Folding Smart X</td>
-                        <td>R$ 4.799,00</td>
-                        <td><span class="status-badge cancelled">Cancelado</span></td>
-                        <td>14/01/2026</td>
-                        <td>
-                            <button class="action-btn view"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#2543</td>
-                        <td>Pedro Almeida</td>
-                        <td>Cargo Max Business</td>
-                        <td>R$ 6.999,00</td>
-                        <td><span class="status-badge completed">Concluído</span></td>
-                        <td>13/01/2026</td>
-                        <td>
-                            <button class="action-btn view"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 </div>
-
 {% endblock %}

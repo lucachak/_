@@ -13,11 +13,8 @@ class Bikes(View):
             product_type='BIKE', 
             ownership='SHOP', 
             is_active=True
-        ).select_related('category', 'specs')
-
-        # --- FILTROS (Agora batem com o HTML) ---
+        ).select_related('category', 'specs').prefetch_related('images')
         
-        # 1. Busca por Texto (Input name="search")
         search_query = request.GET.get('search')
         if search_query:
             queryset = queryset.filter(
@@ -26,19 +23,14 @@ class Bikes(View):
                 Q(sku__icontains=search_query)
             )
 
-        # 2. Categoria (Select name="category")
         category_val = request.GET.get('category')
         if category_val:
-            # Filtra pelo nome da categoria exato
             queryset = queryset.filter(category__name=category_val)
 
-        # 3. Condição (Radio name="condition")
         condition_val = request.GET.get('condition')
         if condition_val in ['NEW', 'USED']:
             queryset = queryset.filter(condition=condition_val)
 
-        # 4. Ordenação (Select name="ordering")
-        # O HTML envia 'ordering', não 'sort'
         ordering_val = request.GET.get('ordering')
         
         if ordering_val == 'price_asc':
@@ -48,11 +40,9 @@ class Bikes(View):
         elif ordering_val == 'newest':
             queryset = queryset.order_by('-created_at')
         else:
-            # Padrão: Destaques primeiro, depois mais recentes
             queryset = queryset.order_by('-is_featured', '-created_at')
 
-        # --- PAGINAÇÃO ---
-        paginator = Paginator(queryset, 9) # Mostra 9 bikes por página
+        paginator = Paginator(queryset, 9) 
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
@@ -68,16 +58,13 @@ class Bikes(View):
             'current_params': params.urlencode() # Útil se quiser fazer links manuais
         }
 
-        # --- LÓGICA HTMX ---
-        # Se for uma requisição HTMX (AJAX), retorna APENAS o grid de produtos
+
         if request.headers.get('HX-Request'):
             return render(request, "partials/bikes_list.html", context)
 
-        # Se for acesso normal, retorna a página completa com filtros
         return render(request, "public/bike_catalog.html", context)
 
 
-# --- DETALHES (Function View mantida conforme seu upload) ---
 def bike_detail(request, pk):
     product = get_object_or_404(
         Product.objects.select_related('category', 'specs').prefetch_related('images'), 
@@ -87,7 +74,7 @@ def bike_detail(request, pk):
     related_queryset = Product.objects.filter(
         category=product.category, 
         is_active=True,
-        ownership='SHOP'  # <--- ADICIONE ISSO
+        ownership='SHOP' 
     ).exclude(pk=pk)
     
     if product.product_type == 'BIKE':
@@ -103,9 +90,7 @@ def bike_detail(request, pk):
     return render(request, 'public/bike_detail.html', context)
 
 
-# --- GESTÃO (ADD PRODUCT) ---
 def add_product(request, fixed_type=None):
-    # (Seu código da view de adicionar produto permanece igual ao anterior)
     page_title = "Novo Produto"
     if fixed_type == 'BIKE':
         page_title = "Cadastrar Nova Bike"

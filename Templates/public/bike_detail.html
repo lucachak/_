@@ -41,13 +41,19 @@
 
     <div class="row g-5">
         <div class="col-lg-7">
-            <div class="position-relative bg-glass rounded-4 overflow-hidden mb-3 border border-light border-opacity-10 d-flex align-items-center justify-content-center" style="aspect-ratio: 4/3;">
-                {% if bike.main_image %}
-                    <img id="mainImage" src="{{ bike.main_image.url }}" alt="{{ bike.name }}" class="img-fluid object-fit-contain w-100 h-100 p-4 transition-opacity duration-300">
-                {% else %}
-                    <i class="fas fa-image fa-4x text-muted opacity-25"></i>
-                {% endif %}
-            </div>
+<div class="position-relative bg-glass rounded-4 overflow-hidden mb-3 border border-light border-opacity-10 d-flex align-items-center justify-content-center" style="aspect-ratio: 4/3;">
+    
+    {% with cover_url=bike.cover_image_url %}
+        
+        {% if cover_url %}
+            <img id="mainImage" src="{{ cover_url }}" alt="{{ bike.name }}" class="img-fluid object-fit-contain w-100 h-100 p-4 transition-opacity duration-300">
+        {% else %}
+            <i class="fas fa-image fa-4x text-muted opacity-25"></i>
+        {% endif %}
+
+    {% endwith %}
+
+</div>
 
             <div class="d-flex gap-2 overflow-auto pb-2">
                 {% if bike.main_image %}

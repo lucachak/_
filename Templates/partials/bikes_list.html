@@ -15,14 +15,15 @@
 
 
         <a href="{% url 'bike_detail' bike.id %}" class="d-block position-relative overflow-hidden" style="height: 260px;">
-            {% if bike.main_image %}
-                <img src="{{ bike.main_image.url }}" alt="{{ bike.name }}" 
-                     class="w-100 h-100 object-fit-cover transition-transform duration-500 card-img">
-            {% else %}
-                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50">
-                    <i class="fas fa-bicycle fa-3x text-muted opacity-25"></i>
-                </div>
-            {% endif %}
+    {% with cover_url=bike.cover_image_url %}
+        
+        {% if cover_url %}
+            <img id="mainImage" src="{{ cover_url }}" alt="{{ bike.name }}" class="img-fluid object-fit-contain w-100 h-100 p-4 transition-opacity duration-300">
+        {% else %}
+            <i class="fas fa-image fa-4x text-muted opacity-25"></i>
+        {% endif %}
+
+    {% endwith %}
             
             <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-to-t from-black d-flex justify-content-between align-items-end opacity-0 card-actions transition-all">
                 <span class="small text-white opacity-75"><i class="fas fa-plus-circle"></i> Ver detalhes</span>

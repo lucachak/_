@@ -1,10 +1,123 @@
 {% extends 'base.html' %}
-{% load humanize %}
 
-{% block title %}Comando Central | EletricBike{% endblock %}
+{% block title %}Dashboard - E-Bikes Manager{% endblock %}
 
-{% block extra_js %}
+{% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* TEMA CYBER / DARK */
+    :root {
+        --cyber-bg: #0f172a; /* Azul muito escuro */
+        --cyber-card: #1e293b; /* Card base */
+        --cyber-text: #f1f5f9;
+        --neon-purple: #a855f7;
+        --neon-blue: #0ea5e9;
+        --neon-green: #10b981;
+        --neon-red: #ef4444;
+    }
+
+    body {
+        background-color: var(--cyber-bg);
+        color: var(--cyber-text);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* GLASS CARD STYLE */
+    .glass-card {
+        background: rgba(30, 41, 59, 0.7); /* Transparente */
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.15); /* Brilho Roxo ao passar o mouse */
+        border-color: rgba(168, 85, 247, 0.3);
+    }
+
+    /* HEADER */
+    .dashboard-title {
+        font-weight: 800;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* STAT CARDS */
+    .stat-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .text-neon-purple { color: var(--neon-purple); }
+    .bg-neon-purple-soft { background: rgba(168, 85, 247, 0.1); }
+
+    .text-neon-green { color: var(--neon-green); }
+    .bg-neon-green-soft { background: rgba(16, 185, 129, 0.1); }
+
+    .text-neon-blue { color: var(--neon-blue); }
+    .bg-neon-blue-soft { background: rgba(14, 165, 233, 0.1); }
+
+    .text-neon-red { color: var(--neon-red); }
+    .bg-neon-red-soft { background: rgba(239, 68, 68, 0.1); }
+
+    /* TABELAS DARK */
+    .table-dark-custom {
+        color: #e2e8f0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px; /* Espaço entre linhas */
+    }
+    
+    .table-dark-custom th {
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding: 1rem;
+    }
+
+    .table-dark-custom td {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1rem;
+    }
+    .table-dark-custom tr td:first-child { border-radius: 10px 0 0 10px; }
+    .table-dark-custom tr td:last-child { border-radius: 0 10px 10px 0; }
+
+    /* BOTÕES */
+    .btn-cyber {
+        background: linear-gradient(135deg, var(--neon-purple), #7c3aed);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        transition: all 0.2s;
+    }
+    .btn-cyber:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+        color: white;
+    }
+
+    /* CHART CONTAINER */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -12,145 +125,213 @@
     
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold text-white mb-0">Dashboard</h2>
-            <p class="text-muted small">Visão geral em tempo real</p>
+            <h1 class="h2 dashboard-title">Dashboard</h1>
+            <p class="text-secondary mb-0">Visão geral do sistema <span class="text-neon-purple">E-Bikes</span></p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'staff_order_list' %}" class="btn btn-outline-light btn-sm rounded-pill px-3 border-opacity-25">
-                <i class="fas fa-list me-2"></i> Pedidos
-            </a>
-            <a href="{% url 'add_product' %}" class="btn btn-neon btn-sm">
-                <i class="fas fa-plus me-2"></i> Novo Item
-            </a>
+        <a href="{% url 'admin:Orders_order_add' %}" class="btn btn-cyber">
+            <i class="fas fa-plus me-2"></i> Nova Venda
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between mb-4">
+                    <div>
+                        <p class="text-secondary small fw-bold mb-1">VENDAS (HOJE)</p>
+                        <h3 class="fw-bold text-white mb-0">R$ {{ sales_today|floatformat:2|default:"0,00" }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper bg-neon-purple-soft text-neon-purple">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </div>
+                <div class="small text-secondary">
+                    <i class="fas fa-calendar-day me-1"></i> Data: {% now "d/m/Y" %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between mb-4">
+                    <div>
+                        <p class="text-secondary small fw-bold mb-1">SAÍDA DE PRODUTOS</p>
+                        <h3 class="fw-bold text-white mb-0">{{ products_sold_month }} <span class="fs-6 text-muted fw-normal">un.</span></h3>
+                    </div>
+                    <div class="stat-icon-wrapper bg-neon-blue-soft text-neon-blue">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                </div>
+                <div class="small text-neon-green">
+                    <i class="fas fa-arrow-up me-1"></i> Movimentação ativa
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between mb-4">
+                    <div>
+                        <p class="text-secondary small fw-bold mb-1">OFICINA / SERVIÇOS</p>
+                        <h3 class="fw-bold text-white mb-0">{{ active_maintenance }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper bg-neon-green-soft text-neon-green">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                </div>
+                <div class="small text-secondary">OS em andamento</div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between mb-4">
+                    <div>
+                        <p class="text-secondary small fw-bold mb-1">ALERTA ESTOQUE</p>
+                        <h3 class="fw-bold text-white mb-0">{{ low_stock_count }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper bg-neon-red-soft text-neon-red">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="small text-neon-red">Itens abaixo do mínimo</div>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-xl-3 col-md-6">
-            <div class="bg-glass p-4 rounded-4 h-100 position-relative overflow-hidden group-hover-trigger">
-                <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                    <i class="fas fa-wallet fa-4x text-primary"></i>
-                </div>
-                <p class="text-uppercase text-muted small fw-bold mb-1">Faturamento Total</p>
-                <h3 class="fw-bold text-white mb-0">R$ {{ total_revenue|intcomma }}</h3>
-                <div class="mt-3 text-success small">
-                    <i class="fas fa-arrow-up"></i> <span class="fw-bold">12%</span> vs mês anterior
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6">
-            <div class="bg-glass p-4 rounded-4 h-100 position-relative overflow-hidden">
-                <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                    <i class="fas fa-box-open fa-4x text-info"></i>
-                </div>
-                <p class="text-uppercase text-muted small fw-bold mb-1">Total Pedidos</p>
-                <h3 class="fw-bold text-white mb-0">{{ total_orders }}</h3>
-                <div class="mt-3 text-info small">
-                    {{ pending_orders|default:"0" }} pendentes de envio
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="bg-glass p-4 rounded-4 h-100 position-relative overflow-hidden">
-                <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                    <i class="fas fa-users fa-4x text-warning"></i>
-                </div>
-                <p class="text-uppercase text-muted small fw-bold mb-1">Clientes Ativos</p>
-                <h3 class="fw-bold text-white mb-0">{{ total_clients }}</h3>
-                <div class="mt-3 text-muted small">
-                    Base crescendo
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="bg-glass p-4 rounded-4 h-100 position-relative overflow-hidden">
-                <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                    <i class="fas fa-chart-line fa-4x text-success"></i>
-                </div>
-                <p class="text-uppercase text-muted small fw-bold mb-1">Ticket Médio</p>
-                <h3 class="fw-bold text-white mb-0">R$ {{ avg_ticket|floatformat:2|intcomma }}</h3>
-                <div class="mt-3 text-success small">
-                    Alta performance
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
         <div class="col-lg-8">
-            <div class="bg-glass p-4 rounded-4 h-100 border border-light border-opacity-10">
-                <h5 class="text-white fw-bold mb-4">Evolução Financeira</h5>
-                <div style="height: 300px;">
+            <div class="glass-card p-4 h-100">
+                <h5 class="text-white fw-bold mb-4"><i class="fas fa-chart-line text-neon-purple me-2"></i>Histórico de Faturamento</h5>
+                <div class="chart-container">
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="bg-glass p-4 rounded-4 h-100 border border-light border-opacity-10">
-                <h5 class="text-white fw-bold mb-4">Top 5 Mais Vendidos</h5>
+            <div class="glass-card p-4 h-100">
+                <h5 class="text-white fw-bold mb-4"><i class="fas fa-trophy text-warning me-2"></i>Mais Vendidos</h5>
                 <div class="d-flex flex-column gap-3">
                     {% for item in top_products %}
-                    <div class="d-flex align-items-center bg-dark bg-opacity-50 p-3 rounded-3">
-                        <div class="bg-primary bg-opacity-25 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                            <i class="fas fa-trophy small"></i>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary small">{{ item.product__name }}</span>
+                            <span class="text-white fw-bold small">{{ item.total_qty }}</span>
                         </div>
-                        <div class="flex-grow-1">
-                            <h6 class="text-white mb-0 small">{{ item.product__name }}</h6>
-                            <small class="text-muted">{{ item.total_qty }} unidades</small>
+                        <div class="progress" style="height: 6px; background: rgba(255,255,255,0.1);">
+                            <div class="progress-bar" role="progressbar" style="width: 70%; background-color: var(--neon-purple);"></div>
                         </div>
                     </div>
                     {% empty %}
-                    <p class="text-muted small">Sem dados de vendas ainda.</p>
+                    <p class="text-muted text-center py-3">Nenhuma venda registrada.</p>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="glass-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="text-white fw-bold mb-0"><i class="fas fa-list text-neon-blue me-2"></i>Pedidos Recentes</h5>
+            <a href="{% url 'admin:Orders_order_changelist' %}" class="btn btn-sm btn-outline-light rounded-pill px-3">Ver Todos</a>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td class="text-neon-purple fw-bold">#{{ order.id }}</td>
+                        <td class="fw-bold">{{ order.client.user.get_full_name|default:order.client.user.username }}</td>
+                        <td class="text-secondary">{{ order.created_at|date:"d/m/Y" }}</td>
+                        <td class="text-white">R$ {{ order.total_amount|floatformat:2 }}</td>
+                        <td>
+                            {% if order.status == 'APPROVED' or order.status == 'DELIVERED' %}
+                                <span class="badge bg-neon-green-soft text-neon-green rounded-pill">Aprovado</span>
+                            {% elif order.status == 'CANCELED' %}
+                                <span class="badge bg-neon-red-soft text-neon-red rounded-pill">Cancelado</span>
+                            {% else %}
+                                <span class="badge bg-neon-blue-soft text-neon-blue rounded-pill">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'admin:Orders_order_change' order.id %}" class="btn btn-sm btn-dark border-0"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center py-4 text-muted">Sem pedidos recentes.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // Configuração Dark Mode para o Chart.js
-    Chart.defaults.color = '#94a3b8';
-    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-    
-    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-    
-    // Gradiente Neon
-    const gradient = ctxRevenue.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(0, 242, 255, 0.5)');
-    gradient.addColorStop(1, 'rgba(0, 242, 255, 0.0)');
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        
+        // Dados vindos do Django (Staff/views.py)
+        const labels = JSON.parse('{{ revenue_chart_labels|safe }}');
+        const data = JSON.parse('{{ revenue_chart_data|safe }}');
 
-    new Chart(ctxRevenue, {
-        type: 'line',
-        data: {
-            labels: {{ revenue_chart_labels|safe|default:"[]" }},
-            datasets: [{
-                label: 'Receita (R$)',
-                data: {{ revenue_chart_data|safe|default:"[]" }},
-                borderColor: '#00f2ff',
-                backgroundColor: gradient,
-                borderWidth: 2,
-                pointBackgroundColor: '#0f172a',
-                pointBorderColor: '#00f2ff',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: data,
+                    borderColor: '#a855f7', // Roxo Neon
+                    backgroundColor: 'rgba(168, 85, 247, 0.1)', // Sombra Roxa
+                    borderWidth: 3,
+                    tension: 0.4, // Curva suave
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#a855f7',
+                    pointRadius: 4,
+                    fill: true
+                }]
             },
-            scales: {
-                y: { grid: { borderDash: [4, 4] } },
-                x: { grid: { display: false } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#e2e8f0',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
             }
-        }
+        });
     });
 </script>
 {% endblock %}
