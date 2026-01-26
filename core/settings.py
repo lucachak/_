@@ -135,8 +135,6 @@ MEDIA_ROOT: Path = BASE_DIR / "media"
 AUTH_USER_MODEL = 'Accounts.User'
 
 
-
-
 UNFOLD= {
     "SITE_TITLE": "E-Bikes Manager",
     "SITE_HEADER": "Oficina Dashboard",
@@ -235,7 +233,7 @@ LOGOUT_REDIRECT_URL = 'home'
 LOGIN_REDIRECT_URL = 'client_dashboard' 
 CART_SESSION_ID = 'cart'
 
-STATICFILES_STORAGE = config('STATICFILES_STORAGE')
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 CSRF_TRUSTED_ORIGINS = ['https://ik4kukb02n.onrender.com']
 
 EMAIL_BACKEND = config('EMAIL_BACKEND') 
