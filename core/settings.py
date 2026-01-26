@@ -1,5 +1,5 @@
 from decouple import config
-import dj_database_url # Importar dj-database-url
+import dj_database_url 
 from pathlib import Path
 from django.urls import reverse_lazy
 
