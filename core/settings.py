@@ -3,17 +3,8 @@ import dj_database_url # Importar dj-database-url
 from pathlib import Path
 from django.urls import reverse_lazy
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-
 SECRET_KEY = config('SECRET_KEY', default='chave-insegura-apenas-para-dev')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 
 if config('DEBUG', default=False, cast=bool):
     ALLOWED_HOSTS: list[str] = ["*"]
@@ -135,7 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATICFILES_DIRS: list[Path] = [BASE_DIR / "Static"]  
+STATICFILES_DIRS= [BASE_DIR / "Static"]  
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"  # new
 
 MEDIA_URL = '/media/'
@@ -146,7 +137,7 @@ AUTH_USER_MODEL = 'Accounts.User'
 
 
 
-UNFOLD: dict[str, str | dict[str, dict[str, str]] | dict[str, bool | list[dict[str, list[dict[str, __proxy__ | str]] | str] | dict[str, bool | list[dict[str, __proxy__ | str]] | str]]]] = {
+UNFOLD= {
     "SITE_TITLE": "E-Bikes Manager",
     "SITE_HEADER": "Oficina Dashboard",
     "SITE_URL": "/",
@@ -245,7 +236,7 @@ LOGIN_REDIRECT_URL = 'client_dashboard'
 CART_SESSION_ID = 'cart'
 
 STATICFILES_STORAGE = config('STATICFILES_STORAGE')
-CSRF_TRUSTED_ORIGINS: list[str] = ['https://ik4kukb02n.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://ik4kukb02n.onrender.com']
 
 EMAIL_BACKEND = config('EMAIL_BACKEND') 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
