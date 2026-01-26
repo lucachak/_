@@ -4,7 +4,6 @@ from Clients.models import Client
 from Assets.models import Product 
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-
 class Order(TimeStampedModel):
     STATUS_CHOICES = [
         ('QUOTE', 'Orçamento'),
@@ -35,82 +34,68 @@ class Order(TimeStampedModel):
         self.total_amount = sum(item.subtotal for item in self.items.all())
         self.save()
 
-
-
-
     def approve_payment(self):
-            """
-            Aprova o pedido e baixa o estoque atomicamente.
-            """
-            if self.status == 'APPROVED':
-                return # Já aprovado, evita duplicidade
+        """
+        Aprova o pedido e baixa o estoque atomicamente.
+        """
+        if self.status == 'APPROVED':
+            return # Já aprovado, evita duplicidade
 
-            from django.db import transaction
+        from django.db import transaction
+        
+        with transaction.atomic():
+            # Itera sobre os itens para baixar estoque
+            for item in self.items.all():
+                if item.product.product_type != 'SERVICE':
+                    # Trava o produto no banco (SELECT FOR UPDATE)
+                    product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
+                    
+                    if product.stock_quantity >= item.quantity:
+                        product.stock_quantity -= item.quantity
+                        product.save()
+                    else:
+                        raise ValueError(f"Estoque insuficiente para: {product.name}")
             
-            with transaction.atomic():
-                # Itera sobre os itens para baixar estoque
-                for item in self.items.all():
-                    if item.product.product_type != 'SERVICE':
-                        # Trava o produto no banco (SELECT FOR UPDATE)
-                        product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
-                        
-                        if product.stock_quantity >= item.quantity:
-                            product.stock_quantity -= item.quantity
-                            product.save()
-                        else:
-                            raise ValueError(f"Estoque insuficiente para: {product.name}")
-                
-                self.status = 'APPROVED'
-                self.save()
+            self.status = 'APPROVED'
+            self.save()
 
     def cancel_order(self):
-            """
-            Cancela e devolve itens ao estoque.
-            """
-            if self.status == 'CANCELED':
-                return
+        """
+        Cancela e devolve itens ao estoque.
+        """
+        if self.status == 'CANCELED':
+            return
 
-            from django.db import transaction
+        from django.db import transaction
+        
+        with transaction.atomic():
+            if self.status in ['APPROVED', 'READY', 'IN_PROGRESS']:
+                for item in self.items.all():
+                    if item.product.product_type != 'SERVICE':
+                        product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
+                        product.stock_quantity += item.quantity
+                        product.save()
             
-            with transaction.atomic():
-                if self.status in ['APPROVED', 'READY', 'IN_PROGRESS']:
-                    for item in self.items.all():
-                        if item.product.product_type != 'SERVICE':
-                            product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
-                            product.stock_quantity += item.quantity
-                            product.save()
-                
-                self.status = 'CANCELED'
-                self.save()
+            self.status = 'CANCELED'
+            self.save()
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    
-    # Agora apontamos para Product. Isso aceita Bikes, Peças ou Serviços.
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name='order_items')
     
-    # Descrição pode ser preenchida manual ou herdada do produto
     description = models.CharField("Descrição", max_length=150, blank=True)
     quantity = models.PositiveIntegerField("Quantidade", default=1)
-    
-    # O preço é gravado aqui para histórico (caso o produto mude de preço depois)
     unit_price = models.DecimalField("Preço Unitário", max_digits=10, decimal_places=2, blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        # 1. Auto-preencher PREÇO se não informado
         if self.unit_price is None and self.product:
             self.unit_price = self.product.selling_price or 0
         
-        # 2. Auto-preencher DESCRIÇÃO se vazia
         if not self.description and self.product:
-            # Ex: "[SKU-123] Câmara de Ar Aro 29"
             prefix = f"[{self.product.sku}] " if self.product.sku else ""
             self.description = f"{prefix}{self.product.name}"
             
         super().save(*args, **kwargs)
-        
-        # Opcional: Atualizar o total do pedido pai automaticamente
-        # self.order.update_total()
 
     @property
     def subtotal(self):
@@ -122,9 +107,6 @@ class OrderItem(models.Model):
         return f"{self.quantity}x {self.description}"
 
 class OrderTimeline(models.Model):
-    """
-    Rastreia o histórico de mudanças de status do pedido.
-    """
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='timeline')
     status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -132,7 +114,6 @@ class OrderTimeline(models.Model):
 
     def __str__(self):
         return f"{self.order.id} -> {self.status} em {self.timestamp.strftime('%d/%m %H:%M')}"
-
 
 class Coupon(models.Model):
     code = models.CharField(max_length=50, unique=True)
