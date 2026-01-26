@@ -16,11 +16,11 @@ SECRET_KEY = config('SECRET_KEY', default='chave-insegura-apenas-para-dev')
 # SECURITY WARNING: don't run with debug turned on in production!
 
 if config('DEBUG', default=False, cast=bool):
-    ALLOWED_HOSTS = ["*"]
+    ALLOWED_HOSTS: list[str] = ["*"]
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
 
     "unfold",
     "unfold.contrib.filters",  
@@ -71,7 +71,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "core.urls"
 
-TEMPLATES = [
+TEMPLATES: list[dict[str, bool | list[Path] | str | dict[str, list[str]]]] = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [BASE_DIR/'Templates'],
@@ -92,7 +92,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
+DATABASES: dict[str, DBConfig] = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600
@@ -103,7 +103,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
@@ -135,18 +135,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "Static"]  
-STATIC_ROOT = BASE_DIR / "staticfiles"  # new
+STATICFILES_DIRS: list[Path] = [BASE_DIR / "Static"]  
+STATIC_ROOT: Path = BASE_DIR / "staticfiles"  # new
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT: Path = BASE_DIR / "media"
 
 AUTH_USER_MODEL = 'Accounts.User'
 
 
 
 
-UNFOLD = {
+UNFOLD: dict[str, str | dict[str, dict[str, str]] | dict[str, bool | list[dict[str, list[dict[str, __proxy__ | str]] | str] | dict[str, bool | list[dict[str, __proxy__ | str]] | str]]]] = {
     "SITE_TITLE": "E-Bikes Manager",
     "SITE_HEADER": "Oficina Dashboard",
     "SITE_URL": "/",
@@ -245,7 +245,7 @@ LOGIN_REDIRECT_URL = 'client_dashboard'
 CART_SESSION_ID = 'cart'
 
 STATICFILES_STORAGE = config('STATICFILES_STORAGE')
-CSRF_TRUSTED_ORIGINS = ['https://ik4kukb02n.onrender.com']
+CSRF_TRUSTED_ORIGINS: list[str] = ['https://ik4kukb02n.onrender.com']
 
 EMAIL_BACKEND = config('EMAIL_BACKEND') 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')

@@ -1,88 +1,41 @@
 {% extends 'base.html' %}
-{% load humanize %}
-
-{% block title %}Pagar com PIX | EletricBike{% endblock %}
-
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            
-            <div class="bg-glass rounded-4 border border-light border-opacity-10 shadow-lg text-center overflow-hidden">
+        <div class="col-md-6 text-center">
+            <div class="bg-glass p-5 rounded-4 border border-light border-opacity-10">
+                <h3 class="text-white fw-bold mb-4"><i class="fab fa-pix text-success me-2"></i>Pague com PIX</h3>
                 
-                <div class="p-4 bg-dark bg-opacity-50 border-bottom border-light border-opacity-10">
-                    <img src="https://logopng.com.br/logos/pix-106.svg" alt="Logo Pix" style="height: 35px; filter: brightness(0) invert(1);" class="mb-3 opacity-75">
-                    <h3 class="fw-bold text-white mb-1">Escaneie para Pagar</h3>
-                    <p class="text-muted small mb-0">Seu pedido expira em 30 minutos.</p>
+                <div class="bg-white p-3 rounded-3 d-inline-block mb-4">
+                    <img src="{{ qr_image }}" alt="QR Code PIX" class="img-fluid" style="width: 200px;">
                 </div>
 
-                <div class="p-5">
-                    <div class="bg-white p-3 rounded-4 d-inline-block shadow-lg mb-4 position-relative">
-                        {% if qr_image %}
-                            <img src="data:image/jpeg;base64,{{ qr_image }}" class="img-fluid" style="width: 240px; height: 240px;" alt="QR Code Pix">
-                        {% else %}
-                            <div class="d-flex align-items-center justify-content-center text-dark" style="width:240px; height:240px; background:#f0f0f0;">
-                                <div class="text-center">
-                                    <i class="fas fa-qrcode fa-4x mb-2 opacity-25"></i>
-                                    <p class="small fw-bold mb-0">QR Code Simulado</p>
-                                </div>
-                            </div>
-                        {% endif %}
-                        
-                        <div class="position-absolute top-100 start-50 translate-middle badge bg-primary text-dark border border-white shadow-sm px-3 py-2 rounded-pill mt-n2">
-                            R$ {{ order.total_amount|intcomma }}
-                        </div>
-                    </div>
-
-                    <p class="text-white mb-3 fw-bold">Ou copie o código:</p>
-                    
-                    <div class="position-relative mb-4">
-                        <input type="text" 
-                               value="{{ pix_code }}" 
-                               id="pixCodeInput" 
-                               class="form-control bg-dark border-secondary text-muted text-center pe-5 py-3 rounded-pill" 
-                               readonly
-                               style="font-size: 0.85rem; letter-spacing: 1px;">
-                        
-                        <button onclick="copyPixCode()" 
-                                class="btn btn-sm btn-neon position-absolute top-50 end-0 translate-middle-y me-2 rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 35px; height: 35px;"
-                                title="Copiar">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
+                <div class="input-group mb-4">
+                    <input type="text" class="form-control bg-dark text-white border-secondary" value="{{ qr_code }}" id="pixCode" readonly>
+                    <button class="btn btn-outline-primary" onclick="copyPix()">Copiar</button>
                 </div>
 
-                <div class="p-4 bg-dark bg-opacity-25 border-top border-light border-opacity-10">
-                    <div class="d-grid gap-3">
-                        <a href="{% url 'success_page' %}" class="btn btn-outline-light rounded-pill border-opacity-25 hover-bg-success hover-border-success">
-                            <i class="fas fa-check-circle me-2"></i> Já realizei o pagamento
-                        </a>
-                        <small class="text-muted opacity-50">A aprovação é automática.</small>
-                    </div>
-                </div>
+                <p class="text-muted small mb-4">O pagamento é aprovado instantaneamente após a leitura.</p>
+
+                <form method="POST" action="{% url 'process_payment' order.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="CARD"> 
+                    <button type="submit" class="btn btn-success w-100 fw-bold shadow">
+                        <i class="fas fa-magic me-2"></i> Simular Pagamento Feito (DEV)
+                    </button>
+                </form>
+
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-    function copyPixCode() {
-        var copyText = document.getElementById("pixCodeInput");
+    function copyPix() {
+        var copyText = document.getElementById("pixCode");
         copyText.select();
-        copyText.setSelectionRange(0, 99999); 
-        navigator.clipboard.writeText(copyText.value).then(function() {
-            // Feedback visual rápido
-            const btn = document.querySelector('.btn-neon');
-            const icon = btn.querySelector('i');
-            icon.classList.remove('fa-copy');
-            icon.classList.add('fa-check');
-            setTimeout(() => {
-                icon.classList.remove('fa-check');
-                icon.classList.add('fa-copy');
-            }, 2000);
-        });
+        document.execCommand("copy");
+        alert("Código PIX copiado!");
     }
 </script>
 {% endblock %}
