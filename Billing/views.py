@@ -10,37 +10,35 @@ import time # Para simular um tempinho de processamento
 # --- MODO SIMULAÇÃO (Sem chaves reais) ---
 # stripe.api_key = settings.STRIPE_SECRET_KEY
 # mp = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
-
 def process_payment(request, order_id):
-    # Busca o pedido no banco
-    order = get_object_or_404(Order, id=order_id) # Removi a trava de user pra facilitar testes se precisar
+    # Garante que o pedido é do usuário logado
+    order = get_object_or_404(Order, id=order_id, client__user=request.user)
 
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
 
         try:
-            # Simula um pequeno delay de processamento
-            time.sleep(1) 
+            time.sleep(1) # Simulação de delay
 
-            # --- SIMULAÇÃO STRIPE (CARTÃO) ---
-            if payment_method == 'stripe':
-                # Em vez de criar sessão no Stripe, aprovamos direto!
-                print(f"💰 [SIMULAÇÃO] Pagamento via CARTÃO para Pedido #{order.id} iniciado.")
+            # --- CORREÇÃO AQUI: Usar 'CARD' (Maiúsculo) ---
+            if payment_method == 'CARD': 
+                print(f"💰 [SIMULAÇÃO] Cartão Aprovado para Pedido #{order.id}")
                 
-                # Redireciona direto para a tela de sucesso
-                return redirect('payment_success')
+                # CHAMA O NOVO MÉTODO DO MODELO
+                try:
+                    order.approve_payment()
+                    return redirect('payment_success') # Sucesso!
+                except ValueError as e:
+                    messages.error(request, str(e)) # Erro de estoque
+                    return redirect('cart_detail')
 
-            # --- SIMULAÇÃO PIX (MERCADO PAGO) ---
-            elif payment_method == 'pix':
-                print(f"💰 [SIMULAÇÃO] Pagamento via PIX para Pedido #{order.id} solicitado.")
+            # --- CORREÇÃO AQUI: Usar 'PIX' (Maiúsculo) ---
+            elif payment_method == 'PIX': 
                 
-                # Dados Fakes para o Template não quebrar
-                fake_qr_code = "00020126580014BR.GOV.BCB.PIX0136123e4567-e12b-12d1-a456-426655440000520400005303986540510.005802BR5913EletricBike6008SaoPaulo62070503***6304E2CA"
-                
-                # Um quadrado cinza em Base64 para simular a imagem do QR Code
-                fake_qr_image = "iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACX63O8AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAJElEQVRYhe3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAHgMt8AAAd44Op8AAAAASUVORK5CYII="
+                fake_qr_code = "00020126580014BR.GOV.BCB.PIX..."
+                # Imagem de exemplo
+                fake_qr_image = "https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
 
-                # Renderiza o template de PIX com os dados falsos
                 return render(request, 'billing/pix_payment.html', {
                     'qr_code': fake_qr_code,
                     'qr_image': fake_qr_image,
@@ -48,9 +46,8 @@ def process_payment(request, order_id):
                 })
         
         except Exception as e:
-            messages.error(request, f"Erro na simulação: {str(e)}")
+            messages.error(request, f"Erro: {str(e)}")
 
-    # GET: Renderiza a tela de escolha (Checkout)
     return render(request, 'billing/checkout.html', {'order': order})
 
 def payment_success(request):
