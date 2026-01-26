@@ -37,27 +37,28 @@ class Order(TimeStampedModel):
 
 
 
+
     def approve_payment(self):
             """
             Aprova o pedido e baixa o estoque atomicamente.
             """
             if self.status == 'APPROVED':
-                return # Já aprovado, ignora
+                return # Já aprovado, evita duplicidade
 
             from django.db import transaction
             
             with transaction.atomic():
-                # Itera itens e baixa estoque
+                # Itera sobre os itens para baixar estoque
                 for item in self.items.all():
                     if item.product.product_type != 'SERVICE':
-                        # Trava o produto no banco (segurança anti-concorrência)
+                        # Trava o produto no banco (SELECT FOR UPDATE)
                         product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
                         
                         if product.stock_quantity >= item.quantity:
                             product.stock_quantity -= item.quantity
                             product.save()
                         else:
-                            raise ValueError(f"Estoque insuficiente: {product.name}")
+                            raise ValueError(f"Estoque insuficiente para: {product.name}")
                 
                 self.status = 'APPROVED'
                 self.save()
