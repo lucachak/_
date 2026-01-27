@@ -1,8 +1,21 @@
 from django.db import models
+from django.db import transaction # Importe aqui em cima para ficar limpo
 from Common.models import TimeStampedModel
 from Clients.models import Client
 from Assets.models import Product 
 from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount_percent = models.IntegerField( # Renomeei para ficar mais claro
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Porcentagem de desconto (0 a 100)"
+    )
+    active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"{self.code} ({self.discount_percent}%)"
 
 class Order(TimeStampedModel):
     STATUS_CHOICES = [
@@ -14,7 +27,12 @@ class Order(TimeStampedModel):
         ('CANCELED', 'Cancelado'),
     ]
 
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='orders')
+    # [CORREÇÃO CRÍTICA]: PROTECT impede apagar clientes com dívidas/histórico
+    client = models.ForeignKey(Client, on_delete=models.PROTECT, related_name='orders')
+    
+    # Adicionei o campo de cupom opcional
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
+    
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='QUOTE')
     total_amount = models.DecimalField("Valor Total", max_digits=10, decimal_places=2, default=0.00)
     
@@ -24,14 +42,22 @@ class Order(TimeStampedModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Pedido #{self.id} - {self.client.user.email}"
+        return f"Pedido #{self.id} - {self.client}" # Ajustei pois client.user pode falhar se não tiver select_related
 
     def update_total(self):
         """
-        Método auxiliar para recalcular o total do pedido 
-        somando todos os itens.
+        Recalcula total somando itens e aplicando desconto se houver.
         """
-        self.total_amount = sum(item.subtotal for item in self.items.all())
+        # Soma bruta
+        subtotal = sum(item.subtotal for item in self.items.all())
+        
+        # Aplica desconto do cupom
+        if self.coupon and self.coupon.active:
+            discount_amount = (subtotal * Decimal(self.coupon.discount_percent)) / 100
+            self.total_amount = subtotal - discount_amount
+        else:
+            self.total_amount = subtotal
+            
         self.save()
 
     def approve_payment(self):
@@ -39,16 +65,15 @@ class Order(TimeStampedModel):
         Aprova o pedido e baixa o estoque atomicamente.
         """
         if self.status == 'APPROVED':
-            return # Já aprovado, evita duplicidade
+            return 
 
-        from django.db import transaction
-        
         with transaction.atomic():
             # Itera sobre os itens para baixar estoque
             for item in self.items.all():
-                if item.product.product_type != 'SERVICE':
-                    # Trava o produto no banco (SELECT FOR UPDATE)
-                    product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
+                # Verifica se o produto ainda existe (caso seja nulo)
+                if item.product and item.product.product_type != 'SERVICE':
+                    # Trava o produto no banco (Lock)
+                    product = Product.objects.select_for_update().get(id=item.product.id)
                     
                     if product.stock_quantity >= item.quantity:
                         product.stock_quantity -= item.quantity
@@ -58,44 +83,49 @@ class Order(TimeStampedModel):
             
             self.status = 'APPROVED'
             self.save()
+            
+            # Opcional: Criar registro na timeline aqui automaticamente
+            OrderTimeline.objects.create(order=self, status='APPROVED', note="Pagamento aprovado e estoque baixado.")
 
     def cancel_order(self):
-        """
-        Cancela e devolve itens ao estoque.
-        """
         if self.status == 'CANCELED':
             return
 
-        from django.db import transaction
-        
         with transaction.atomic():
             if self.status in ['APPROVED', 'READY', 'IN_PROGRESS']:
                 for item in self.items.all():
-                    if item.product.product_type != 'SERVICE':
-                        product = item.product.__class__.objects.select_for_update().get(id=item.product.id)
+                    if item.product and item.product.product_type != 'SERVICE':
+                        product = Product.objects.select_for_update().get(id=item.product.id)
                         product.stock_quantity += item.quantity
                         product.save()
             
             self.status = 'CANCELED'
             self.save()
+            OrderTimeline.objects.create(order=self, status='CANCELED', note="Pedido cancelado e itens estornados.")
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name='order_items')
+    
+    # PROTECT aqui também é recomendado, mas SET_NULL é aceitável se tiver snapshot
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True, related_name='order_items')
     
     description = models.CharField("Descrição", max_length=150, blank=True)
     quantity = models.PositiveIntegerField("Quantidade", default=1)
     unit_price = models.DecimalField("Preço Unitário", max_digits=10, decimal_places=2, blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        if self.unit_price is None and self.product:
-            self.unit_price = self.product.selling_price or 0
-        
-        if not self.description and self.product:
-            prefix = f"[{self.product.sku}] " if self.product.sku else ""
-            self.description = f"{prefix}{self.product.name}"
+        # Snapshot dos dados do produto
+        if self.product:
+            if self.unit_price is None:
+                self.unit_price = self.product.selling_price or 0
+            
+            if not self.description:
+                prefix = f"[{self.product.sku}] " if hasattr(self.product, 'sku') and self.product.sku else ""
+                self.description = f"{prefix}{self.product.name}"
             
         super().save(*args, **kwargs)
+        # Opcional: Chamar update_total do pedido pai
+        # self.order.update_total() 
 
     @property
     def subtotal(self):
@@ -106,6 +136,7 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.quantity}x {self.description}"
 
+# Mantive OrderTimeline igual, está ok.
 class OrderTimeline(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='timeline')
     status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES)
@@ -113,15 +144,4 @@ class OrderTimeline(models.Model):
     note = models.CharField("Nota", max_length=200, blank=True)
 
     def __str__(self):
-        return f"{self.order.id} -> {self.status} em {self.timestamp.strftime('%d/%m %H:%M')}"
-
-class Coupon(models.Model):
-    code = models.CharField(max_length=50, unique=True)
-    discount = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(100)],
-        help_text="Porcentagem de desconto (0 a 100)"
-    )
-    active = models.BooleanField(default=True)
-    
-    def __str__(self):
-        return self.code
+        return f"{self.order.id} -> {self.status}"

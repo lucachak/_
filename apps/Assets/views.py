@@ -6,6 +6,9 @@ from django.contrib import messages
 from django.db import transaction
 from .models import Product, Category
 from .forms import ProductForm, TechnicalSpecForm
+
+from Orders.cart import Cart
+
 class Bikes(View):
     def get(self, request, *args, **kwargs):
         # 1. Query Base Otimizada
@@ -142,4 +145,6 @@ def add_product(request, fixed_type=None):
 
 # Adicione esta função simples
 def cart_view(request):
-    return render(request, 'public/cart.html')
+    cart = Cart(request)
+
+    return render(request, 'public/cart.html', {'cart': cart})

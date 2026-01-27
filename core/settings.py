@@ -1,14 +1,15 @@
-from decouple import config
+import os
+import sys
 import dj_database_url 
 from pathlib import Path
+from decouple import config
 from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+
 SECRET_KEY = config('SECRET_KEY', default='chave-insegura-apenas-para-dev')
-
 DEBUG=True
-
-
 if config('DEBUG', default=False, cast=bool):
     ALLOWED_HOSTS: list[str] = ["*"]
 

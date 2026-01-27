@@ -21,36 +21,36 @@
                                 <th class="text-center border-0"></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for item in cart %}
-                            <tr>
-                                <td class="ps-4 py-3 border-light border-opacity-10">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="bg-white rounded-3 overflow-hidden" style="width: 60px; height: 60px;">
-                                            {% if item.product.main_image %}
-                                                <img src="{{ item.product.main_image.url }}" class="w-100 h-100 object-fit-cover">
-                                            {% else %}
-                                                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary"><i class="fas fa-bicycle text-white"></i></div>
-                                            {% endif %}
-                                        </div>
-                                        <div>
-                                            <a href="{% url 'bike_detail' item.product.id %}" class="fw-bold text-white text-decoration-none">{{ item.product.name }}</a>
-                                            <small class="d-block text-muted">{{ item.product.sku }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center border-light border-opacity-10">
-                                    <span class="badge bg-dark border border-light border-opacity-25 px-3 py-2">{{ item.quantity }}</span>
-                                </td>
-                                <td class="text-end fw-bold text-primary border-light border-opacity-10">
-                                    R$ {{ item.price|intcomma }}
-                                </td>
-                                <td class="text-center border-light border-opacity-10">
-                                    <a href="{% url 'cart_remove' item.product.id %}" class="text-danger hover-opacity-75"><i class="fas fa-trash"></i></a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+<tbody>
+    {% for item in cart %}
+    <tr>
+        <td class="ps-4 py-3 border-light border-opacity-10">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-white rounded-3 overflow-hidden" style="width: 60px; height: 60px;">
+                    {% if item.product.main_image %}
+                        <img src="{{ item.product.main_image.url }}" class="w-100 h-100 object-fit-cover">
+                    {% else %}
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary"><i class="fas fa-bicycle text-white"></i></div>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="#" class="fw-bold text-white text-decoration-none">{{ item.product.name }}</a>
+                    <small class="d-block text-muted">{{ item.product.sku }}</small>
+                </div>
+            </div>
+        </td>
+        <td class="text-center border-light border-opacity-10">
+            <span class="badge bg-dark border border-light border-opacity-25 px-3 py-2">{{ item.quantity }}</span>
+        </td>
+        <td class="text-end fw-bold text-primary border-light border-opacity-10">
+            R$ {{ item.unit_price|intcomma }}
+        </td>
+        <td class="text-center border-light border-opacity-10">
+            <a href="{% url 'cart_remove' item.product.id %}" class="text-danger hover-opacity-75"><i class="fas fa-trash"></i></a>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
                     </table>
                 </div>
             </div>
