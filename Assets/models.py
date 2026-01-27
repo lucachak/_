@@ -213,3 +213,38 @@ class Maintenance(TimeStampedModel):
 
     def __str__(self):
         return f"OS #{self.id} - {self.product_item.name}"
+
+
+# Em Assets/models.py
+
+# --- 6. AGENDAMENTO / AGENDA PÚBLICA ---
+class Appointment(TimeStampedModel):
+    TIME_SLOTS = [
+        ('09:00', '09:00 - 10:00'),
+        ('10:00', '10:00 - 11:00'),
+        ('11:00', '11:00 - 12:00'),
+        ('14:00', '14:00 - 15:00'),
+        ('15:00', '15:00 - 16:00'),
+        ('16:00', '16:00 - 17:00'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('PENDING', 'Pendente de Aprovação'),
+        ('CONFIRMED', 'Confirmado'),
+        ('CANCELED', 'Cancelado'),
+        ('COMPLETED', 'Realizado'),
+    ]
+
+    client = models.ForeignKey('Clients.Client', on_delete=models.CASCADE, related_name='appointments')
+    date = models.DateField("Data Agendada")
+    time = models.CharField("Horário", max_length=10, choices=TIME_SLOTS)
+    service_type = models.CharField("Tipo de Serviço", max_length=100, default="Revisão Geral")
+    notes = models.TextField("Observações", blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+
+    class Meta:
+        ordering = ['-date', '-time']
+        unique_together = ['date', 'time'] # Impede conflitos de horário
+
+    def __str__(self):
+        return f"{self.date} às {self.time} - {self.client}"

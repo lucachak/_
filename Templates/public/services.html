@@ -1,130 +1,253 @@
 {% extends 'base.html' %}
 
-{% block title %}Serviços Premium | EletricBike{% endblock %}
+{% block title %}Nossos Serviços - EletricBike{% endblock %}
 
 {% block extra_css %}
 <style>
-    .service-card {
-        background: var(--glass-bg);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        padding: 2.5rem;
-        transition: all 0.3s;
-        height: 100%;
+    /* Hero Section com Gradiente Radial */
+    .services-hero {
         position: relative;
+        padding: 5rem 0;
         overflow: hidden;
     }
+    .hero-glow {
+        position: absolute;
+        top: 0; left: 50%;
+        transform: translateX(-50%);
+        width: 100%; height: 100%;
+        background: radial-gradient(circle at center, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* Cards de Serviço com Efeito Glass e Hover */
+    .service-card {
+        background: rgba(30, 41, 59, 0.6); /* Fundo escuro translúcido */
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
     .service-card:hover {
         transform: translateY(-10px);
         border-color: var(--primary);
-        box-shadow: 0 10px 40px rgba(0, 242, 255, 0.1);
+        box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15); /* Sombra roxa */
     }
-    .service-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 4px;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-    .service-card:hover::before { opacity: 1; }
-    
-    .price-tag {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(to right, #fff, #ccc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    .check-list li {
-        margin-bottom: 0.8rem;
-        color: #cbd5e1;
+
+    .service-icon {
+        width: 70px; height: 70px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s;
     }
-    .check-list i { color: var(--secondary); }
+
+    .service-card:hover .service-icon {
+        transform: scale(1.1) rotate(5deg);
+        background: var(--primary);
+        color: white !important;
+    }
+
+    /* Lista de Benefícios */
+    .benefit-list li {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        color: #94a3b8; /* Cinza claro */
+        font-size: 0.9rem;
+    }
+    .benefit-list i {
+        color: #10b981; /* Verde Neon */
+        margin-right: 0.5rem;
+    }
+
+    /* Tabela de Serviços Avulsos */
+    .table-custom tr td {
+        background: rgba(30, 41, 59, 0.4);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        color: #e2e8f0;
+        vertical-align: middle;
+    }
+    .table-custom tr:first-child td:first-child { border-top-left-radius: 15px; }
+    .table-custom tr:first-child td:last-child { border-top-right-radius: 15px; }
+    .table-custom tr:last-child td:first-child { border-bottom-left-radius: 15px; }
+    .table-custom tr:last-child td:last-child { border-bottom-right-radius: 15px; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5 text-center">
-    <h1 class="display-4 fw-bold text-white mb-3 mt-4">Oficina <span class="text-gradient">High-Tech</span></h1>
-    <p class="text-muted lead mx-auto" style="max-width: 600px;">
-        Diagnóstico computadorizado, células de lítio certificadas e técnicos especialistas em mobilidade elétrica.
-    </p>
+<section class="services-hero">
+    <div class="hero-glow"></div>
+    <div class="container position-relative z-2 text-center">
+        <div class="d-inline-flex align-items-center justify-content-center bg-glass p-3 rounded-circle mb-4 border border-light border-opacity-10 shadow-lg">
+            <i class="fas fa-wrench fa-2x text-primary"></i>
+        </div>
+        <h1 class="display-4 fw-bold text-white mb-3">Oficina <span class="text-gradient">Especializada</span></h1>
+        <p class="text-muted lead mb-4" style="max-width: 600px; margin: 0 auto;">
+            De revisões preventivas a upgrades completos. Transformamos sua bike comum em uma máquina elétrica de alta performance.
+        </p>
+        <a href="{% url 'client_scheduler' %}" class="btn btn-primary fw-bold px-5 py-3 rounded-pill shadow-lg hover-scale">
+            <i class="fas fa-calendar-check me-2"></i> Agendar Visita
+        </a>
+    </div>
+</section>
+
+<div class="container pb-5 mb-5">
+    <div class="row g-4">
+        
+        <div class="col-lg-4 col-md-6">
+            <div class="service-card">
+                <div class="service-icon text-primary">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <h3 class="text-white fw-bold">Revisão Platinum</h3>
+                <p class="text-muted mb-4">
+                    O tratamento VIP para sua e-bike. Desmontagem completa, limpeza detalhada e proteção de contatos.
+                </p>
+                <ul class="list-unstyled benefit-list mb-4">
+                    <li><i class="fas fa-check"></i> Diagnóstico de Bateria (Load Test)</li>
+                    <li><i class="fas fa-check"></i> Lubrificação Premium (Cerâmica)</li>
+                    <li><i class="fas fa-check"></i> Atualização de Firmware (se aplicável)</li>
+                    <li><i class="fas fa-check"></i> Relatório Fotográfico</li>
+                </ul>
+                <div class="mt-auto pt-3 border-top border-light border-opacity-10 d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Investimento</small>
+                        <span class="fs-4 fw-bold text-white">R$ 250</span>
+                    </div>
+                    <a href="{% url 'client_scheduler' %}?service=Revisão Platinum" class="btn btn-outline-light rounded-pill px-4">Agendar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="service-card">
+                <div class="service-icon text-warning">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="text-white fw-bold">Instalação de Kit</h3>
+                <p class="text-muted mb-4">
+                    Transforme sua bike convencional em elétrica. Instalação profissional com garantia e segurança.
+                </p>
+                <ul class="list-unstyled benefit-list mb-4">
+                    <li><i class="fas fa-check"></i> Instalação Motor (Cubo ou Central)</li>
+                    <li><i class="fas fa-check"></i> Configuração de Display/Controladora</li>
+                    <li><i class="fas fa-check"></i> Organização de Cabos (Cable Mgmt)</li>
+                    <li><i class="fas fa-check"></i> Teste de Rodagem (10km)</li>
+                </ul>
+                <div class="mt-auto pt-3 border-top border-light border-opacity-10 d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Mão de obra</small>
+                        <span class="fs-4 fw-bold text-white">R$ 350</span>
+                    </div>
+                    <a href="{% url 'client_scheduler' %}?service=Instalação Kit" class="btn btn-outline-light rounded-pill px-4">Agendar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="service-card">
+                <div class="service-icon text-info">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <h3 class="text-white fw-bold">Reparo Elétrico</h3>
+                <p class="text-muted mb-4">
+                    Sua bike parou ou perdeu força? Nossos engenheiros diagnosticam e reparam o problema na raiz.
+                </p>
+                <ul class="list-unstyled benefit-list mb-4">
+                    <li><i class="fas fa-check"></i> Solda Ponto em Baterias</li>
+                    <li><i class="fas fa-check"></i> Troca de Sensores Hall</li>
+                    <li><i class="fas fa-check"></i> Reparo de Módulos/Controladoras</li>
+                    <li><i class="fas fa-check"></i> Substituição de BMS</li>
+                </ul>
+                <div class="mt-auto pt-3 border-top border-light border-opacity-10 d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Orçamento</small>
+                        <span class="fs-4 fw-bold text-white">Grátis</span>
+                    </div>
+                    <a href="{% url 'client_scheduler' %}?service=Diagnóstico Elétrico" class="btn btn-outline-light rounded-pill px-4">Agendar</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<div class="container pb-5">
-    <div class="row g-4 align-items-center">
-        <div class="col-lg-4">
-            <div class="service-card">
-                <h4 class="fw-bold text-white mb-2">Revisão Smart</h4>
-                <p class="text-muted small mb-4">Manutenção preventiva essencial.</p>
-                <div class="price-tag mb-4">R$ 120</div>
-                <ul class="list-unstyled check-list mb-4">
-                    <li><i class="fas fa-check"></i> Regulagem de Freios</li>
-                    <li><i class="fas fa-check"></i> Lubrificação Corrente</li>
-                    <li><i class="fas fa-check"></i> Reaperto Geral</li>
-                    <li class="text-muted opacity-50"><i class="fas fa-times"></i> Diagnóstico de Bateria</li>
-                </ul>
-                <a href="https://wa.me/5513999999999?text=Quero agendar Revisão Smart" class="btn btn-outline-light w-100 rounded-pill fw-bold">Agendar</a>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="service-card" style="background: rgba(0, 242, 255, 0.05); border-color: var(--primary);">
-                <div class="position-absolute top-0 end-0 bg-primary text-black fw-bold px-3 py-1 small rounded-bottom-start">POPULAR</div>
-                <h4 class="fw-bold text-white mb-2">Revisão Gold</h4>
-                <p class="text-info small mb-4">O cuidado completo que sua e-bike exige.</p>
-                <div class="price-tag mb-4 text-gradient">R$ 250</div>
-                <ul class="list-unstyled check-list mb-4">
-                    <li><i class="fas fa-check"></i> <strong>Tudo da Smart</strong></li>
-                    <li><i class="fas fa-check"></i> Limpeza Técnica</li>
-                    <li><i class="fas fa-check"></i> Diagnóstico Elétrico</li>
-                    <li><i class="fas fa-check"></i> Atualização de Firmware</li>
-                </ul>
-                <a href="https://wa.me/5513999999999?text=Quero agendar Revisão Gold" class="btn btn-neon w-100 rounded-pill py-3 fw-bold shadow">Agendar Agora</a>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="service-card">
-                <h4 class="fw-bold text-white mb-2">Platinum Tech</h4>
-                <p class="text-muted small mb-4">Restauração e performance máxima.</p>
-                <div class="price-tag mb-4">R$ 450</div>
-                <ul class="list-unstyled check-list mb-4">
-                    <li><i class="fas fa-check"></i> <strong>Tudo da Gold</strong></li>
-                    <li><i class="fas fa-check"></i> Teste de Carga (Bateria)</li>
-                    <li><i class="fas fa-check"></i> Desmontagem Completa</li>
-                    <li><i class="fas fa-check"></i> Relatório Digital</li>
-                </ul>
-                <a href="https://wa.me/5513999999999?text=Quero agendar Platinum" class="btn btn-outline-light w-100 rounded-pill fw-bold">Agendar</a>
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h4 class="fw-bold text-white mb-4 ps-2 border-start border-4 border-primary">Serviços Rápidos & Avulsos</h4>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="p-4">
+                                <span class="fw-bold d-block">Diagnóstico de Bateria (Load Test)</span>
+                                <small class="text-muted">Teste de capacidade real e saúde das células</small>
+                            </td>
+                            <td class="p-4 text-end fw-bold text-primary fs-5">R$ 150,00</td>
+                            <td class="p-4 text-end" style="width: 150px;">
+                                <a href="{% url 'client_scheduler' %}?service=Diagnóstico Bateria" class="btn btn-sm btn-dark border border-secondary text-white w-100">Agendar</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="p-4">
+                                <span class="fw-bold d-block">Troca de Pneu / Câmara (Roda Motor)</span>
+                                <small class="text-muted">Mão de obra especializada para rodas com motor no cubo</small>
+                            </td>
+                            <td class="p-4 text-end fw-bold text-primary fs-5">R$ 80,00</td>
+                            <td class="p-4 text-end">
+                                <a href="{% url 'client_scheduler' %}?service=Troca de Pneu" class="btn btn-sm btn-dark border border-secondary text-white w-100">Agendar</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="p-4">
+                                <span class="fw-bold d-block">Sangria de Freio Hidráulico</span>
+                                <small class="text-muted">Óleo mineral ou DOT, incluso ajuste de pastilhas</small>
+                            </td>
+                            <td class="p-4 text-end fw-bold text-primary fs-5">R$ 60,00</td>
+                            <td class="p-4 text-end">
+                                <a href="{% url 'client_scheduler' %}?service=Freio Hidráulico" class="btn btn-sm btn-dark border border-secondary text-white w-100">Agendar</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container py-5">
-    <h3 class="fw-bold text-white mb-4 text-center">Serviços Avulsos</h3>
-    <div class="bg-glass rounded-4 overflow-hidden p-0">
-        <table class="table table-dark table-hover mb-0" style="--bs-table-bg: transparent;">
-            <tbody>
-                <tr class="border-light border-opacity-10">
-                    <td class="p-4 fw-bold text-white">Diagnóstico de Bateria (Load Test)</td>
-                    <td class="p-4 text-end text-primary fw-bold">R$ 150,00</td>
-                </tr>
-                <tr class="border-light border-opacity-10">
-                    <td class="p-4 fw-bold text-white">Instalação de Kit (Mão de Obra)</td>
-                    <td class="p-4 text-end text-primary fw-bold">R$ 350,00</td>
-                </tr>
-                <tr class="border-light border-opacity-10">
-                    <td class="p-4 fw-bold text-white">Troca de Módulo Controlador</td>
-                    <td class="p-4 text-end text-primary fw-bold">R$ 180,00</td>
-                </tr>
-            </tbody>
-        </table>
+<div class="container mb-5">
+    <div class="bg-gradient-primary rounded-4 p-5 text-center position-relative overflow-hidden">
+        <div class="position-relative z-2">
+            <h2 class="fw-bold text-white mb-3">Projeto Customizado?</h2>
+            <p class="text-white-50 mb-4">Montamos baterias sob medida e projetos de alta performance.</p>
+            <a href="https://wa.me/5511999999999" target="_blank" class="btn btn-light fw-bold px-4 rounded-pill shadow-lg hover-scale">
+                <i class="fab fa-whatsapp me-2"></i> Falar com Engenheiro
+            </a>
+        </div>
     </div>
 </div>
+
+<style>
+    /* Gradiente Fundo CTA */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+    .text-gradient {
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .hover-scale { transition: transform 0.2s; }
+    .hover-scale:hover { transform: scale(1.05); }
+</style>
 {% endblock %}

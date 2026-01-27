@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Agendar Serviço - EletricBike{% endblock %}
+
+{% block extra_css %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<style>
+    /* Estilo Cyberpunk para o Calendário */
+    .fc {
+        background: rgba(15, 23, 42, 0.6); /* Fundo escuro translúcido */
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Cabeçalho do Calendário */
+    .fc-toolbar-title { 
+        font-weight: 800; 
+        color: #fff; 
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* Botões do Calendário */
+    .fc-button-primary {
+        background: rgba(124, 58, 237, 0.15) !important;
+        border: 1px solid #7c3aed !important;
+        color: #fff !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        transition: all 0.3s ease !important;
+    }
+    .fc-button-primary:hover, .fc-button-primary:active { 
+        background: #7c3aed !important; 
+        box-shadow: 0 0 15px rgba(124, 58, 237, 0.5) !important;
+    }
+    .fc-button-primary:disabled {
+        background: rgba(255,255,255,0.05) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+
+    /* Grelha de Dias */
+    .fc-theme-standard td, .fc-theme-standard th {
+        border-color: rgba(255,255,255,0.08) !important;
+    }
+    .fc-daygrid-day-number { color: #94a3b8; font-weight: 500; }
+    .fc-col-header-cell-cushion { color: #cbd5e1; text-transform: uppercase; font-size: 0.8rem; }
+    
+    /* Dias Passados */
+    .fc-day-past { background: rgba(0,0,0,0.2) !important; }
+
+    /* Modal Cyber */
+    .cyber-modal {
+        background: #0f172a;
+        border: 1px solid #7c3aed;
+        box-shadow: 0 0 30px rgba(124, 58, 237, 0.2);
+        color: white;
+    }
+    .cyber-input {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+    }
+    .cyber-input:focus {
+        background: rgba(255,255,255,0.1);
+        border-color: #7c3aed;
+        color: white;
+        box-shadow: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <div class="text-center mb-5">
+        <div class="d-inline-flex align-items-center justify-content-center bg-glass p-3 rounded-circle mb-3 shadow-lg border border-light border-opacity-10">
+            <i class="fas fa-calendar-alt fa-2x text-primary"></i>
+        </div>
+        <h1 class="display-5 fw-bold text-white">Agenda <span class="text-gradient">Oficina</span></h1>
+        <p class="text-muted lead">Selecione um dia disponível para agendar sua manutenção.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div id='calendar'></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cyber-modal rounded-4">
+            
+            <div class="modal-header border-bottom border-light border-opacity-10">
+                <h5 class="modal-title fw-bold"><i class="fas fa-clock text-primary me-2"></i>Novo Agendamento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form action="{% url 'client_scheduler' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <input type="hidden" name="date" id="selectedDate">
+                    
+                    <div class="text-center mb-4">
+                        <p class="text-muted mb-1 text-uppercase small ls-1">Data Selecionada</p>
+                        <h3 id="displayDate" class="fw-bold text-white">--/--/----</h3>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Horário Disponível</label>
+                        <select name="time" class="form-select cyber-input" required>
+                            <option value="" selected disabled>Escolha um horário...</option>
+                            <option value="09:00">09:00 - 10:00</option>
+                            <option value="10:00">10:00 - 11:00</option>
+                            <option value="11:00">11:00 - 12:00</option>
+                            <option value="14:00">14:00 - 15:00</option>
+                            <option value="15:00">15:00 - 16:00</option>
+                            <option value="16:00">16:00 - 17:00</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Tipo de Serviço</label>
+                        <select name="service" class="form-select cyber-input" required>
+                            <option value="Revisão Geral">Revisão Geral (R$ 150)</option>
+                            <option value="Instalação Kit">Instalação de Kit (R$ 300)</option>
+                            <option value="Diagnóstico Elétrico">Diagnóstico Elétrico (R$ 100)</option>
+                            <option value="Troca de Pneu">Troca de Pneu/Freio (R$ 80)</option>
+                            <option value="Outro">Outro (Descrever na loja)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-footer border-top border-light border-opacity-10 p-3">
+                    <button type="button" class="btn btn-outline-light border-0" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">Confirmar Reserva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'pt-br',
+            themeSystem: 'standard',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth'
+            },
+            buttonText: {
+                today: 'Hoje',
+                month: 'Mês',
+                week: 'Semana',
+                day: 'Dia'
+            },
+            // Puxa os dias ocupados da API
+            events: '{% url "api_appointments" %}',
+            
+            // Quando clica num dia
+            dateClick: function(info) {
+                // Impede agendar no passado
+                var clickedDate = new Date(info.dateStr);
+                var today = new Date();
+                today.setHours(0,0,0,0);
+
+                if(clickedDate < today) {
+                    alert("Não é possível agendar datas passadas.");
+                    return;
+                }
+
+                // Preenche o Modal e Abre
+                document.getElementById('selectedDate').value = info.dateStr;
+                
+                // Formata data visualmente (Dia/Mês/Ano)
+                let parts = info.dateStr.split('-');
+                document.getElementById('displayDate').innerText = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                
+                var modal = new bootstrap.Modal(document.getElementById('bookingModal'));
+                modal.show();
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

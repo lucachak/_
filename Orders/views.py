@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from django.db import transaction  # <--- FALTAVA ISTO AQUI!
+from django.db import transaction  
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 
 from Assets.models import Product
 from Clients.models import Client 
@@ -44,7 +43,6 @@ def checkout_create_order(request):
         messages.warning(request, "Seu carrinho está vazio.")
         return redirect('bike_catalog')
 
-    # Busca ou Cria o Cliente
     client, created = Client.objects.get_or_create(user=request.user)
         
     if not client.is_complete():
@@ -53,30 +51,24 @@ def checkout_create_order(request):
         profile_url = reverse('client_profile')
         return redirect(f"{profile_url}?next={checkout_url}")
 
-    # --- INÍCIO DA TRANSAÇÃO ATÔMICA ---
+
     try:
         with transaction.atomic():
-            # 1. Cria o Pedido (Status inicial QUOTE)
             order = Order.objects.create(
                 client=client,
                 status='QUOTE', 
                 total_amount=cart.get_total_price_after_discount()
             )
 
-            # 2. Itera sobre o carrinho e cria os itens
             for item in cart:
                 product = item['product']
                 qty = item['quantity']
                 
-                # 3. VALIDAÇÃO FINAL DE ESTOQUE (Anti-concorrência)
-                # Verifica no banco a quantidade atual exata e trava a linha
                 product_in_db = Product.objects.select_for_update().get(id=product.id)
                 
                 if product_in_db.stock_quantity < qty:
-                    # Se faltar estoque na hora H, cancela tudo!
                     raise ValueError(f"Desculpe, o produto {product.name} acabou de esgotar.")
 
-                # Cria o item
                 OrderItem.objects.create(
                     order=order,
                     product=product,
@@ -85,10 +77,8 @@ def checkout_create_order(request):
                     description=product.name
                 )
                 
-            # 4. Sucesso! Limpa o carrinho
             cart.clear()
             
-            # 5. Redireciona para o Pagamento
             return redirect('process_payment', order_id=order.id)
 
     except ValueError as e:

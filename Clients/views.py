@@ -12,6 +12,13 @@ from .forms import ClientProfileForm
 from Orders.models import Order
 from django.db.models import Sum
 
+from django.contrib.auth.decorators import login_required
+
+from django.http import JsonResponse
+from Assets.models import Appointment
+import json
+
+
 
 class Dashboard(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -66,3 +73,55 @@ class ProfileView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Seus dados foram atualizados com sucesso!")
         return super().form_valid(form)
+
+
+
+
+@login_required
+def schedule_appointment(request):
+    """
+    Processa o formulário de agendamento enviado pelo Modal.
+    """
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        service = request.POST.get('service')
+        
+        # Validação simples
+        if not date or not time:
+            messages.error(request, "Por favor, selecione data e horário.")
+            return redirect('client_scheduler')
+
+        try:
+            Appointment.objects.create(
+                client=request.user.client,
+                date=date,
+                time=time,
+                service_type=service
+            )
+            messages.success(request, "Agendamento solicitado com sucesso! Aguarde a confirmação.")
+        except Exception as e:
+            # O erro geralmente será violação de unique_together (horário ocupado)
+            messages.error(request, "Este horário já está reservado. Por favor, escolha outro.")
+            
+        return redirect('client_scheduler')
+
+    return render(request, 'client/scheduler.html')
+
+def api_appointments(request):
+    """
+    API JSON que alimenta o FullCalendar com os dias ocupados.
+    """
+    # Pegamos CONFIRMED e PENDING para bloquear o horário no visual
+    appointments = Appointment.objects.filter(status__in=['CONFIRMED', 'PENDING'])
+    events = []
+    
+    for app in appointments:
+        events.append({
+            'title': 'Ocupado',
+            'start': f"{app.date}T{app.time}",
+            'color': '#ef4444' if app.status == 'CONFIRMED' else '#f59e0b', # Vermelho (Confirmado) ou Laranja (Pendente)
+            'display': 'background' # Mostra como fundo colorido em vez de evento clicável
+        })
+        
+    return JsonResponse(events, safe=False)
