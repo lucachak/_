@@ -7,7 +7,7 @@
 <div class="container py-5">
     <h2 class="fw-bold text-white mb-4"><i class="fas fa-shopping-cart text-primary me-2"></i> Seu Carrinho</h2>
 
-    {% if cart|length > 0 %}
+    {% if cart.items.exists %}
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="bg-glass rounded-4 overflow-hidden border border-light border-opacity-10">
@@ -21,36 +21,36 @@
                                 <th class="text-center border-0"></th>
                             </tr>
                         </thead>
-<tbody>
-    {% for item in cart %}
-    <tr>
-        <td class="ps-4 py-3 border-light border-opacity-10">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-white rounded-3 overflow-hidden" style="width: 60px; height: 60px;">
-                    {% if item.product.main_image %}
-                        <img src="{{ item.product.main_image.url }}" class="w-100 h-100 object-fit-cover">
-                    {% else %}
-                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary"><i class="fas fa-bicycle text-white"></i></div>
-                    {% endif %}
-                </div>
-                <div>
-                    <a href="#" class="fw-bold text-white text-decoration-none">{{ item.product.name }}</a>
-                    <small class="d-block text-muted">{{ item.product.sku }}</small>
-                </div>
-            </div>
-        </td>
-        <td class="text-center border-light border-opacity-10">
-            <span class="badge bg-dark border border-light border-opacity-25 px-3 py-2">{{ item.quantity }}</span>
-        </td>
-        <td class="text-end fw-bold text-primary border-light border-opacity-10">
-            R$ {{ item.unit_price|intcomma }}
-        </td>
-        <td class="text-center border-light border-opacity-10">
-            <a href="{% url 'cart_remove' item.product.id %}" class="text-danger hover-opacity-75"><i class="fas fa-trash"></i></a>
-        </td>
-    </tr>
-    {% endfor %}
-</tbody>
+                        <tbody>
+                            {% for item in cart.items.all %}
+                            <tr>
+                                <td class="ps-4 py-3 border-light border-opacity-10">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-white rounded-3 overflow-hidden" style="width: 60px; height: 60px;">
+                                            {% if item.product.main_image %}
+                                                <img src="{{ item.product.main_image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ item.product.name }}">
+                                            {% else %}
+                                                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary"><i class="fas fa-bicycle text-white"></i></div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <a href="#" class="fw-bold text-white text-decoration-none">{{ item.product.name }}</a>
+                                            <small class="d-block text-muted">{{ item.product.sku }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center border-light border-opacity-10">
+                                    <span class="badge bg-dark border border-light border-opacity-25 px-3 py-2">{{ item.quantity }}</span>
+                                </td>
+                                <td class="text-end fw-bold text-primary border-light border-opacity-10">
+                                    R$ {{ item.subtotal|intcomma }}
+                                </td>
+                                <td class="text-center border-light border-opacity-10">
+                                    <a href="{% url 'cart_remove' item.product.id %}" class="text-danger hover-opacity-75"><i class="fas fa-trash"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -69,20 +69,20 @@
                 <form action="{% url 'coupon_apply' %}" method="post" class="mb-4">
                     {% csrf_token %}
                     <div class="input-group">
-                        <input type="text" name="code" class="form-control form-control-dark" placeholder="CUPOM" style="text-transform: uppercase;">
+                        <input type="text" name="code" value="{{ cart.coupon.code|default:'' }}" class="form-control form-control-dark" placeholder="CUPOM" style="text-transform: uppercase;">
                         <button class="btn btn-outline-light" type="submit">Aplicar</button>
                     </div>
                 </form>
 
                 <div class="d-flex justify-content-between mb-2 text-muted">
                     <span>Subtotal</span>
-                    <span>R$ {{ cart.get_total_price|intcomma }}</span>
+                    <span>R$ {{ cart.total_amount|intcomma }}</span>
                 </div>
 
                 {% if cart.coupon %}
                 <div class="d-flex justify-content-between mb-2 text-success">
                     <span>Desconto ({{ cart.coupon.code }})</span>
-                    <span>- R$ {{ cart.get_discount|intcomma }}</span>
+                    <span>- R$ {{ cart.discount_amount|intcomma }}</span>
                 </div>
                 {% endif %}
 
@@ -90,7 +90,7 @@
 
                 <div class="d-flex justify-content-between mb-4">
                     <span class="fs-5 fw-bold text-white">Total</span>
-                    <span class="fs-4 fw-bold text-primary">R$ {{ cart.get_total_price_after_discount|default:cart.get_total_price|intcomma }}</span>
+                    <span class="fs-4 fw-bold text-primary">R$ {{ cart.total_with_discount|intcomma }}</span>
                 </div>
 
                 <a href="{% url 'checkout_create_order' %}" class="btn btn-neon w-100 py-3 fw-bold">

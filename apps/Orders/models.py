@@ -145,3 +145,45 @@ class OrderTimeline(models.Model):
 
     def __str__(self):
         return f"{self.order.id} -> {self.status}"
+
+
+class Cart(models.Model):
+    # Vincula ao usuário se estiver logado
+    user = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, blank=True)
+    # Vincula à sessão se for anônimo
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Carrinho {self.id}"
+
+    @property
+    def total_amount(self):
+        return sum(item.subtotal for item in self.items.all())
+
+    @property
+    def discount_amount(self):
+        if self.coupon and self.coupon.active:
+            # Assumindo que seu Coupon usa discount_percent (inteiro)
+            return (self.total_amount * Decimal(self.coupon.discount_percent)) / 100
+        return Decimal(0)
+
+    @property
+    def total_with_discount(self):
+        return self.total_amount - self.discount_amount
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def unit_price(self):
+        # Pega o preço direto do produto (dinâmico)
+        return self.product.selling_price
+
+    @property
+    def subtotal(self):
+        return self.unit_price * self.quantity

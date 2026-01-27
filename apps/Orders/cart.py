@@ -3,7 +3,7 @@ from django.conf import settings
 from Assets.models import Product
 from .models import Coupon 
 
-
+ 
 class Cart:
     def __init__(self, request):
         self.session = request.session
@@ -78,6 +78,8 @@ class Cart:
 
     def get_total_price(self):
         return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
+
+
 
     def clear(self):
         # Remove o carrinho da sessão
