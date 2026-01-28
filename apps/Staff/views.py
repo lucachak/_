@@ -1,19 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView
 from django.contrib import messages
-from django.db import transaction
+from django.db import transaction, models
 from django.db.models import Sum, Count, F, Avg, Q
 from django.db.models.functions import TruncMonth, Coalesce
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import user_passes_test
 from django.urls import reverse_lazy
 import json
+from django.contrib.admin.views.decorators import staff_member_required
 import datetime
 from django.utils import timezone
+from django.db.models.functions import TruncDate
 
 # Importe os seus models
 from Orders.models import Order, OrderItem
-from Assets.models import Product, Maintenance  # ADICIONADO Maintenance
+from Assets.models import Product, TechnicalSpec, Maintenance
+from Assets.forms import ProductForm, TechnicalSpecForm
 from Clients.models import Client
 from .mixins import StaffRequiredMixin
 from .models import SiteConfiguration
@@ -148,9 +151,10 @@ class AdminReportsView(StaffRequiredMixin, TemplateView):
         )
 
         thirty_days_ago = timezone.now() - datetime.timedelta(days=30)
+        
         context['daily_sales'] = (
             Order.objects.filter(created_at__gte=thirty_days_ago, status='APPROVED')
-            .extra(select={'day': 'date(created_at)'})
+            .annotate(day=TruncDate('created_at')) # MUDANÇA AQUI
             .values('day')
             .annotate(total=Sum('total_amount'), count=Count('id'))
             .order_by('-day')
@@ -184,11 +188,80 @@ class Customers(StaffRequiredMixin, ListView):
     def get_queryset(self):
         # Busca clientes e anota dados de compras
         return Client.objects.select_related('user').annotate(
-            total_orders=Count('order'),
-            # Soma apenas pedidos APROVADOS. Se for Null (nunca comprou), vira 0.0
+            # ERRO ERA AQUI: Mudado de 'order' para 'orders'
+            total_orders=Count('orders'),
+            
+            # E AQUI TAMBÉM: Mudado 'order__...' para 'orders__...'
             total_spent=Coalesce(
-                Sum('order__total_amount', filter=Q(order__status__in=['APPROVED', 'SENT', 'DELIVERED'])), 
+                Sum('orders__total_amount', filter=Q(orders__status__in=['APPROVED', 'SENT', 'DELIVERED'])), 
                 0.0,
                 output_field=models.DecimalField()
             )
-        ).order_by('-total_spent') #
+        ).order_by('-total_spent')
+
+
+
+@staff_member_required
+def add_product(request, fixed_type):
+    """
+    View polimórfica para adicionar produtos.
+    fixed_type: 'BIKE', 'COMPONENT', 'SERVICE', etc.
+    """
+    # 1. Define títulos amigáveis
+    titles = {
+        'BIKE': 'Cadastrar Nova Bicicleta',
+        'COMPONENT': 'Cadastrar Peça/Componente',
+        'KIT': 'Cadastrar Kit de Conversão',
+        'SERVICE': 'Cadastrar Serviço',
+        'ACCESSORY': 'Cadastrar Acessório'
+    }
+    page_title = titles.get(fixed_type, 'Novo Produto')
+
+    # 2. Processamento POST
+    if request.method == 'POST':
+        product_form = ProductForm(request.POST, request.FILES)
+        spec_form = TechnicalSpecForm(request.POST)
+
+        # Validação inicial do produto
+        if product_form.is_valid():
+            # Se NÃO for serviço, valida também a ficha técnica
+            if fixed_type != 'SERVICE' and not spec_form.is_valid():
+                messages.error(request, "Verifique os dados da Ficha Técnica.")
+            else:
+                try:
+                    with transaction.atomic():
+                        # A. Salva o Produto
+                        product = product_form.save(commit=False)
+                        product.product_type = fixed_type  # Força o tipo da URL
+                        product.ownership = 'SHOP'         # Força ser da Loja
+                        product.save()
+
+                        # B. Salva a Ficha Técnica (se não for serviço)
+                        if fixed_type != 'SERVICE':
+                            spec = spec_form.save(commit=False)
+                            spec.product = product
+                            spec.save()
+                        
+                        # C. Salva imagens da galeria (se houver, lógica extra aqui)
+                        
+                        messages.success(request, f"{product.name} cadastrado com sucesso!")
+                        return redirect('staff_dashboard')
+
+                except Exception as e:
+                    messages.error(request, f"Erro ao salvar no banco: {e}")
+        else:
+            messages.error(request, "Corrija os erros no formulário principal.")
+    
+    # 3. Carregamento Inicial (GET)
+    else:
+        product_form = ProductForm(initial={'product_type': fixed_type})
+        spec_form = TechnicalSpecForm()
+
+    context = {
+        'product_form': product_form,
+        'spec_form': spec_form,
+        'page_title': page_title,
+        'fixed_type': fixed_type
+    }
+    
+    return render(request, 'staff/add_product.html', context)

@@ -5,11 +5,13 @@ urlpatterns = [
     # Dashboard Principal
     path("dashboard/", views.AdminDashboardView.as_view(), name="staff_dashboard"),
     
+    
     # Gestão de Pedidos -- NOME CORRIGIDO AQUI EMBAIXO --
     path("orders/", views.StaffOrderListView.as_view(), name="staff_order_list"),
     path('pedido/<int:pk>/detalhes/', views.StaffOrderDetailView.as_view(), name='staff_order_detail'),
     path('pedido/<int:pk>/mudar-status/', views.staff_change_order_status, name='staff_change_status'),
-    
+    path('products/add/<str:fixed_type>/', views.add_product, name='staff_add_product'),
+
     # Outras áreas
     path("customers/", views.Customers.as_view(), name="staff_customers"),
     path("reports/", views.AdminReportsView.as_view(), name="admin_reports"),

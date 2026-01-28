@@ -4,9 +4,11 @@ from .models import SiteConfiguration
 class SiteSettingsForm(forms.ModelForm):
     class Meta:
         model = SiteConfiguration
-        fields = ['site_title', 'maintenance_mode', 'contact_email', 'items_per_page']
+        fields = ['site_name', 'contact_email', 'whatsapp_number', 'free_shipping_threshold', 'maintenance_mode']
         widgets = {
-            'site_title': forms.TextInput(attrs={'class': 'form-control form-control-lg'}),
-            'contact_email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'items_per_page': forms.NumberInput(attrs={'class': 'form-control w-25'}),
+            'site_name': forms.TextInput(attrs={'class': 'form-control form-control-dark'}),
+            'contact_email': forms.EmailInput(attrs={'class': 'form-control form-control-dark'}),
+            'whatsapp_number': forms.TextInput(attrs={'class': 'form-control form-control-dark'}),
+            'free_shipping_threshold': forms.NumberInput(attrs={'class': 'form-control form-control-dark'}),
+            'maintenance_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
