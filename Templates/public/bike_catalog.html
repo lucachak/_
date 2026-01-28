@@ -39,6 +39,29 @@
         pointer-events: all;
         display: flex !important;
     }
+
+    /* Estilo para o Switch de Tipo de Produto */
+    .type-switch-container {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        padding: 4px;
+    }
+
+    .btn-check:checked + .type-switch-label {
+        background-color: var(--primary, #00f2ff); /* Usa sua cor neon ou ciano padrão */
+        color: #000 !important; /* Texto preto para contraste no neon */
+        box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+    }
+
+    .type-switch-label {
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.3s ease;
+    }
+
+    .type-switch-label:hover {
+        color: white;
+    }
 </style>
 {% endblock %}
 
@@ -61,7 +84,21 @@
                         <h5 class="fw-bold text-white m-0"><i class="fas fa-sliders-h me-2 text-primary"></i> Filtros</h5>
                         <a href="{% url 'bike_catalog' %}" class="btn btn-sm text-muted hover-text-white">Limpar</a>
                     </div>
+                    <div class="mb-4">
+                        <div class="type-switch-container d-flex">
+                            <input type="radio" class="btn-check" name="product_type" id="typeBike" value="BIKE" 
+                                {% if not request.GET.product_type or request.GET.product_type == 'BIKE' %}checked{% endif %}>
+                            <label class="btn btn-sm rounded-pill flex-fill fw-bold border-0 type-switch-label" for="typeBike">
+                                <i class="fas fa-bicycle me-2"></i>Bikes
+                            </label>
 
+                            <input type="radio" class="btn-check" name="product_type" id="typePart" value="PART"
+                                {% if request.GET.product_type == 'PART' %}checked{% endif %}>
+                            <label class="btn btn-sm rounded-pill flex-fill fw-bold border-0 type-switch-label" for="typePart">
+                                <i class="fas fa-cogs me-2"></i>Peças
+                            </label>
+                        </div>
+                    </div>
                     <div class="mb-4">
                         <label class="small text-muted fw-bold mb-2">BUSCAR</label>
                         <div class="position-relative">

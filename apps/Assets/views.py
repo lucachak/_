@@ -4,20 +4,27 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib import messages
 from django.db import transaction
+
 from .models import Product, Category
 from .forms import ProductForm, TechnicalSpecForm
 
-from Orders.cart import Cart
+# --- CATÁLOGO PÚBLICO ---
 
 class Bikes(View):
     def get(self, request, *args, **kwargs):
-        # 1. Query Base Otimizada
+        # 1. Captura o tipo do produto (Vem do switch: 'BIKE' ou 'PART')
+        # Se não vier nada na URL, assume 'BIKE' como padrão
+        product_type_param = request.GET.get('product_type', 'BIKE')
+        
+        # 2. Query Base Dinâmica
+        # Filtra pelo tipo selecionado no switch
         queryset = Product.objects.filter(
-            product_type='BIKE', 
+            product_type=product_type_param, 
             ownership='SHOP', 
             is_active=True
         ).select_related('category', 'specs').prefetch_related('images')
         
+        # --- FILTROS ---
         search_query = request.GET.get('search')
         if search_query:
             queryset = queryset.filter(
@@ -34,6 +41,7 @@ class Bikes(View):
         if condition_val in ['NEW', 'USED']:
             queryset = queryset.filter(condition=condition_val)
 
+        # --- ORDENAÇÃO ---
         ordering_val = request.GET.get('ordering')
         
         if ordering_val == 'price_asc':
@@ -45,11 +53,12 @@ class Bikes(View):
         else:
             queryset = queryset.order_by('-is_featured', '-created_at')
 
+        # --- PAGINAÇÃO ---
         paginator = Paginator(queryset, 9) 
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        # Helper para manter os filtros ao mudar de página
+        # Helper para manter os filtros na URL ao mudar de página
         params = request.GET.copy()
         if 'page' in params:
             del params['page']
@@ -58,9 +67,9 @@ class Bikes(View):
             'bikes': page_obj,
             'total_count': queryset.count(),
             'categories': Category.objects.all(),
-            'current_params': params.urlencode() # Útil se quiser fazer links manuais
+            'current_params': params.urlencode(),
+            'active_type': product_type_param # Essencial para o Switch no HTML saber quem está ativo
         }
-
 
         if request.headers.get('HX-Request'):
             return render(request, "partials/bikes_list.html", context)
@@ -74,14 +83,15 @@ def bike_detail(request, pk):
         pk=pk
     )
     
+    # Busca relacionados da mesma categoria
     related_queryset = Product.objects.filter(
         category=product.category, 
         is_active=True,
         ownership='SHOP' 
     ).exclude(pk=pk)
     
-    if product.product_type == 'BIKE':
-        related_queryset = related_queryset.filter(product_type='BIKE')
+    # Filtra pelo mesmo tipo (Se estou vendo peça, mostre peças relacionadas)
+    related_queryset = related_queryset.filter(product_type=product.product_type)
         
     related_products = related_queryset.order_by('?')[:3]
 
@@ -93,11 +103,13 @@ def bike_detail(request, pk):
     return render(request, 'public/bike_detail.html', context)
 
 
+# --- ÁREA ADMINISTRATIVA (STAFF) ---
+
 def add_product(request, fixed_type=None):
     page_title = "Novo Produto"
     if fixed_type == 'BIKE':
         page_title = "Cadastrar Nova Bike"
-    elif fixed_type == 'COMPONENT':
+    elif fixed_type == 'COMPONENT' or fixed_type == 'PART':
         page_title = "Cadastrar Peça/Componente"
     elif fixed_type == 'SERVICE':
         page_title = "Cadastrar Serviço (Mão de Obra)"
@@ -123,7 +135,7 @@ def add_product(request, fixed_type=None):
                             spec.save()
 
                         messages.success(request, f'{page_title} realizado com sucesso!')
-                        return redirect('admin_dashboard') 
+                        return redirect('admin_dashboard') # Certifique-se que essa URL existe
                 except Exception as e:
                     messages.error(request, f'Erro ao salvar: {e}')
     else:
@@ -141,10 +153,3 @@ def add_product(request, fixed_type=None):
         'page_title': page_title
     }
     return render(request, 'staff/add_product_polymorphic.html', context)
-
-
-# Adicione esta função simples
-def cart_view(request):
-    cart = Cart(request)
-
-    return render(request, 'public/cart.html', {'cart': cart})
