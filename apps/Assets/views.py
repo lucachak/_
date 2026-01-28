@@ -12,19 +12,25 @@ from .forms import ProductForm, TechnicalSpecForm
 
 class Bikes(View):
     def get(self, request, *args, **kwargs):
-        # 1. Captura o tipo do produto (Vem do switch: 'BIKE' ou 'PART')
-        # Se não vier nada na URL, assume 'BIKE' como padrão
+        # 1. Captura o parâmetro da URL (Vem 'BIKE' ou 'PART')
         product_type_param = request.GET.get('product_type', 'BIKE')
         
-        # 2. Query Base Dinâmica
-        # Filtra pelo tipo selecionado no switch
+        # 2. Inicia a Query Base (Apenas produtos da loja e ativos)
         queryset = Product.objects.filter(
-            product_type=product_type_param, 
             ownership='SHOP', 
             is_active=True
         ).select_related('category', 'specs').prefetch_related('images')
         
-        # --- FILTROS ---
+        # 3. LÓGICA CORRIGIDA: Mapeia o filtro da URL para os tipos do Banco
+        if product_type_param == 'PART':
+            # Se selecionou "Peças", traz Componentes, Kits e Acessórios
+            # (Exclui BIKE e SERVICE)
+            queryset = queryset.filter(product_type__in=['COMPONENT', 'KIT', 'ACCESSORY'])
+        else:
+            # Padrão: Traz apenas Bicicletas
+            queryset = queryset.filter(product_type='BIKE')
+        
+        # --- FILTROS ADICIONAIS (Busca, Categoria, Condição, etc.) ---
         search_query = request.GET.get('search')
         if search_query:
             queryset = queryset.filter(
@@ -35,6 +41,7 @@ class Bikes(View):
 
         category_val = request.GET.get('category')
         if category_val:
+            # Filtra pelo nome da categoria (ex: Mountain Bike, Elétrica, etc)
             queryset = queryset.filter(category__name=category_val)
 
         condition_val = request.GET.get('condition')
@@ -58,7 +65,7 @@ class Bikes(View):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        # Helper para manter os filtros na URL ao mudar de página
+        # Helper para URL
         params = request.GET.copy()
         if 'page' in params:
             del params['page']
@@ -68,14 +75,13 @@ class Bikes(View):
             'total_count': queryset.count(),
             'categories': Category.objects.all(),
             'current_params': params.urlencode(),
-            'active_type': product_type_param # Essencial para o Switch no HTML saber quem está ativo
+            'active_type': product_type_param 
         }
 
         if request.headers.get('HX-Request'):
             return render(request, "partials/bikes_list.html", context)
 
         return render(request, "public/bike_catalog.html", context)
-
 
 def bike_detail(request, pk):
     product = get_object_or_404(
