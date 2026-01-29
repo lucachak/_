@@ -1,6 +1,10 @@
 from django.db import models
 from Common.models import TimeStampedModel
 
+from django.contrib.auth.signals import user_logged_in
+from django.dispatch import receiver
+from django.core.cache import cache
+
 class SiteConfiguration(TimeStampedModel):
     """
     Modelo Singleton para configurações globais do site.
@@ -30,3 +34,13 @@ class SiteConfiguration(TimeStampedModel):
     def get_solo(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+
+
+@receiver(user_logged_in)
+def register_user_session(sender, request, user, **kwargs):
+    if user.is_staff:
+        # Salva o ID da sessão atual no cache com o ID do usuário
+        # Ex: user_session_1 = 'x78s6d87as6d8...'
+        cache_key = f'user_session_{user.id}'
+        cache.set(cache_key, request.session.session_key, timeout=None)

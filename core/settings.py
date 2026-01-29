@@ -53,6 +53,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     #internal middleware
     'core.middleware.MaintenanceModeMiddleware',
     'Staff.middleware.MaintenanceModeMiddleware',
+    'Staff.middleware.OneSessionPerUserMiddleware',
 ]
 
 ROOT_URLCONF = "core.urls"
