@@ -32,7 +32,6 @@ class Search(View):
 
         return render(request, "")
 
-
 # Para mostrar contador de carrinho e notificações
 def navbar_context(request):
     if request.user.is_authenticated:

@@ -16,7 +16,6 @@ if config('DEBUG', default=False, cast=bool):
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
 INSTALLED_APPS: list[str] = [
-
     "unfold",
     "unfold.contrib.filters",  
     "unfold.contrib.forms",  
