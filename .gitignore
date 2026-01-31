@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
+.env
 # C distributions / installers
 *.so
 .Python
@@ -148,6 +150,7 @@ gen/
 # Python virtual environment
 venv/
 ENV/
+.venv/
 
 # PyCharm
 .idea/
