@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from Orders.models import Order
 from django.views.decorators.csrf import csrf_exempt
 import time # Para simular um tempinho de processamento
-
+from .models import Invoice, Payment
 
 stripe.api_key = settings.STRIPE_SK
 # mp = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
@@ -51,7 +51,6 @@ def process_payment(request, order_id):
 
 
 
-
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
@@ -92,10 +91,3 @@ def handle_payment_success(session):
     # Atualiza o pedido (lógica que você já tem no Orders)
     invoice.order.status = 'PAID' # Exemplo
     invoice.order.save()
-
-
-
-
-def payment_success(request):
-    # Crie um template simples 'billing/success.html' depois
-    return render(request, 'billing/success.html')

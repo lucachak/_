@@ -2,6 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 from .models import Invoice, Payment, Refund
+from django.db.models import Sum
 
 class PaymentInline(TabularInline):
     model = Payment

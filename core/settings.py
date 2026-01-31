@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 STRIPE_SK = config('STRIPE_SK')
 STRIPE_WH = config('STRIPE_WH')
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
