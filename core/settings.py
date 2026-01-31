@@ -5,15 +5,20 @@ from pathlib import Path
 from decouple import config
 from django.urls import reverse_lazy
 
+
+STRIPE_SK = config('STRIPE_SK')
+STRIPE_WH = config('STRIPE_WH')
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 SECRET_KEY = config('SECRET_KEY', default='chave-insegura-apenas-para-dev')
-DEBUG=True
-if config('DEBUG', default=False, cast=bool):
-    ALLOWED_HOSTS: list[str] = ["*"]
+DEBUG = config('DEBUG' , default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+if DEBUG:
+    ALLOWED_HOSTS: list[str] = ["*"]
+else: 
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
 INSTALLED_APPS: list[str] = [
     "unfold",
