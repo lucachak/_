@@ -70,7 +70,7 @@
                 </div>
 
                 <div class="p-4 p-md-5">
-                    <form method="POST">
+                    <form method="POST" action="{% url 'process_payment' order.id %}">
                         {% csrf_token %}
                         
                         <h6 class="text-white fw-bold mb-4 ps-1">Escolha como pagar:</h6>
@@ -92,7 +92,7 @@
 
                         <label class="payment-option d-flex align-items-center p-4 mb-4">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" value="CARD">
+                                <input class="form-check-input" type="radio" name="payment_method" value="CARD" checked>
                             </div>
                             <div class="ms-3 flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -106,10 +106,12 @@
                             </div>
                         </label>
 
-                        <button type="submit" class="btn btn-neon w-100 py-3 fw-bold shadow-lg text-uppercase ls-1">
+                  <button type="submit" 
+                    {% if request.headers.HX_Request %} hx-boost="true" {% endif %}
+                            class="btn btn-neon w-100 py-3 fw-bold shadow-lg text-uppercase ls-1">
                             Pagar Agora <i class="fas fa-chevron-right ms-2"></i>
-                        </button>
-                    </form>
+                  </button>
+                      </form>
                 </div>
                 
                 <div class="bg-dark bg-opacity-50 p-3 text-center border-top border-light border-opacity-10">

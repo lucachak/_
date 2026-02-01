@@ -16,42 +16,36 @@
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link text-white opacity-75 hover-opacity-100 mx-2" href="{% url 'home' %}">Início</a></li>
                 <li class="nav-item"><a class="nav-link text-white opacity-75 hover-opacity-100 mx-2" href="{% url 'bike_catalog' %}">Kits & Bikes</a></li>
-                <li class="nav-item"><a class="nav-link text-white opacity-75 hover-opacity-100 mx-2" href="{% url 'services' %}">Oficina</a></li>
+                <li class="nav-item"><a class="nav-link text-white opacity-75 hover-opacity-100 mx-2" href="#manutencao">Manutenção</a></li>
             </ul>
 
             <div class="d-flex align-items-center gap-3">
-                <a href="{% url 'bike_catalog' %}" class="btn text-white p-2 opacity-75 hover-opacity-100" title="Buscar">
-                    <i class="fas fa-search"></i>
-                </a>
-
-                {% if not user.is_staff %}
-                <a href="{% url 'cart_detail' %}" class="position-relative btn text-white p-2 opacity-75 hover-opacity-100">
-                    <i class="fas fa-shopping-bag"></i>
+                <a href="{% url 'cart_detail' %}" class="btn-cart-neon position-relative text-white text-decoration-none">
+                    <i class="fas fa-shopping-cart fa-lg"></i>
                     {% if request.session.cart %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-neon text-dark shadow-sm" style="font-size: 0.7rem;">
                         {{ request.session.cart|length }}
                     </span>
                     {% endif %}
                 </a>
-                {% endif %}
 
                 {% if user.is_authenticated %}
                     <div class="dropdown">
-                        <button class="btn btn-outline-light rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-2 border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown">
-                            <div class="bg-secondary bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 0.7rem;">
-                                {{ user.first_name|default:user.email|slice:":1"|upper }}
-                            </div>
-                            <span class="small">{{ user.first_name|default:"Minha Conta" }}</span>
+                        <button class="btn btn-glass border border-white border-opacity-10 rounded-pill d-flex align-items-center gap-2 px-3 text-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="small fw-medium">{{ user.first_name|default:user.username }}</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end bg-dark border border-secondary border-opacity-25 shadow-lg mt-2">
+                        <ul class="dropdown-menu dropdown-menu-end bg-dark border-light border-opacity-10 shadow-lg mt-2">
                             {% if user.is_staff %}
-                                <li><h6 class="dropdown-header text-uppercase text-muted small">Admin</h6></li>
-                                <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'staff_dashboard' %}"><i class="fas fa-gauge me-2"></i> Painel Staff</a></li>
-                            {% else %}
-                                <li><h6 class="dropdown-header text-uppercase text-muted small">Minha Conta</h6></li>
-                                <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'client_dashboard' %}"><i class="fas fa-user me-2"></i> Painel</a></li>
-                                <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'client_orders' %}"><i class="fas fa-box me-2"></i> Pedidos</a></li>
+                                <li><h6 class="dropdown-header text-uppercase text-muted small">Administração</h6></li>
+                                <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'admin:index' %}"><i class="fas fa-cog me-2"></i> Dashboard Admin</a></li>
+                                <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
                             {% endif %}
+                            
+                            <li><h6 class="dropdown-header text-uppercase text-muted small">Minha Conta</h6></li>
+                            <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'client_dashboard' %}"><i class="fas fa-user me-2"></i> Painel</a></li>
+                            <li><a class="dropdown-item text-white hover-bg-primary" href="{% url 'client_orders' %}"><i class="fas fa-box me-2"></i> Pedidos</a></li>
+                            
                             <li><hr class="dropdown-divider bg-secondary opacity-25"></li>
                             <li>
                                 <form action="{% url 'logout' %}" method="POST">
@@ -73,4 +67,19 @@
 <style>
     .hover-opacity-100:hover { opacity: 1 !important; color: var(--primary) !important; }
     .dropdown-item:hover { background-color: rgba(255,255,255,0.1); }
+    
+    .btn-cart-neon {
+        transition: all 0.3s ease;
+        padding: 8px;
+        border-radius: 50%;
+    }
+    .btn-cart-neon:hover {
+        color: var(--primary) !important;
+        transform: translateY(-2px);
+        text-shadow: 0 0 8px var(--primary);
+    }
+    .bg-neon {
+        background-color: #00ff88;
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
 </style>

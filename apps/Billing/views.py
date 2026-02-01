@@ -24,9 +24,9 @@ def process_payment(request, order_id):
                     payment_method_types=['card'],
                     line_items=[{
                         'price_data': {
-                            'currency': 'eur', # Valorizando seu plano para a Irlanda
+                            'currency': 'brl', # Valorizando seu plano para a Irlanda
                             'product_data': {'name': f'Pedido #{order.id}'},
-                            'unit_amount': int(order.total_price * 100), # Stripe usa centavos
+                            'unit_amount': int(order.total_amount * 100),
                         },
                         'quantity': 1,
                     }],
@@ -43,9 +43,8 @@ def process_payment(request, order_id):
                     return response
                 
                 return redirect(checkout_session.url, code=303)
-
             except Exception as e:
-                messages.error(request, f"Erro no Stripe: {str(e)}")
+                return HttpResponse(f"Erro Real do Stripe: {str(e)}", status=500)
     
     return render(request, 'billing/checkout.html', {'order': order})
 
@@ -91,3 +90,24 @@ def handle_payment_success(session):
     # Atualiza o pedido (lógica que você já tem no Orders)
     invoice.order.status = 'PAID' # Exemplo
     invoice.order.save()
+
+
+def payment_success(request):
+    """
+    Página exibida após o redirecionamento positivo do Stripe.
+    """
+    # Dica de CS: Você pode passar o session_id via GET para buscar detalhes
+    # Mas para um MVP impecável, apenas confirmar o sucesso já basta.
+    return render(request, 'billing/success.html', {
+        'title': 'Pagamento Confirmado!',
+        'message': 'Recebemos seu pagamento. O status da sua bike será atualizado em instantes.'
+    })
+
+def payment_cancel(request):
+    """
+    Caso o usuário desista ou o cartão seja recusado antes de finalizar.
+    """
+    return render(request, 'billing/cancel.html', {
+        'title': 'Pagamento Não Concluído',
+        'message': 'O processo de pagamento foi interrompido. Nenhuma cobrança foi realizada.'
+    })
