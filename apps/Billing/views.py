@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 import time # Para simular um tempinho de processamento
 from .models import Invoice, Payment
 
+
 stripe.api_key = settings.STRIPE_SK
 # mp = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
@@ -27,6 +28,9 @@ def process_payment(request, order_id):
                             'currency': 'brl', # Valorizando seu plano para a Irlanda
                             'product_data': {'name': f'Pedido #{order.id}'},
                             'unit_amount': int(order.total_amount * 100),
+                            'currency': 'eur', # Valorizando seu plano para a Irlanda
+                            'product_data': {'name': f'Pedido #{order.id}'},
+                            'unit_amount': int(order.total_price * 100), # Stripe usa centavos
                         },
                         'quantity': 1,
                     }],
@@ -45,8 +49,12 @@ def process_payment(request, order_id):
                 return redirect(checkout_session.url, code=303)
             except Exception as e:
                 return HttpResponse(f"Erro Real do Stripe: {str(e)}", status=500)
+
+            except Exception as e:
+                messages.error(request, f"Erro no Stripe: {str(e)}")
     
     return render(request, 'billing/checkout.html', {'order': order})
+
 
 
 
@@ -111,3 +119,5 @@ def payment_cancel(request):
         'title': 'Pagamento Não Concluído',
         'message': 'O processo de pagamento foi interrompido. Nenhuma cobrança foi realizada.'
     })
+
+
