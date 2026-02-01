@@ -25,7 +25,7 @@ class Payment(TimeStampedModel):
         ('CD', 'Cartão Débito'),
         ('CASH', 'Dinheiro'),
     ]
-
+    stripe_checkout_id = models.CharField("ID Checkout Stripe", max_length=255, blank=True, null=True)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField("Valor Pago", max_digits=10, decimal_places=2)
     method = models.CharField("Método", max_length=10, choices=METHOD_CHOICES)

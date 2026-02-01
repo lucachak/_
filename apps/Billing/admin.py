@@ -18,8 +18,10 @@ class InvoiceAdmin(ModelAdmin):
         return obj.is_paid
 
     def total_paid_display(self, obj):
-        # Apenas exemplo, precisa implementar lógica de soma no model ou aqui
-        return sum(p.amount for p in obj.payments.all())
+        # Faz a soma direto no Banco de Dados (SQL), muito mais rápido que sum() em Python
+        total = obj.payments.aggregate(Sum('amount'))['amount__sum']
+        return total or 0.00
+
     total_paid_display.short_description = "Total Recebido"
 
 @admin.register(Payment)
