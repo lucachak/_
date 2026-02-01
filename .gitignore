@@ -1,3 +1,25 @@
+# Segredos e Configurações Locais
+.env
+.venv/
+env/
+venv/
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+db.sqlite3
+
+# Sistema (Arch/Linux)
+.DS_Store
+Thumbs.db
+
+# Stripe e Logs
+.stripe/
+*.log
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
