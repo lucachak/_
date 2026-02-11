@@ -1,6 +1,6 @@
 import os
 import sys
-import dj_database_url 
+import dj_database_url
 from pathlib import Path
 from decouple import config
 from django.urls import reverse_lazy
@@ -18,19 +18,20 @@ DEBUG = config('DEBUG' , default=False, cast=bool)
 
 if DEBUG:
     ALLOWED_HOSTS: list[str] = ["*"]
-else: 
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+else:
+    ALLOWED_HOSTS = str(config('ALLOWED_HOSTS', default='127.0.0.1,localhost')).split(',')
+
 
 INSTALLED_APPS: list[str] = [
     "unfold",
-    "unfold.contrib.filters",  
-    "unfold.contrib.forms",  
-    "unfold.contrib.inlines",  
-    "unfold.contrib.import_export", 
-    "unfold.contrib.guardian",  
-    "unfold.contrib.simple_history",  
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.inlines",
+    "unfold.contrib.import_export",
+    "unfold.contrib.guardian",
+    "unfold.contrib.simple_history",
     "unfold.contrib.location_field",
-    "unfold.contrib.constance",  
+    "unfold.contrib.constance",
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -38,17 +39,17 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.humanize",    
-    
+    "django.contrib.humanize",
+
     # Internal Apps
     "core",
-    "Home", 
-    "Assets", 
-    "Billing", 
-    "Clients", 
-    "Orders",  
+    "Home",
+    "Assets",
+    "Billing",
+    "Clients",
+    "Orders",
     "Staff",
-    "Accounts", 
+    "Accounts",
     "Common"
 ]
 
@@ -58,12 +59,12 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    
+
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    
+
 
     #internal middleware
     'core.middleware.MaintenanceModeMiddleware',
@@ -137,7 +138,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATICFILES_DIRS= [BASE_DIR / "Static"]  
+STATICFILES_DIRS= [BASE_DIR / "Static"]
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"  # new
 
 MEDIA_URL = '/media/'
@@ -166,7 +167,7 @@ UNFOLD= {
             "900": "88 28 135",
         },
     },
-    
+
     # Barra Lateral Organizada
     "SIDEBAR": {
         "show_search": True,  # Busca global no menu
@@ -240,14 +241,12 @@ UNFOLD= {
 
 # Adicione ao final do settings.py
 
-LOGOUT_REDIRECT_URL = 'home' 
-LOGIN_REDIRECT_URL = 'client_dashboard' 
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'client_dashboard'
 CART_SESSION_ID = 'cart'
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 CSRF_TRUSTED_ORIGINS = ['https://ik4kukb02n.onrender.com']
 
-EMAIL_BACKEND = config('EMAIL_BACKEND') 
+EMAIL_BACKEND = config('EMAIL_BACKEND')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
-
-
